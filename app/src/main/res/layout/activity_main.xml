@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/constraint"
+    tools:context="pro.bostrot.dtubeviewer.MainActivity">
+
+    <!-- View where the video will be shown when video goes fullscreen -->
+    <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/videoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
+
+        <android.support.v4.widget.ContentLoadingProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/basic"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark">
+
+        <pro.bostrot.dtubeviewer.VideoEnabledWebView
+            android:id="@+id/htmlLoader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hardwareAccelerated="true"
+            ></pro.bostrot.dtubeviewer.VideoEnabledWebView>
+
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+
+
+</android.support.constraint.ConstraintLayout>
