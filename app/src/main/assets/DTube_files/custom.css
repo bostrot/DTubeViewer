@@ -4,3 +4,11 @@
 #textlogo {
     margin-left: 20px;
 }
+
+.borderless {
+  -webkit-transition: bottom 2s;
+  transition: bottom 2s;
+}
+.sidebar {
+    visibility: visible;
+}
