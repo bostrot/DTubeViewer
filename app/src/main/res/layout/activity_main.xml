@@ -29,12 +29,28 @@
         android:background="@color/colorPrimaryDark">
 
         <pro.bostrot.dtubeviewer.VideoEnabledWebView
+            android:id="@+id/htmlLoaderCache"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hardwareAccelerated="true"
+            android:visibility="gone"
+            ></pro.bostrot.dtubeviewer.VideoEnabledWebView>
+
+        <pro.bostrot.dtubeviewer.VideoEnabledWebView
             android:id="@+id/htmlLoader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hardwareAccelerated="true"
-            ></pro.bostrot.dtubeviewer.VideoEnabledWebView>
-
+            >
+            <ImageView
+                android:id="@+id/playImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foregroundGravity="center"
+                android:background="@color/colorPrimary"
+                android:src="@drawable/ic_pause_black_24dp"
+                android:visibility="gone"/>
+        </pro.bostrot.dtubeviewer.VideoEnabledWebView>
 
     </android.support.v7.widget.LinearLayoutCompat>
 

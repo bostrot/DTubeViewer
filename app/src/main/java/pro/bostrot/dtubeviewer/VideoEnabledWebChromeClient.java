@@ -1,11 +1,22 @@
 package pro.bostrot.dtubeviewer;
 
         import android.media.MediaPlayer;
+        import android.net.Uri;
+        import android.util.Log;
         import android.view.SurfaceView;
         import android.view.View;
         import android.view.ViewGroup;
+        import android.view.WindowManager;
+        import android.webkit.JsResult;
         import android.webkit.WebChromeClient;
+        import android.webkit.WebView;
         import android.widget.FrameLayout;
+
+        import java.util.Timer;
+        import java.util.TimerTask;
+
+        import static pro.bostrot.dtubeviewer.MainActivity.timePlayed;
+        import static pro.bostrot.dtubeviewer.MainActivity.wv;
 
 /**
  * This class serves as a WebChromeClient to be set to a WebView, allowing it to play video.
@@ -120,8 +131,30 @@ public class VideoEnabledWebChromeClient extends WebChromeClient implements Medi
     }
 
     @Override
+    public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+        Log.d("timePlayed", message);
+        timePlayed = Integer.parseInt(message);
+
+        // Get video url and load it
+        String tempURL = webView.getUrl();
+        tempURL = tempURL.split("#!/v/")[1];
+        tempURL = tempURL.split("/")[0] + "/" + tempURL.split("/")[1];
+        Log.d("tempURL", tempURL);
+        // Get time played and resume at same time
+        webView.loadUrl("file:///android_asset/embed.html#!/v/" + tempURL + "/" + timePlayed);
+        Log.d("URL", webView.getUrl());
+        result.confirm();
+        return true;
+    }
+
+    @Override
     public void onShowCustomView(View view, CustomViewCallback callback)
     {
+        wv.loadUrl("javascript:alert($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[0] * 60 + parseInt($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[1]))");
+
+        // Hide Status Bar
+        MainActivity.activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         if (view instanceof FrameLayout)
         {
             // A video wants to be shown
