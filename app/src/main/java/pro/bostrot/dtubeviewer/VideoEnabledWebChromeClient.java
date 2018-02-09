@@ -12,6 +12,9 @@ package pro.bostrot.dtubeviewer;
         import android.webkit.WebView;
         import android.widget.FrameLayout;
 
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
         import java.util.Timer;
         import java.util.TimerTask;
 
@@ -150,10 +153,30 @@ public class VideoEnabledWebChromeClient extends WebChromeClient implements Medi
     @Override
     public void onShowCustomView(View view, CustomViewCallback callback)
     {
-        wv.loadUrl("javascript:alert($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[0] * 60 + parseInt($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[1]))");
+        //wv.loadUrl("javascript:alert($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[0] * 60 + parseInt($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[1]))");
 
+        String tempURL = webView.getUrl();
+        tempURL = tempURL.split("#!/v/")[1];
+        String account = tempURL.split("/")[0];
+        String permalink = tempURL.split("/")[1];
         // Hide Status Bar
         MainActivity.activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // TESTING
+        SteemitAPI steemitAPI = new SteemitAPI();
+        steemitAPI.getContent(account, permalink, new SteemitAPI.VolleyCallback() {
+            @Override
+            public void onSuccess(JSONObject string) {
+                try {
+                    JSONObject video = new JSONObject(string.getJSONObject("result").getString("json_metadata"));
+                    Log.d("SESSION22", video.getJSONObject("video").getJSONObject("content").getString("videohash"));
+                    Log.d("SESSION22", video.getJSONObject("video").getJSONObject("content").getString("video480hash"));
+                    String url = "https://scrappy.i.ipfs.io/ipfs/" + video.getJSONObject("video").getJSONObject("content").getString("video480hash");
+                    VideoPlayer vp = new VideoPlayer();
+                    vp.video(url);
+                } catch (JSONException e) {}
+            }
+        });
 
         if (view instanceof FrameLayout)
         {

@@ -6,9 +6,26 @@
 }
 
 .borderless {
-  -webkit-transition: bottom 2s;
-  transition: bottom 2s;
 }
 .sidebar {
     visibility: visible;
+}
+.owl-item:hover {
+    background-color: #cce2ff;
+}
+.videosnap:hover {
+    background-color: #cce2ff;
+}
+.sidebartoggleicon:hover {
+    background-color: #cce2ff;
+}
+.icon:hover {
+    background-color: #cce2ff;
+}
+iframe {
+    display: none;
+}
+.ui.embed {
+    background-color: #000000 !important;
+    padding-bottom: 45% !important;
 }
