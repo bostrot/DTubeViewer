@@ -3,6 +3,8 @@
 This is an Android app developed for d.tube the ipfs/blockchain video streaming platform/network. The source is grabbed from the original D.Tube GitHub repo and changed in order to make it more compatible and easier to use with Android SDK.
 
 ## Features
+* Uses Google <a href="https://github.com/google/ExoPlayer">ExoPlayer</a>
+* Smoother mobile experience
 * PiP on Android 8.0
 * Deep Linking including PiP
 * Full and background playback (not yet)
