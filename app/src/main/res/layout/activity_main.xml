@@ -2,22 +2,24 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/constraint"
     tools:context="pro.bostrot.dtubeviewer.MainActivity">
 
     <!-- View where the video will be shown when video goes fullscreen -->
+
     <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/videoLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorPrimaryDark"
+        android:visibility="gone">
 
         <android.support.v4.widget.ContentLoadingProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center" />
 
 
     </android.support.v7.widget.LinearLayoutCompat>
@@ -25,34 +27,38 @@
     <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/basic"
         android:layout_width="match_parent"
+        android:layout_marginTop="0dp"
         android:layout_height="match_parent"
         android:background="@color/colorPrimaryDark">
 
-        <pro.bostrot.dtubeviewer.VideoEnabledWebView
-            android:id="@+id/htmlLoaderCache"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hardwareAccelerated="true"
-            android:visibility="gone"
-            ></pro.bostrot.dtubeviewer.VideoEnabledWebView>
 
-        <pro.bostrot.dtubeviewer.VideoEnabledWebView
-            android:id="@+id/htmlLoader"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hardwareAccelerated="true"
-            >
-            <ImageView
-                android:id="@+id/playImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:foregroundGravity="center"
-                android:background="@color/colorPrimary"
-                android:src="@drawable/ic_pause_black_24dp"
-                android:visibility="gone"/>
-        </pro.bostrot.dtubeviewer.VideoEnabledWebView>
+            android:layout_marginTop="0dp"
+            android:layout_height="match_parent">
+
+            <pro.bostrot.dtubeviewer.VideoEnabledWebView
+                android:id="@+id/htmlLoader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorPrimary">
+
+            </pro.bostrot.dtubeviewer.VideoEnabledWebView>
+
+            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                android:id="@+id/videoPlayer"
+                android:layout_width="match_parent"
+                android:layout_height="245dp"
+                android:layout_marginTop="-12dp"
+                android:background="@color/colorPrimaryDark"
+                android:visibility="gone">
+
+            </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
+
+        </FrameLayout>
 
     </android.support.v7.widget.LinearLayoutCompat>
+
 
 
 

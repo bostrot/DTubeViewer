@@ -17,16 +17,48 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-/**
- * Created by erict on 06.02.2018.
- */
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CustomWebClient extends WebViewClient{
-
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
         if(Uri.parse(url).getHost().length() == 0 || Uri.parse(url).getHost().endsWith("emb.d.tube"))
         {
+            String historyUrl = "";
+            WebBackForwardList mWebBackForwardList = view.copyBackForwardList();
+            if (mWebBackForwardList.getItemAtIndex(mWebBackForwardList.getCurrentIndex()-1) != null) {
+                historyUrl = mWebBackForwardList.getItemAtIndex(mWebBackForwardList.getCurrentIndex() - 1).getUrl();
+            }
+
+            if (!historyUrl.contains("#!/v/") && url.contains("#!/v/")) {
+                String tempURL = url;
+                tempURL = tempURL.split("#!/v/")[1];
+                String account = tempURL.split("/")[0];
+                String permalink = tempURL.split("/")[1];
+
+
+                // Implemented Video Player
+                SteemitAPI steemitAPI = new SteemitAPI();
+                steemitAPI.getContent(account, permalink, new SteemitAPI.VolleyCallback() {
+                    @Override
+                    public void onSuccess(JSONObject string) {
+                        try {
+                            JSONObject video = new JSONObject(string.getJSONObject("result").getString("json_metadata"));
+                            String sourceVideo = video.getJSONObject("video").getJSONObject("content").getString("videohash");
+                            String worseVideo = video.getJSONObject("video").getJSONObject("content").getString("video480hash");
+                            VideoPlayer vp = new VideoPlayer();
+                            Log.d("S/W", sourceVideo + ":" + worseVideo);
+                            if (worseVideo != null && worseVideo.length() > 5) {
+                                vp.video("https://gateway.ipfs.io/ipfs/" + worseVideo);
+                            } else {
+                                vp.video("https://gateway.ipfs.io/ipfs/" + sourceVideo);
+                            }
+                        } catch (JSONException e) {}
+                    }
+                });
+            }
+
             return false;
         }
 
@@ -38,6 +70,10 @@ public class CustomWebClient extends WebViewClient{
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
 
         super.onPageStarted(view, url, favicon);
+    }
+
+    @Override
+    public void onLoadResource(WebView  view, String  url){
     }
 
 }

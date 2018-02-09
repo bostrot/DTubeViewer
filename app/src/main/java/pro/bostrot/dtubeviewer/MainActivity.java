@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.MediaRouteButton;
 import android.util.Log;
 import android.view.Menu;
 import android.view.ScaleGestureDetector;
@@ -33,22 +34,27 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import com.crashlytics.android.Crashlytics;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import io.fabric.sdk.android.Fabric;
+
+import static pro.bostrot.dtubeviewer.VideoPlayer.isInFullscreen;
+import static pro.bostrot.dtubeviewer.VideoPlayer.player;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_SELECT_FILE = 100;
     public ValueCallback<Uri[]> uploadMessage;
     public static VideoEnabledWebView wv;
-    public static VideoEnabledWebView wvCache;
     private static final String TAG = MainActivity.class.getSimpleName();
-    boolean videoPlay = false;
-    private float scale = 1f;
-    private ScaleGestureDetector detector;
     private String[] testEmulatorIDs = {   "2350391e3a011f7a",
                                             "b957e7589d60400e",
                                             "jzt66543zhhfghfg",
@@ -60,13 +66,22 @@ public class MainActivity extends AppCompatActivity {
     public static Activity activity;
     public static int timePlayed = 0;
 
+    long position;
+    SteemitAPI steemitAPI;
+    VideoPlayer videoPlayer;
+    MediaRouteButton mMediaRouteButton;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        activity = MainActivity.this;
+
         // Keep alive
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        videoPlayer = new VideoPlayer();
 
         // Analytics - only for releases - Excluding test devices from installation and crash statistics
         String android_id = Settings.Secure.getString(MainActivity.this.getContentResolver(),
@@ -75,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
             Fabric.with(this, new Crashlytics());
         }
 
-        activity = MainActivity.this;
 
         // Welcome message
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -109,14 +123,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Fullscreen
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // WebView Settings - JS, Media, etc..
         wv = findViewById(R.id.htmlLoader);
-        wvCache = findViewById(R.id.htmlLoaderCache);
         wv.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        wvCache.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webViewSettings(wv.getSettings());
-        webViewSettings(wvCache.getSettings());
 
         // WebChromeClient
         // TODO: Need smoother experience for drawer. Probably open and close it with a swipe through JS
@@ -151,15 +163,14 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         };
-        wvCache.setWebChromeClient(vewcc);
-        wvCache.setWebViewClient(new CacheWebView());
         wv.setWebChromeClient(vewcc);
         wv.setWebViewClient(new CustomWebClient());
 
         if (savedInstanceState != null) {
             wv.restoreState(savedInstanceState);
         } else {
-            wv.loadUrl("file:///android_asset/index.html#!/trendingvideos");
+            wv.loadUrl("file:///android_asset/index.html#!");
+            wv.loadUrl("javascript:document.getElementsByClassName('.blacklogo')[0].click()");
         }
 
         // Started through Intent
@@ -170,10 +181,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d("IntentData", data.toString());
             String temp = data.toString().replace("https://d.tube/","");
             wv.loadUrl("file:///android_asset/index.html"+temp);
-            wv.loadUrl("file:///android_asset/embed.html#!"+temp);
-            if (Build.VERSION.SDK_INT > 24) {
-                enterPictureInPictureMode();
-            }
         } catch (Exception e) {
         }
 
@@ -183,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
     public void webViewSettings(WebSettings webSettings) {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        webSettings.setMediaPlaybackRequiresUserGesture(true);
         webSettings.setAllowFileAccessFromFileURLs(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
@@ -198,14 +205,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT > 24 && wv.getUrl().contains("#!/v/")) {
-            wv.loadUrl("javascript:alert($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[0] * 60 + parseInt($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[1]))");
-            String tempURL = wv.getUrl();
-            tempURL = tempURL.split("#!/v/")[1];
-            tempURL = tempURL.split("/")[0] + "/" + tempURL.split("/")[1];
-            Log.d("tempURL", tempURL);
-            // Get time played and resume at same time
-            wv.loadUrl("file:///android_asset/embed.html#!/v/" + tempURL + "/" + timePlayed);
+        if (Build.VERSION.SDK_INT > 24 && isInFullscreen) {
+
             MainActivity.this.enterPictureInPictureMode();
         }
         super.onUserLeaveHint();
@@ -218,23 +219,19 @@ public class MainActivity extends AppCompatActivity {
             // Continue playback
         } else {
             // Restore the full-screen UI.
-            findViewById(R.id.playImage).setVisibility(View.GONE);
-            videoLayout.setVisibility(View.VISIBLE);
-            loadingView.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
     public void onPause() {
         if (Build.VERSION.SDK_INT > 24) {
-            Log.d("PIP", "destroyed everything!");
+            Log.d("PIP", "here!");
             if (isInPictureInPictureMode()) {
                 // Continue playback
-                wv.loadUrl("javascript:alert($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[0] * 60 + parseInt($('iframe').contents().find('.vjs-current-time-display').text().split('Current Time ')[1].split(':')[1]))");
-                videoLayout.setVisibility(View.INVISIBLE);
-                loadingView.setVisibility(View.VISIBLE);
+                videoPlayer.enterFullscreen();
             } else {
                 // Use existing playback logic for paused Activity behavior.
+                videoPlayer.exitFullscreen();
             }
         }
         super.onPause();
@@ -251,8 +248,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (wv.canGoBack()) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            wv.goBack();
+            if (isInFullscreen) {
+                videoPlayer.exitFullscreen();
+            } else {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                findViewById(R.id.videoPlayer).setVisibility(View.GONE);
+                player.release();
+                wv.goBack();
+            }
         } else {
             super.onBackPressed();
         }
