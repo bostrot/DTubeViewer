@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.List;
 
+
 import static pro.bostrot.dtubeviewer.MainActivity.activity;
 
 public class VideoPlayer {
@@ -37,9 +39,11 @@ public class VideoPlayer {
     final ImageButton but = activity.findViewById(R.id.exo_fullscreen_button);
     final WebView web = activity.findViewById(R.id.htmlLoader);
     public static SimpleExoPlayer player;
+    public static String lastUrl;
 
-    public void video(String url) {
-
+    public void video(final String source, final String compressed) {
+        final String url = "https://gateway.ipfs.io/ipfs/" + source;
+                lastUrl = url;
         Uri videoUri =  Uri.parse( url );
         Log.d("S/W2", url + ":" + videoUri.toString());
         simpleExoPlayerView.setVisibility(View.VISIBLE);

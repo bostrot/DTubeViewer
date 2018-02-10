@@ -24,7 +24,7 @@
 
     </android.support.v7.widget.LinearLayoutCompat>
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <RelativeLayout
         android:id="@+id/basic"
         android:layout_width="match_parent"
         android:layout_marginTop="0dp"
@@ -55,9 +55,17 @@
 
             </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
 
-        </FrameLayout>
 
-    </android.support.v7.widget.LinearLayoutCompat>
+
+        </FrameLayout>
+        <fragment
+            android:id="@+id/castMiniController"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            class="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment" />
+    </RelativeLayout>
 
 
 
