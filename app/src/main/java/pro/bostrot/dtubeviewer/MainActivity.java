@@ -13,12 +13,15 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.MediaRouteButton;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +43,18 @@ import java.util.Date;
 import java.util.List;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.CastState;
+import com.google.android.gms.cast.framework.CastStateListener;
+import com.google.android.gms.cast.framework.Session;
+import com.google.android.gms.cast.framework.SessionManager;
+import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +62,7 @@ import org.json.JSONObject;
 import io.fabric.sdk.android.Fabric;
 
 import static pro.bostrot.dtubeviewer.VideoPlayer.isInFullscreen;
+import static pro.bostrot.dtubeviewer.VideoPlayer.lastUrl;
 import static pro.bostrot.dtubeviewer.VideoPlayer.player;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,8 +85,15 @@ public class MainActivity extends AppCompatActivity {
     long position;
     SteemitAPI steemitAPI;
     VideoPlayer videoPlayer;
-    MediaRouteButton mMediaRouteButton;
 
+    MediaRouteButton mMediaRouteButton;
+    private CastSession mCastSession;
+    private SessionManager mSessionManager;
+    private final SessionManagerListener mSessionManagerListener =
+            new SessionManagerListenerImpl();
+    MediaMetadata movieMetadata;
+    MediaInfo mediaInfo;
+    CastContext mCastContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         activity = MainActivity.this;
+
 
         // Keep alive
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -184,8 +208,126 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
         }
 
+        // Casting
+        mCastContext = CastContext.getSharedInstance(this);
+        mMediaRouteButton = (MediaRouteButton) findViewById(R.id.media_route_button);
+        CastButtonFactory.setUpMediaRouteButton(this, mMediaRouteButton);
 
+        mSessionManager = mCastContext.getSessionManager();
     }
+
+    private void loadRemoteMedia(int position, boolean autoPlay) {
+        Log.d("CAST SESSION 2", lastUrl);
+        movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+
+        movieMetadata.putString(MediaMetadata.KEY_TITLE, "DTube");
+        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, "Bostrot is streaming content...");
+        movieMetadata.addImage(new WebImage(Uri.parse("https://steemit-production-imageproxy-upload.s3.amazonaws.com/DQmeddeVdpUn2d6VKNTNt9EGDYRucxKPAZRKodA88k2YtB9")));
+        movieMetadata.addImage(new WebImage(Uri.parse("https://steemit-production-imageproxy-upload.s3.amazonaws.com/DQmeddeVdpUn2d6VKNTNt9EGDYRucxKPAZRKodA88k2YtB9")));
+
+        mediaInfo = new MediaInfo.Builder(lastUrl)
+                .setStreamType(MediaInfo.STREAM_TYPE_LIVE)
+                .setContentType("videos/mp4")
+                .setMetadata(movieMetadata)
+                .build();
+
+        if (mCastSession == null) {
+            Log.d("mCastSession", "null");
+            return;
+        }
+        final RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
+        if (remoteMediaClient == null) {
+            Log.d("remoteMediaClient", "null");
+            return;
+        }
+        remoteMediaClient.addListener(new RemoteMediaClient.Listener() {
+
+            @Override
+            public void onStatusUpdated() {
+                Intent intent = new Intent(MainActivity.this, ExpandedControlsActivity.class);
+                startActivity(intent);
+                remoteMediaClient.removeListener(this);
+            }
+
+            @Override
+            public void onMetadataUpdated() {
+            }
+
+            @Override
+            public void onQueueStatusUpdated() {
+            }
+
+            @Override
+            public void onPreloadStatusUpdated() {
+            }
+
+            @Override
+            public void onAdBreakStatusUpdated() {
+            }
+            @Override
+            public void onSendingRemoteMediaRequest() {
+            }
+        });
+        remoteMediaClient.load(mediaInfo, autoPlay, position);
+    }
+
+
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.browse, menu);
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
+        return true;
+    }
+
+    private class SessionManagerListenerImpl implements SessionManagerListener<CastSession> {
+        @Override
+        public void onSessionStarted(CastSession session, String sessionId) {
+            mCastSession = session;
+            Log.d("CAST SESSION", "started");
+            player.release();
+            loadRemoteMedia(0, true);
+            invalidateOptionsMenu();
+        }
+        @Override
+        public void onSessionResumed(CastSession session, boolean wasSuspended) {
+            mCastSession = session;
+            invalidateOptionsMenu();
+        }
+        @Override
+        public void onSessionEnded(CastSession session, int error) {
+            Log.d("Session", "Ended");
+            if (session == mCastSession) {
+                mCastSession = null;
+            }
+        }
+        @Override
+        public void onSessionEnding(CastSession session) {
+            Log.d("Session", "Ended2");
+        }
+        @Override
+        public void onSessionResumeFailed(CastSession session, int error) {
+            Log.d("Session", "Ended3");
+        }
+        @Override
+        public void onSessionStartFailed(CastSession session, int error) {
+            Log.d("Session", "Ended4");
+        }
+        @Override
+        public void onSessionResuming(CastSession session, String sessionId) {
+            Log.d("Session", "Ended5");
+        }
+        @Override
+        public void onSessionStarting(CastSession session) {
+            Log.d("Session", "Ended6");
+        }
+        @Override
+        public void onSessionSuspended(CastSession session, int error) {
+            Log.d("Session", "Ended7");
+        }
+    }
+
 
     public void webViewSettings(WebSettings webSettings) {
         webSettings.setJavaScriptEnabled(true);
@@ -224,6 +366,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onPause() {
+
         if (Build.VERSION.SDK_INT > 24) {
             Log.d("PIP", "here!");
             if (isInPictureInPictureMode()) {
@@ -235,6 +378,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onPause();
+        mSessionManager.removeSessionManagerListener(mSessionManagerListener);
+        mCastSession = null;
+    }
+
+
+    @Override
+    protected void onResume() {
+        mCastSession = mSessionManager.getCurrentCastSession();
+        mSessionManager.addSessionManagerListener(mSessionManagerListener);
+        super.onResume();
     }
 
     // Create an image file
@@ -253,7 +406,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 findViewById(R.id.videoPlayer).setVisibility(View.GONE);
-                player.release();
+                if (player.getCurrentTimeline() != null) {
+                    player.release();
+                }
                 wv.goBack();
             }
         } else {

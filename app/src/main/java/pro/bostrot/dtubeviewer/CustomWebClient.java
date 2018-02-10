@@ -46,14 +46,10 @@ public class CustomWebClient extends WebViewClient{
                         try {
                             JSONObject video = new JSONObject(string.getJSONObject("result").getString("json_metadata"));
                             String sourceVideo = video.getJSONObject("video").getJSONObject("content").getString("videohash");
-                            String worseVideo = video.getJSONObject("video").getJSONObject("content").getString("video480hash");
+                            String compressedVideo = video.getJSONObject("video").getJSONObject("content").getString("video480hash");
                             VideoPlayer vp = new VideoPlayer();
-                            Log.d("S/W", sourceVideo + ":" + worseVideo);
-                            if (worseVideo != null && worseVideo.length() > 5) {
-                                vp.video("https://gateway.ipfs.io/ipfs/" + worseVideo);
-                            } else {
-                                vp.video("https://gateway.ipfs.io/ipfs/" + sourceVideo);
-                            }
+                            Log.d("S/W", sourceVideo + ":" + compressedVideo);
+                            vp.video(sourceVideo, compressedVideo);
                         } catch (JSONException e) {}
                     }
                 });
