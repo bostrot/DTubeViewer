@@ -34,4 +34,5 @@ You are welcome to contribute with pull requests, bug reports, ideas and donatio
 
 ## Releases
 You can get the release apk under releases or download it from google play store.
+
 <a target="_blank" href="https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer"><img width="240" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"></img></a>
