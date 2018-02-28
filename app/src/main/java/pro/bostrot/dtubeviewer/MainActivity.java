@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onUserLeaveHint() {
-        if (Build.VERSION.SDK_INT > 24 && isInFullscreen) {
+        if (Build.VERSION.SDK_INT >= 26 && isInFullscreen) {
 
             MainActivity.this.enterPictureInPictureMode();
         }
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
 
-        if (Build.VERSION.SDK_INT > 24) {
+        if (Build.VERSION.SDK_INT >= 26) {
             Log.d("PIP", "here!");
             if (isInPictureInPictureMode()) {
                 // Continue playback
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 findViewById(R.id.videoPlayer).setVisibility(View.GONE);
-                if (player.getCurrentTimeline() != null) {
+                if (player != null && player.getCurrentTimeline() != null) {
                     player.release();
                 }
                 wv.goBack();
