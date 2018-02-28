@@ -32,6 +32,10 @@ including the design
 ## Help
 You are welcome to contribute with pull requests, bug reports, ideas and donations.
 
+Bitcoin: 18MQaV4zHEf1EY3ZmuUjdnXbfZxDNiyMhy
+
+PayPal: paypal.me/bostrot
+
 ## Releases
 You can get the release apk under releases or download it from google play store.
 
