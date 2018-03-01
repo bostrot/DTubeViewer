@@ -5,6 +5,7 @@
     android:id="@+id/constraint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context="pro.bostrot.dtubeviewer.MainActivity">
 
     <!-- View where the video will be shown when video goes fullscreen -->
@@ -24,50 +25,45 @@
 
     </android.support.v7.widget.LinearLayoutCompat>
 
-    <RelativeLayout
-        android:id="@+id/basic"
-        android:layout_width="match_parent"
-        android:layout_marginTop="0dp"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark">
-
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_marginTop="0dp"
-            android:layout_height="match_parent">
-
-            <pro.bostrot.dtubeviewer.VideoEnabledWebView
-                android:id="@+id/htmlLoader"
+            <RelativeLayout
+                android:id="@+id/basic"
                 android:layout_width="match_parent"
+                android:layout_marginTop="0dp"
                 android:layout_height="match_parent"
-                android:background="@color/colorPrimary">
-
-            </pro.bostrot.dtubeviewer.VideoEnabledWebView>
-
-            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-                android:id="@+id/videoPlayer"
-                android:layout_width="match_parent"
-                android:layout_height="245dp"
-                android:layout_marginTop="-12dp"
-                android:background="@color/colorPrimaryDark"
-                android:visibility="gone">
-
-            </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
+                android:background="@color/colorPrimaryDark">
 
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="0dp"
+                    android:layout_height="match_parent">
 
-        </FrameLayout>
-        <fragment
-            android:id="@+id/castMiniController"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone"
-            class="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment" />
-    </RelativeLayout>
+                    <pro.bostrot.dtubeviewer.VideoEnabledWebView
+                        android:id="@+id/htmlLoader"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/colorPrimary">
 
+                    </pro.bostrot.dtubeviewer.VideoEnabledWebView>
 
+                    <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                        android:id="@+id/videoPlayer"
+                        android:layout_width="match_parent"
+                        android:layout_height="245dp"
+                        android:layout_marginTop="-12dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:visibility="gone">
+
+                    </com.google.android.exoplayer2.ui.SimpleExoPlayerView>
+                </FrameLayout>
+                <fragment
+                    android:id="@+id/castMiniController"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="gone"
+                    class="com.google.android.gms.cast.framework.media.widget.MiniControllerFragment" />
+            </RelativeLayout>
 
 
 </android.support.constraint.ConstraintLayout>

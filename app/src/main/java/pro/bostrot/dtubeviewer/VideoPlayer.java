@@ -92,6 +92,7 @@ public class VideoPlayer {
 
     public void exitFullscreen() {
         isInFullscreen = false;
+
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         final float scale = activity.getResources().getDisplayMetrics().density;
         int height = (int) (245 * scale + 0.5f);

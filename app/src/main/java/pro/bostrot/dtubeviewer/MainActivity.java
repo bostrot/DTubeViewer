@@ -31,6 +31,7 @@ import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -43,6 +44,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -55,12 +58,14 @@ import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.fabric.sdk.android.Fabric;
 
+import static pro.bostrot.dtubeviewer.InstallReferrerReceiver.referrer;
 import static pro.bostrot.dtubeviewer.VideoPlayer.isInFullscreen;
 import static pro.bostrot.dtubeviewer.VideoPlayer.lastUrl;
 import static pro.bostrot.dtubeviewer.VideoPlayer.player;
@@ -95,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
     MediaInfo mediaInfo;
     CastContext mCastContext;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,9 +118,13 @@ public class MainActivity extends AppCompatActivity {
         String android_id = Settings.Secure.getString(MainActivity.this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
         if (!Arrays.asList(testEmulatorIDs).contains(android_id)) {
-            Fabric.with(this, new Crashlytics());
+            Fabric.with(this, new Crashlytics());// Obtain the FirebaseAnalytics instance.
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+            if (referrer != null && !referrer.equals("empty")) {
+                Answers.getInstance().logCustom(new CustomEvent("Referrer")
+                        .putCustomAttribute("ID", referrer));
+            }
         }
-
 
         // Welcome message
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -121,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         if (prefs.getInt("LASTVERSION", 0) < currentVersionCode) {
             AlertDialog.Builder builder;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+                builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             } else {
                 builder = new AlertDialog.Builder(this);
             }
@@ -144,6 +155,39 @@ public class MainActivity extends AppCompatActivity {
                     .show();
             prefs.edit().putInt("LASTVERSION", currentVersionCode).apply();
         }
+
+        // Support message
+        if (prefs.getInt("DISPLAYED", 0) > 2) {
+            AlertDialog.Builder builder;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+            } else {
+                builder = new AlertDialog.Builder(this);
+            }
+            builder.setTitle(getString(R.string.support_title))
+                    .setMessage(getString(R.string.support_text))
+                    .setNeutralButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.Bitcoin_button), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(getString(R.string.Bitcoin_url)));
+                            startActivity(i);
+                        }
+                    })
+                    .setPositiveButton(getString(R.string.PayPal_button), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(getString(R.string.PayPal_url)));
+                            startActivity(i);
+                        }
+                    })
+                    .show();
+            prefs.edit().putInt("DISPLAYED", 0).apply();
+        }
+        prefs.edit().putInt("DISPLAYED", (prefs.getInt("DISPLAYED", 0) + 1)).apply();
 
         // Fullscreen
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
