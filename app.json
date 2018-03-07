@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "DTube Viewer",
+    "description": "Unofficial DTube App for streaming content",
+    "slug": "dtubeviewer",
+    "privacy": "public",
+    "sdkVersion": "25.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/web_hi_res_512.png",
+    "splash": {
+      "image": "./assets/images/splashscreen.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "pro.bostrot.dtubeviewer"
+    },
+    "android": {
+      "package": "pro.bostrot.dtubeviewer",
+    },
+    "scheme": "dtubeviewer",
+  },
+}

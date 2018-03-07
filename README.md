@@ -1,31 +1,27 @@
-# DTubeViewer
+# DTubeViewer Native iOS & Android App
 
-This is an Android app developed for d.tube the ipfs/blockchain video streaming platform/network. The source is grabbed from the original D.Tube GitHub repo and changed in order to make it more compatible and easier to use with Android SDK.
+This is a native Android & iOS app developed for d.tube the ipfs/blockchain video streaming platform/network. It works with the Expo framework with the latest React Native.
 
 ## Screenshots
 <table>
 <tr>
-  <td><img width="240" src="https://i.imgur.com/wYqZFPU.jpg"></img></td>
-  <td><img width="240" src="https://i.imgur.com/iejmB5g.jpg"></img></td>
-  <td><img width="240" src="https://i.imgur.com/e9QCSiC.jpg"></img></td>
-</tr>
-<tr>
-  <td><img width="240" src="https://i.imgur.com/sCNRhKR.jpg"></img></td>
-  <td><img width="240" src="https://i.imgur.com/lAggeId.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/BRmeveF.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/obT2dJz.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/eFoHwyi.jpg"></img></td>
 </tr>
 </table>
 
 ## Features
 * Uses Google <a href="https://github.com/google/ExoPlayer">ExoPlayer</a>
 * Smoother mobile experience
-* PiP on Android 8.0
-* Deep Linking including PiP
+* PiP on Android 8.0 (not yet)
+* Deep Linking including PiP (not yet)
 * Full and background playback (not yet)
 * Improved compatibilty layer for mobile
 including the design
 * Cast (not yet)
-* Crash reporting
-* Notifications (maybe)
+* Crash reporting (not yet)
+* Notifications (not yet)
 * Faster loading (ipfs on device)
 * more (multiple custom modifications)
 
@@ -37,6 +33,5 @@ Bitcoin: 18MQaV4zHEf1EY3ZmuUjdnXbfZxDNiyMhy
 PayPal: paypal.me/bostrot
 
 ## Releases
-You can get the release apk under releases or download it from google play store.
-
-<a target="_blank" href="https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer"><img width="240" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"></img></a>
+This is not a release version. You can try it with Expo <a href="https://expo.io/@bostrot/dtubeviewer">here</a> or
+get the latest standalone version/build (.apk) <a href="https://expo.io/@bostrot/dtubeviewer/builds">here</a>
