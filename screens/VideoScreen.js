@@ -2,7 +2,7 @@ import React, { Component }  from 'react';
 import { View, Text, FlatList, ScrollView, Dimensions, StatusBar, AsyncStorage, Platform, Alert } from 'react-native';
 import { Tile, List, ListItem, Divider, Button, Input } from 'react-native-elements';
 import theme from '../components/style/Theme'
-import { Audio, Video, ScreenOrientation  } from 'expo';
+import { Audio, Video, ScreenOrientation, KeepAwake } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@expo/videoplayer';
 import moment from 'moment'
@@ -269,6 +269,7 @@ class VideoScreen extends Component {
             switchToPortrait={this.switchToPortrait.bind(this)}
           playFromPositionMillis={0}
         />
+        <KeepAwake />
           <ListItem
             hideChevron
             style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}

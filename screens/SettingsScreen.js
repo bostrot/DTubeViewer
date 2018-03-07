@@ -148,7 +148,7 @@ export default class SettingsScreen extends React.Component {
         <ListItem
           roundAvatar
           style={{ backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
-          titleStyle={{ color: `${theme.COLOR_GREY}` }}
+          titleStyle={{ color: `${theme.COLOR_PRIMARY_DARK}` }}
           avatarStyle={{ width: 60, height: 60, resizeMode : 'cover' }}
           avatarContainerStyle={{ width: 60, height: 60, backgroundColor: `${Colors.tabIconSelected}`}}
           title={`Logged in as ${this.state.username}`}
