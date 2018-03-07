@@ -1,5 +1,5 @@
 import React from 'react';
-import { SectionList, ScrollView, StyleSheet, Image, Text, View } from 'react-native';
+import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage } from 'react-native';
 import { WebBrowser, Constants } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
@@ -8,6 +8,30 @@ export default class LinksScreen extends React.Component {
   static navigationOptions = {
     title: 'Options',
   };
+
+  constructor(props){
+      super(props);
+      this.state = {
+        username: null,
+        encodedToken: null,
+      };
+    }
+
+  async componentDidMount() {
+    const username = await AsyncStorage.getItem('@username:key');
+    const encodedToken = await AsyncStorage.getItem('@encodedToken:key');
+    if (username && encodedToken !== null){
+      this.state = {
+        username: username,
+        encodedToken: encodedToken,
+      };
+    }
+
+    this.setState({
+      username,
+      encodedToken,
+    });
+  }
 
   render() {
     const { manifest } = Constants;
@@ -96,6 +120,20 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
+
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            style={styles.option}
+            onPress={this._handleLike}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="md-thumbs-up" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}> Like</Text>
+              </View>
+            </View>
+          </Touchable>
         </View>
         <View>
           <Text style={styles.optionsTitleText}>
@@ -142,6 +180,34 @@ export default class LinksScreen extends React.Component {
     _renderSectionHeader = ({ section }) => {
       return <SectionHeader title={section.title} />;
     };
+
+
+      _handleLike = () => {
+      console.log("like false", this.state.username)
+        if (this.state.username) {
+            var weight = 10000;
+            console.log("like true")
+
+            const body = {"operations":[["vote",{"voter":`${this.state.username}`,"author":'bostrot',"permlink":'uc43y5y7',"weight":weight}]]};
+            console.log("body", body)
+            fetch('https://v2.steemconnect.com/api/broadcast', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'authorization': `${this.state.encodedToken}`
+                },
+                body: JSON.stringify(body),
+              })
+              .then(res => res.json())
+              .then(res => {
+                console.log("res... ", res);
+                })
+              .catch(error => {
+            console.log(error);
+                this.setState({ error });
+              });
+            }
+        };
 
     _renderItem = ({ item }) => {
       if (item.type === 'color') {
