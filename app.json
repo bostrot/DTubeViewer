@@ -23,6 +23,7 @@
     },
     "android": {
       "package": "pro.bostrot.dtubeviewer",
+      "versionCode": 10,
     },
     "scheme": "dtubeviewer",
   },
