@@ -20,7 +20,7 @@ class Home extends Component  {
       this.state = {
         loading: false,
         data: [],
-        page: 15,
+        page: 50,
         error: null,
         refreshing: false,
         value: '',
@@ -49,7 +49,7 @@ class Home extends Component  {
           .then(res => res.json())
           .then(res => {
             this.setState({
-                data: page === 1 ? res.result : [...this.state.data, ...res.result],
+                data: page === 50 ? res.result : [...this.state.data, ...res.result],
                 error: res.error || null,
                 loading: false,
                 refreshing: false,
@@ -134,7 +134,7 @@ class Home extends Component  {
       this.setState(this.baseState)
       this.setState(
         {
-            page: this.state.page + 15,
+            page: this.state.page + 50,
         },
         () => {
           this.makeRemoteRequest();
@@ -146,7 +146,7 @@ class Home extends Component  {
     this.setState(this.baseState)
       this.setState(
         {
-          page: 15,
+          page: 50,
           refreshing: true,
         },
         () => {

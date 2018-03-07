@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppRegistry,AsyncStorage, SectionList, ImageBackground, StyleSheet, Text, View, FlatList, Alert } from 'react-native';
+import { AppRegistry, AsyncStorage, SectionList, ImageBackground, StyleSheet, Text, View, FlatList, Alert } from 'react-native';
 import { Button, ListItem } from 'react-native-elements';
 import { WebBrowser, AuthSession } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
@@ -185,7 +185,6 @@ export default class SettingsScreen extends React.Component {
       <View
         style={{
           flex: 1,
-          justifyContent: 'center',
           alignItems: 'center',
         }}>
         <Button
