@@ -34,4 +34,6 @@ PayPal: paypal.me/bostrot
 
 ## Releases
 This is not a release version. You can try it with Expo <a href="https://expo.io/@bostrot/dtubeviewer">here</a> or
-get the latest standalone version/build (.apk) <a href="https://expo.io/@bostrot/dtubeviewer/builds">here</a>
+get the latest standalone version/build (.apk) <a href="https://expo.io/@bostrot/dtubeviewer/builds">here</a>.
+
+Get it at <a href="https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer">Google Play Store</a> or at <a href="https://github.com/bostrot/DTubeViewer/releases">Releases</a>.
