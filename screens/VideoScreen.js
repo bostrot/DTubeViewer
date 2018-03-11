@@ -261,17 +261,20 @@ class VideoScreen extends Component {
     const { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
     return (
       <View>
+          <VideoPlayer
+            videoProps={{
+              shouldPlay: true,
+              resizeMode: Video.RESIZE_MODE_CONTAIN,
+              source: {
+                uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${meta}`).video !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) : ((JSON.parse(`${meta}`).video.content.video480hash) !== undefined ? (JSON.parse(`${meta}`).video.content.video480hash) : (JSON.parse(`${meta}`).video.content.video240hash)) : ""),
+              },
+            }}
 
-                <Video
-                  source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : "") }}
-                  rate={1.0}
-                  volume={1.0}
-                  muted={false}
-                  resizeMode={Video.RESIZE_MODE_CONTAIN}
-                  shouldPlay
-                  isLooping
-                  style={{ width: 300, height: 300 }}
-                />
+              isPortrait={this.state.isPortrait}
+              switchToLandscape={this.switchToLandscape.bind(this)}
+              switchToPortrait={this.switchToPortrait.bind(this)}
+            playFromPositionMillis={0}
+          />
       <ScrollView>
         <KeepAwake />
           <ListItem
