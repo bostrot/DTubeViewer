@@ -8,6 +8,7 @@ import theme from '../components/style/Theme';
 import jwtDecoder from 'jwt-decode';
 import { Actions as NavigationActions } from 'react-native-router-flux';
 import moment from 'moment'
+import { Analytics, PageHit } from 'expo-analytics';
 
 // Object to Query String
 function toQueryString(params) {
@@ -38,6 +39,7 @@ export default class SettingsScreen extends React.Component {
       refreshing: false,
       value: '',
     });
+    this.baseState = this.state
     this.makeRemoteRequest();
   }
 
@@ -46,6 +48,12 @@ export default class SettingsScreen extends React.Component {
       this.state = {
         username: null,
         encodedToken: null,
+        loading: false,
+        data: [],
+        page: 15,
+        error: null,
+        refreshing: false,
+        value: '',
       };
     }
 
@@ -132,6 +140,19 @@ export default class SettingsScreen extends React.Component {
         });
     };
 
+    handleRefresh() {
+      this.setState(this.baseState)
+      this.setState(
+        {
+          page: 15,
+          refreshing: true,
+        },
+        () => {
+          this.makeRemoteRequest();
+        }
+      );
+    };
+
     handleVideoPress(data) {
       if (Object.values(data)[0].meta === undefined) {
         this.props.navigation.navigate('VideoScreen', { ...data.item });
@@ -141,6 +162,10 @@ export default class SettingsScreen extends React.Component {
     };
 
   render() {
+    const analytics = new Analytics('UA-108863569-3');
+    analytics.hit(new PageHit('User Screen'))
+      .then(() => console.log("success"))
+      .catch(e => console.log(e.message));
     if (this.state.username !== null ) {
       return (
         <View
@@ -154,30 +179,47 @@ export default class SettingsScreen extends React.Component {
           title={`Logged in as ${this.state.username}`}
           containerStyle={{ borderBottomWidth: 0, height: 80 }}
           avatar={{uri: `https://img.busy.org/@${this.state.username}?width=96&height=96` }} />
-        <FlatList
-          style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
-          data={this.state.data}
-          renderItem={ ({ item }) => (
+          
             <View>
-            <ListItem
-              style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`), height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)) }}
-              button
-              title={item.title} //${item.author}
-              titleNumberOfLines={3}
-              subtitle={`by ${item.author}\n${item.pending_payout_value} • ${moment(item.created).fromNow()}`}
-              subtitleNumberOfLines={2}
-              containerStyle={{ borderBottomWidth: 0, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 111.25 : 0) : (`${item.meta.video}` !== undefined ? 111.25 : 0)) }}
-              rightTitleStyle={{ textAlignVertical: 'top' }}
-              avatar={{uri: 'https://gateway.ipfs.io/ipfs/' + ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.snaphash) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.snaphash}` : "")) }}
-              avatarStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)), resizeMode : 'cover' }}
-              avatarOverlayContainerStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)) }}
-              avatarContainerStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)) }}
-              onPress={() => this.handleVideoPress({item})}
-            />
-          </View>
-          )}
-          keyExtractor={item => item.permlink }
-        />
+                  <FlatList
+                    style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
+                    data={this.state.data}
+                    renderItem={ ({ item }) => ((`${item.json_metadata}` !== "undefined" && JSON.parse(`${item.json_metadata}`).video !== undefined) && JSON.parse(`${item.json_metadata}`).video.snaphash !== "undefined") || (`${item.meta}` !== "undefined" && (`${item.meta.video}`) !== undefined && (`${item.meta.video.snaphash}`) !== undefined) ? (
+                    <View>
+                      <ListItem
+                        style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
+                        button
+                        title={item.title} //${item.author}
+                        titleNumberOfLines={3}
+                        subtitle={`by ${item.author}\n${item.pending_payout_value} • ${moment(item.created).fromNow()}`}
+                        subtitleNumberOfLines={2}
+                        containerStyle={{ borderBottomWidth: 0, height: 111.25 }}
+                        rightTitleStyle={{ textAlignVertical: 'top' }}
+                        avatar={
+                          <ImageBackground  style={{width: 180, height: 101.25, borderRadius: 5 }}  source={{ uri: ('https://gateway.ipfs.io/ipfs/' + ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.snaphash) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.snaphash}` : ""))) }}>
+                            <ListItem
+                              hideChevron
+                              title={ (moment.utc(((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.duration) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.duration}` : "").replace(".",""))*1000).format('HH:mm:ss')) }
+                              titleStyle={{ fontSize: 11, color: 'white' }}
+                              wrapperStyle={{ marginLeft: 119, marginTop: 70, borderBottomWidth: 0, backgroundColor: 'rgba(52, 52, 52, 0.8)', width: 60, height: 20, padding: 0, borderRadius: 5 }}
+                              containerStyle={{ borderBottomWidth: 0 }} />
+                          </ImageBackground>
+                        }
+                        avatarStyle={{ width: 180, height: 101.25 }}
+                        avatarOverlayContainerStyle={{ width: 180, height: 101.25 }}
+                        avatarContainerStyle={{ width: 180, height: 101.25 }}
+                        onPress={() => this.handleVideoPress({item})}
+                      />
+                    </View>
+                  ): null }
+                    keyExtractor={item => item.permlink }
+                    ListFooterComponent={this.renderFooter}
+                    onRefresh={() => this.handleRefresh()}
+                    refreshing={this.state.refreshing}
+                    //onEndReached={() => this.handleLoadMore()}
+                    onEndReachedThreshold={100}
+                  />
+              </View>
       </View>
       )
     }
@@ -194,7 +236,7 @@ export default class SettingsScreen extends React.Component {
               name={"md-log-in"}
               size={18}
               color={Colors.tabIconDefault}
-            />} buttonStyle={{ width: 200, backgroundColor: (`${theme.COLOR_ACCENT}`)}}  text='Login' />
+            />} buttonStyle={{ marginTop: 20, width: 200, backgroundColor: (`${theme.COLOR_ACCENT}`)}}  text='Login' />
       </View>
     )
   }

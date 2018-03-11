@@ -5,8 +5,7 @@ import { StackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
 import VideoScreen from '../screens/VideoScreen';
-import VideoScreenSearch from '../screens/VideoScreenSearch';
-import SearchScreen from '../screens/SearchScreen';
+import VideoSearchScreen from '../screens/VideoSearchScreen';
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
 const RootStackNavigator = StackNavigator(
@@ -17,16 +16,12 @@ const RootStackNavigator = StackNavigator(
     VideoScreen: {
       screen: VideoScreen,
     },
-    SearchScreen: {
-      screen: SearchScreen,
+    VideoSearchScreen: {
+      screen: VideoSearchScreen,
     },
-    VideoScreenSearch: {
-      screen: VideoScreenSearch,
-    }
   },
   {
     navigationOptions: () => ({
-      title: 'header',
       headerTitleStyle: {
         fontWeight: 'normal',
       },

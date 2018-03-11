@@ -14,7 +14,7 @@ import { Analytics, PageHit } from 'expo-analytics';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'md';
 
-class VideoScreen extends Component {
+class VideoSearchScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
     header: null,
     tabBarVisible:
@@ -176,7 +176,7 @@ class VideoScreen extends Component {
 
           Alert.alert("Success", "Successfully posted comment.")
 
-          const body = {"operations":[["comment",{"parent_author":`${author}`,"parent_permlink":`${permlink}`,"author":`${this.state.username}`,"permlink":`${tempString}`,"title":`${tempString}`,"body":`${text}`,"json_metadata":"{\"app\":\"dtube/0.6\"}"}]]};
+          const body = {"operations":[["comment",{"parent_author":`${author}`,"parent_permlink":`${permlink}`,"author":`${this.state.username}`,"permlink":`${tempString}`,"title":`${tempString}`,"body":`${text}`,"meta":"{\"app\":\"dtube/0.6\"}"}]]};
           console.log("body", body)
           fetch('https://v2.steemconnect.com/api/broadcast', {
               method: 'POST',
@@ -255,30 +255,34 @@ class VideoScreen extends Component {
 
   render() {
       const analytics = new Analytics('UA-108863569-3');
-      analytics.hit(new PageHit('Video Screen'))
+      analytics.hit(new PageHit('Video Search Screen'))
         .then(() => console.log("success"))
         .catch(e => console.log(e.message));
-    const { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
+    const { author, permlink, title, created, meta, payout, active_votes } = this.props.navigation.state.params;
     return (
       <View>
+        <VideoPlayer
+          videoProps={{
+            shouldPlay: true,
+            resizeMode: Video.RESIZE_MODE_CONTAIN,
+            source: {
+              uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${meta}`).video !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) : ((JSON.parse(`${meta}`).video.content.video480hash) !== undefined ? (JSON.parse(`${meta}`).video.content.video480hash) : (JSON.parse(`${meta}`).video.content.video240hash)) : ""),
+            },
+          }}
 
-                <Video
-                  source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : "") }}
-                  rate={1.0}
-                  volume={1.0}
-                  muted={false}
-                  resizeMode={Video.RESIZE_MODE_CONTAIN}
-                  shouldPlay
-                  isLooping
-                  style={{ width: 300, height: 300 }}
-                />
+            isPortrait={this.state.isPortrait}
+            switchToLandscape={this.switchToLandscape.bind(this)}
+            switchToPortrait={this.switchToPortrait.bind(this)}
+          playFromPositionMillis={0}
+        />
+
       <ScrollView>
         <KeepAwake />
           <ListItem
             hideChevron
             title={title} //${item.author}
             titleNumberOfLines={3}
-            subtitle={`${pending_payout_value}`}
+            subtitle={`${payout}`}
             subtitleNumberOfLines={5}
             containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
           />
@@ -346,7 +350,7 @@ class VideoScreen extends Component {
           <ListItem
             hideChevron
             titleNumberOfLines={3}
-            subtitle={(JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.description) : "")}
+            subtitle={(JSON.parse(`${meta}`).video !== undefined ? (JSON.parse(`${meta}`).video.content.description) : "")}
             subtitleNumberOfLines={100}
             containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
           />
@@ -421,4 +425,4 @@ class VideoScreen extends Component {
 
 }
 
-export default VideoScreen;
+export default VideoSearchScreen;

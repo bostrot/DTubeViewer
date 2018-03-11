@@ -1,8 +1,9 @@
 import React from 'react';
 import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage } from 'react-native';
-import { WebBrowser, Constants } from 'expo';
+import { WebBrowser, Constants, AdMobRewarded } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
+import { Analytics, PageHit } from 'expo-analytics';
 
 export default class LinksScreen extends React.Component {
   static navigationOptions = {
@@ -18,6 +19,19 @@ export default class LinksScreen extends React.Component {
     }
 
   async componentDidMount() {
+    AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
+      (reward) => {
+        console.log('AdMobRewarded => rewarded', reward)
+        theme = {
+          ASUP: false
+        }
+        setTimeout(function() {
+        theme = {
+          ASUP: true
+        }
+      }.bind(this), (reward.amount * 60 * 60 * 1000));
+      }
+    );
     const username = await AsyncStorage.getItem('@username:key');
     const encodedToken = await AsyncStorage.getItem('@encodedToken:key');
     if (username && encodedToken !== null){
@@ -34,6 +48,10 @@ export default class LinksScreen extends React.Component {
   }
 
   render() {
+    const analytics = new Analytics('UA-108863569-3');
+    analytics.hit(new PageHit('Links Screen'))
+      .then(() => console.log("success"))
+      .catch(e => console.log(e.message));
     const { manifest } = Constants;
     const sections = [];
     return (
@@ -180,6 +198,14 @@ export default class LinksScreen extends React.Component {
     _renderSectionHeader = ({ section }) => {
       return <SectionHeader title={section.title} />;
     };
+
+    _handleHideAds = () => {
+      AdMobRewarded.setAdUnitID('ca-app-pub-9430927632405311/3049946540'); // Test ID, Replace with your-admob-unit-id
+      AdMobRewarded.setTestDeviceID('EMULATOR');
+      AdMobRewarded.requestAd(() => AdMobRewarded.showAd());
+    }
+
+    rewardedVideoDidRewardUser
 
 
       _handleLike = () => {

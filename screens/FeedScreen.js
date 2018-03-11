@@ -1,5 +1,5 @@
 import React, { Component }  from 'react';
-import { ActivityIndicator, Animated, Dimensions, FlatList, View, Image, Platform, TouchableHighlight } from 'react-native';
+import { ActivityIndicator, Animated, Dimensions, FlatList, View, ImageBackground, Platform, TouchableHighlight } from 'react-native';
 import { List, ListItem, SearchBar, Header } from "react-native-elements";
 import { Actions as NavigationActions } from 'react-native-router-flux';
 import { StackNavigator } from 'react-navigation';
@@ -7,6 +7,7 @@ import moment from 'moment'
 import styles from '../components/style/Style'
 import theme from '../components/style/Theme'
 import VideoScreen from './VideoScreen'
+import { Analytics, PageHit } from 'expo-analytics';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
@@ -115,11 +116,17 @@ class Home extends Component  {
     };
 
     render(){
+      const analytics = new Analytics('UA-108863569-3');
+      analytics.hit(new PageHit('New Videos'))
+        .then(() => console.log("success"))
+        .catch(e => console.log(e.message));
       return (
+        <View>
               <FlatList
                 style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                 data={this.state.data}
-                renderItem={ ({ item }) => (
+                renderItem={ ({ item }) => ((`${item.json_metadata}` !== "undefined" && JSON.parse(`${item.json_metadata}`).video !== undefined) && JSON.parse(`${item.json_metadata}`).video.snaphash !== "undefined") || (`${item.meta}` !== "undefined" && (`${item.meta.video}`) !== undefined && (`${item.meta.video.snaphash}`) !== undefined) ? (
+                <View>
                   <ListItem
                     style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                     button
@@ -129,20 +136,31 @@ class Home extends Component  {
                     subtitleNumberOfLines={2}
                     containerStyle={{ borderBottomWidth: 0, height: 111.25 }}
                     rightTitleStyle={{ textAlignVertical: 'top' }}
-                    avatar={{uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.snaphash) : "") }}
-                    avatarStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)), resizeMode : 'cover' }}
-                    avatarOverlayContainerStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)) }}
-                    avatarContainerStyle={{ width: 180, height: ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? 101.25 : 0) : (`${item.meta.video}` !== undefined ? 101.25 : 0)) }}
+                    avatar={
+                      <ImageBackground  style={{width: 180, height: 101.25, borderRadius: 5 }}  source={{ uri: ('https://gateway.ipfs.io/ipfs/' + ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.snaphash) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.snaphash}` : ""))) }}>
+                        <ListItem
+                          hideChevron
+                          title={ (moment.utc(((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.duration) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.duration}` : "").replace(".",""))*1000).format('HH:mm:ss')) }
+                          titleStyle={{ fontSize: 11, color: 'white' }}
+                          wrapperStyle={{ marginLeft: 119, marginTop: 70, borderBottomWidth: 0, backgroundColor: 'rgba(52, 52, 52, 0.8)', width: 60, height: 20, padding: 0, borderRadius: 5 }}
+                          containerStyle={{ borderBottomWidth: 0 }} />
+                      </ImageBackground>
+                    }
+                    avatarStyle={{ width: 180, height: 101.25 }}
+                    avatarOverlayContainerStyle={{ width: 180, height: 101.25 }}
+                    avatarContainerStyle={{ width: 180, height: 101.25 }}
                     onPress={() => this.handleVideoPress({item})}
                   />
-                )}
-                keyExtractor={item => item.url }
+                </View>
+              ): null }
+                keyExtractor={item => item.permlink }
                 ListFooterComponent={this.renderFooter}
                 onRefresh={() => this.handleRefresh()}
                 refreshing={this.state.refreshing}
                 //onEndReached={() => this.handleLoadMore()}
                 onEndReachedThreshold={100}
               />
+          </View>
       );
     }
 }

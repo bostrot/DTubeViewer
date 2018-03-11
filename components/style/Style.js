@@ -19,6 +19,9 @@ const styles = StyleSheet.create({
    icon: {
     width: 25,
     height: 25,
+  },
+  scrollView: {
+    backgroundColor: 'white'
   }
 });
 
