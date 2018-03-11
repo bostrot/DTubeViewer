@@ -266,7 +266,7 @@ class VideoScreen extends Component {
               shouldPlay: true,
               resizeMode: Video.RESIZE_MODE_CONTAIN,
               source: {
-                uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${meta}`).video !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) !== undefined ? (JSON.parse(`${meta}`).video.content.videohash) : ((JSON.parse(`${meta}`).video.content.video480hash) !== undefined ? (JSON.parse(`${meta}`).video.content.video480hash) : (JSON.parse(`${meta}`).video.content.video240hash)) : ""),
+                uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : ""),
               },
             }}
 

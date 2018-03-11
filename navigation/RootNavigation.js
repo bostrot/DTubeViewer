@@ -12,6 +12,14 @@ const RootStackNavigator = StackNavigator(
   {
     Main: {
       screen: MainTabNavigator,
+        navigationOptions: () => ({
+          headerTitleStyle: {
+            fontWeight: 'normal',
+          },
+          headerStyle: {
+            height: 0, // sets new height for the Header
+          }
+        }),
     },
     VideoScreen: {
       screen: VideoScreen,
@@ -20,16 +28,6 @@ const RootStackNavigator = StackNavigator(
       screen: VideoSearchScreen,
     },
   },
-  {
-    navigationOptions: () => ({
-      headerTitleStyle: {
-        fontWeight: 'normal',
-      },
-      headerStyle: {
-        height: 0, // sets new height for the Header
-      }
-    }),
-  }
 );
 
 export default class RootNavigator extends React.Component {
