@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppRegistry, AsyncStorage, SectionList, ImageBackground, StyleSheet, Text, View, FlatList, Alert } from 'react-native';
+import { AppRegistry, AsyncStorage, SectionList, ImageBackground, StyleSheet, Text, View, FlatList, Alert, Platform } from 'react-native';
 import { Button, ListItem } from 'react-native-elements';
 import { WebBrowser, AuthSession } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,8 @@ import jwtDecoder from 'jwt-decode';
 import { Actions as NavigationActions } from 'react-native-router-flux';
 import moment from 'moment'
 import { Analytics, PageHit } from 'expo-analytics';
+
+const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
 // Object to Query String
 function toQueryString(params) {
@@ -163,7 +165,7 @@ export default class SettingsScreen extends React.Component {
 
   render() {
     const analytics = new Analytics('UA-108863569-3');
-    analytics.hit(new PageHit('User Screen'))
+    analytics.hit(new PageHit('User Screen'), { ua: `${SYSTEM}` })
       .then(() => console.log("success"))
       .catch(e => console.log(e.message));
     if (this.state.username !== null ) {
@@ -179,7 +181,7 @@ export default class SettingsScreen extends React.Component {
           title={`Logged in as ${this.state.username}`}
           containerStyle={{ borderBottomWidth: 0, height: 80 }}
           avatar={{uri: `https://img.busy.org/@${this.state.username}?width=96&height=96` }} />
-          
+
             <View>
                   <FlatList
                     style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}

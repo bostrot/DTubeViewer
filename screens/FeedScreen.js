@@ -117,7 +117,7 @@ class Home extends Component  {
 
     render(){
       const analytics = new Analytics('UA-108863569-3');
-      analytics.hit(new PageHit('New Videos'))
+      analytics.hit(new PageHit('New Videos'), { ua: `${SYSTEM}` })
         .then(() => console.log("success"))
         .catch(e => console.log(e.message));
       return (

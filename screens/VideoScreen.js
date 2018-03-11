@@ -13,6 +13,8 @@ import Home from '../navigation/RootNavigation'
 import { Analytics, PageHit } from 'expo-analytics';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'md';
+const SYSTEM0 = Platform.OS === 'ios' ? 'ios' : 'android';
+
 
 class VideoScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -255,7 +257,7 @@ class VideoScreen extends Component {
 
   render() {
       const analytics = new Analytics('UA-108863569-3');
-      analytics.hit(new PageHit('Video Screen'))
+      analytics.hit(new PageHit('Video Screen'), { ua: `${SYSTEM0}` })
         .then(() => console.log("success"))
         .catch(e => console.log(e.message));
     const { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;

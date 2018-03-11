@@ -1,9 +1,11 @@
 import React from 'react';
-import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage } from 'react-native';
+import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage, Platform } from 'react-native';
 import { WebBrowser, Constants, AdMobRewarded } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import { Analytics, PageHit } from 'expo-analytics';
+
+const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
 export default class LinksScreen extends React.Component {
   static navigationOptions = {
@@ -49,7 +51,7 @@ export default class LinksScreen extends React.Component {
 
   render() {
     const analytics = new Analytics('UA-108863569-3');
-    analytics.hit(new PageHit('Links Screen'))
+    analytics.hit(new PageHit('Links Screen'), { ua: `${SYSTEM}` })
       .then(() => console.log("success"))
       .catch(e => console.log(e.message));
     const { manifest } = Constants;
