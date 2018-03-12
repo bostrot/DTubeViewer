@@ -72,20 +72,6 @@ export default class LinksScreen extends React.Component {
             Resources
           </Text>
           <Touchable
-            style={styles.option}
-            background={Touchable.Ripple('#ccc', false)}
-            onPress={this._handleRate}>
-            <View style={{ flexDirection: 'row' }}>
-              <View style={styles.optionIconContainer}>
-                <Ionicons name="md-star" size={22} color="#ccc" />
-              </View>
-              <View style={styles.optionTextContainer}>
-                <Text style={styles.optionText}>Rate on PlayStore</Text>
-              </View>
-            </View>
-          </Touchable>
-
-          <Touchable
             background={Touchable.Ripple('#ccc', false)}
             style={styles.option}
             onPress={this._handleReddit}>
@@ -112,6 +98,23 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
+
+          { SYSTEM === "android" ? (
+            <View>
+          <Touchable
+            style={styles.option}
+            background={Touchable.Ripple('#ccc', false)}
+            onPress={this._handleRate}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="md-star" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}>Rate on PlayStore</Text>
+              </View>
+            </View>
+          </Touchable>
+
 
           <Touchable
             background={Touchable.Ripple('#ccc', false)}
@@ -140,6 +143,8 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
+          </View>
+         ): null}
 
           <Touchable
             background={Touchable.Ripple('#ccc', false)}
