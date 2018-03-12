@@ -8,10 +8,6 @@ import { Analytics, PageHit } from 'expo-analytics';
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
 export default class LinksScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Options',
-  };
-
   constructor(props){
       super(props);
       this.state = {
