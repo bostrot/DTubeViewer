@@ -1,5 +1,5 @@
 import React, { Component }  from 'react';
-import { View, FlatList, Text, ScrollView, Dimensions, StatusBar, AsyncStorage, Platform, Alert, StyleSheet } from 'react-native';
+import { View, FlatList, Text, ScrollView, Dimensions, StatusBar, AsyncStorage, Platform, Alert, StyleSheet, WebView } from 'react-native';
 import { ListItem, Divider, Button, Input, Slider } from 'react-native-elements';
 import theme from '../components/style/Theme'
 import styles from '../components/style/Style'
