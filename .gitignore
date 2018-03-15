@@ -3,3 +3,4 @@ node_modules/**/*
 *.jks
 *.apk
 .gitattributes
+.code-workspace

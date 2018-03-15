@@ -9,8 +9,10 @@ import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import FeedScreen from '../screens/FeedScreen';
+import theme from '../components/style/Theme'
 
 const ICON_PREFIX = Platform.OS === 'ios' ? 'ios' : 'md';
+    this.baseState = this.state
 
 export default TabNavigator(
   {
@@ -65,7 +67,7 @@ export default TabNavigator(
     showLabel: false,
   		style: {
         padding: 4,
-  			backgroundColor: 'white',
+        backgroundColor: (`${theme.BACKGROUND_COLOR}`),
   			borderTopWidth: 1,
   			borderTopColor: 'white',
   		},

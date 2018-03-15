@@ -18,7 +18,7 @@ class Home extends Component  {
       this.state = {
         loading: false,
         data: [],
-        page: 50,
+        page: 12,
         error: null,
         refreshing: false,
         value: '',
@@ -50,7 +50,7 @@ class Home extends Component  {
           .then(res => res.json())
           .then(res => {
             this.setState({
-                data: page === 50 ? res.result : [...this.state.data, ...res.result],
+                data: page === 12 ? res.result : [...this.state.data, ...res.result],
                 error: res.error || null,
                 loading: false,
                 refreshing: false,
@@ -135,7 +135,7 @@ class Home extends Component  {
       this.setState(this.baseState)
       this.setState(
         {
-            page: this.state.page + 50,
+            page: this.state.page + 12,
         },
         () => {
           this.makeRemoteRequest();
@@ -147,7 +147,7 @@ class Home extends Component  {
     this.setState(this.baseState)
       this.setState(
         {
-          page: 50,
+          page: 12,
           refreshing: true,
         },
         () => {
@@ -157,7 +157,7 @@ class Home extends Component  {
     };
 
     handleVideoPress(data) {
-      console.log("this", data)
+      //console.log("this", data)
       if (Object.values(data)[0].meta === undefined) {
         this.props.navigation.navigate('VideoScreen', { ...data.item });
       } else {
@@ -182,10 +182,12 @@ class Home extends Component  {
                     style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                     button
                     title={item.title} //${item.author}
+                    titleStyle={{ color: (`${theme.COLOR_TEXT}`)}}
                     titleNumberOfLines={3}
-                    subtitle={`by ${item.author}\n${item.pending_payout_value} • ${moment(item.created).fromNow()}`}
+                    subtitle={`by ${item.author}\n`+("$"+`${item.pending_payout_value}`).replace(" SBD", "")+` • ${moment(item.created).fromNow()}`}
                     subtitleNumberOfLines={2}
                     containerStyle={{ borderBottomWidth: 0, height: 111.25 }}
+                    underlayColor={"#F5F5F5"}
                     rightTitleStyle={{ textAlignVertical: 'top' }}
                     avatar={
                       <ImageBackground  style={{width: 180, height: 101.25, borderRadius: 5 }}  source={{ uri: ('https://gateway.ipfs.io/ipfs/' + ((`${item.json_metadata}`) !== "undefined" ? (JSON.parse(`${item.json_metadata}`).video !== undefined ? (JSON.parse(`${item.json_metadata}`).video.info.snaphash) : "") : (`${item.meta.video}` !== undefined ? `${item.meta.video.info.snaphash}` : ""))) }}>

@@ -131,6 +131,7 @@ class Home extends Component  {
                     style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                     button
                     title={item.title} //${item.author}
+                    titleStyle={{ color: (`${theme.COLOR_TEXT}`)}}
                     titleNumberOfLines={3}
                     subtitle={`by ${item.author}\n${item.pending_payout_value} • ${moment(item.created).fromNow()}`}
                     subtitleNumberOfLines={2}

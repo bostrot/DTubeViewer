@@ -4,6 +4,8 @@ import { WebBrowser, Constants, AdMobRewarded } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import { Analytics, PageHit } from 'expo-analytics';
+import theme from '../components/style/Theme'
+import navigator from '../navigation/MainTabNavigator'
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
@@ -20,13 +22,9 @@ export default class LinksScreen extends React.Component {
     AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
       (reward) => {
         console.log('AdMobRewarded => rewarded', reward)
-        theme = {
-          ASUP: false
-        }
+        theme.ASUP = false;
         setTimeout(function() {
-        theme = {
-          ASUP: true
-        }
+        theme.ASUP = true;
       }.bind(this), (reward.amount * 60 * 60 * 1000));
       }
     );
@@ -163,13 +161,13 @@ export default class LinksScreen extends React.Component {
             <Touchable
               background={Touchable.Ripple('#ccc', false)}
               style={styles.option}
-              onPress={this._handleBitcoin}>
+              onPress={this._handleNightMode}>
               <View style={{ paddingLeft: 2, flexDirection: 'row' }}>
                 <View style={styles.optionIconContainer}>
                   <Ionicons name="md-color-palette" size={22} color="#ccc" />
                 </View>
                 <View style={styles.optionTextContainer}>
-                  <Text style={styles.optionText}> Coming soon...</Text>
+                  <Text style={styles.optionText}> Night Mode (Experimental)</Text>
                 </View>
               </View>
             </Touchable>
@@ -207,8 +205,6 @@ export default class LinksScreen extends React.Component {
       AdMobRewarded.setTestDeviceID('EMULATOR');
       AdMobRewarded.requestAd(() => AdMobRewarded.showAd());
     }
-
-    rewardedVideoDidRewardUser
 
 
       _handleLike = () => {
@@ -256,6 +252,10 @@ export default class LinksScreen extends React.Component {
       }
     };
 
+    _handleNightMode = () => {
+      theme.BACKGROUND_COLOR= "#000";
+      theme.COLOR_TEXT = "#fff";
+    }
 }
 
 const ListHeader = () => {

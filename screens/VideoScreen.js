@@ -14,11 +14,14 @@ import { Analytics, PageHit } from 'expo-analytics';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'md';
 const SYSTEM0 = Platform.OS === 'ios' ? 'ios' : 'android';
+const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = Dimensions.get('window');
 
 
 class VideoScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
-    header: null,
+    headerStyle: {
+      height: (SYSTEM === 'ios' ? 60 : 0),
+    },
     tabBarVisible:
       navigation.state.params && navigation.state.params.tabBarHidden
         ? false
@@ -41,6 +44,7 @@ class VideoScreen extends Component {
         commentText: "",
         sliderValue: 0,
         subscribed: 'Subscribe',
+        videoHeight: "28%",
       };
     }
 
@@ -113,10 +117,12 @@ class VideoScreen extends Component {
   }
   switchToLandscape() {
       ScreenOrientation.allow(ScreenOrientation.Orientation.LANDSCAPE);
+      this.state.videoHeight = "100%";
       StatusBar.setHidden(true);
     }
   switchToPortrait() {
     ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT);
+    this.state.videoHeight = "28%";
     StatusBar.setHidden(false);
   }
 
@@ -263,27 +269,32 @@ class VideoScreen extends Component {
     const { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
     return (
       <View>
-          <VideoPlayer
-            videoProps={{
-              shouldPlay: true,
-              resizeMode: Video.RESIZE_MODE_CONTAIN,
-              source: {
-                uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : ""),
-              },
-            }}
+        <Video
+          source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : "") }}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode={Video.RESIZE_MODE_CONTAIN}
+          shouldPlay
+          isLooping
+          isPortrait={this.state.isPortrait}
+          switchToLandscape={this.switchToLandscape.bind(this)}
+          switchToPortrait={this.switchToPortrait.bind(this)}
+          playFromPositionMillis={0}
+          useNativeControls={true}
+          style={{ width: "100%", height: `${this.state.videoHeight}`, backgroundColor: "#000000" }}
+        >
+        
+        <KeepAwake />
+        </Video>
 
-              isPortrait={this.state.isPortrait}
-              switchToLandscape={this.switchToLandscape.bind(this)}
-              switchToPortrait={this.switchToPortrait.bind(this)}
-            playFromPositionMillis={0}
-          />
       <ScrollView>
         <KeepAwake />
           <ListItem
             hideChevron
             title={title} //${item.author}
             titleNumberOfLines={3}
-            subtitle={`${pending_payout_value}`}
+            subtitle={("$"+`${pending_payout_value}`).replace(" SBD", "")}
             subtitleNumberOfLines={5}
             containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
           />
