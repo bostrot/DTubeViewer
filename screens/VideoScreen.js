@@ -44,7 +44,6 @@ class VideoScreen extends Component {
         commentText: "",
         sliderValue: 0,
         subscribed: 'Subscribe',
-        videoHeight: "28%",
       };
     }
 
@@ -117,12 +116,10 @@ class VideoScreen extends Component {
   }
   switchToLandscape() {
       ScreenOrientation.allow(ScreenOrientation.Orientation.LANDSCAPE);
-      this.state.videoHeight = "100%";
       StatusBar.setHidden(true);
     }
   switchToPortrait() {
     ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT);
-    this.state.videoHeight = "28%";
     StatusBar.setHidden(false);
   }
 
@@ -266,11 +263,17 @@ class VideoScreen extends Component {
       analytics.hit(new PageHit('Video Screen'), { ua: `${SYSTEM0}` })
         .then(() => console.log("success"))
         .catch(e => console.log(e.message));
-    const { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
+        const videoHeight = DEVICE_WIDTH * (DEVICE_WIDTH / DEVICE_HEIGHT);
+    var { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
+    if (pending_payout_value === undefined) {
+      const { meta, payout } = this.props.navigation.state.params;
+      pending_payout_value = payout;
+      json_metadata = JSON.stringify(meta);
+    }
     return (
       <View>
         <Video
-          source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash)) : "") }}
+          source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash !== undefined ? JSON.parse(`${json_metadata}`).video.content.video240hash : JSON.parse(`${json_metadata}`).video.content.video720hash)) : "") }}
           rate={1.0}
           volume={1.0}
           isMuted={false}
@@ -282,7 +285,7 @@ class VideoScreen extends Component {
           switchToPortrait={this.switchToPortrait.bind(this)}
           playFromPositionMillis={0}
           useNativeControls={true}
-          style={{ width: "100%", height: `${this.state.videoHeight}`, backgroundColor: "#000000" }}
+          style={{ width: "100%", height: videoHeight, backgroundColor: "#000000" }}
         >
         
         <KeepAwake />

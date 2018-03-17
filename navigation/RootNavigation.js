@@ -5,7 +5,6 @@ import { StackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
 import VideoScreen from '../screens/VideoScreen';
-import VideoSearchScreen from '../screens/VideoSearchScreen';
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
 
 const RootStackNavigator = StackNavigator(
@@ -24,10 +23,16 @@ const RootStackNavigator = StackNavigator(
     VideoScreen: {
       screen: VideoScreen,
     },
-    VideoSearchScreen: {
-      screen: VideoSearchScreen,
-    },
   },
+  {
+    mode: 'modal',
+    navigationOptions: {
+      gesturesEnabled: true,
+      gestureResponseDistance: {
+        vertical: 300
+      }
+    },
+  }
 );
 
 export default class RootNavigator extends React.Component {

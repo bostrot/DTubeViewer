@@ -30,24 +30,24 @@ export default TabNavigator(
     },
   },
   {
-    navigationOptions: ({ navigation }) => ({
+    navigationOptions: ({ navigation }) => ({ 
       tabBarIcon: ({ focused }) => {
         const { routeName } = navigation.state;
         let iconName;
           if (routeName === 'Home' && `${ICON_PREFIX}` === 'ios') {
             iconName = `${ICON_PREFIX}-home${focused ? '' : '-outline'}`;
           } else if (routeName === 'Feed' && `${ICON_PREFIX}` === 'ios') {
-            iconName = `${ICON_PREFIX}-paper${focused ? '' : '-outline'}`;
+            iconName = `${ICON_PREFIX}-clock${focused ? '' : '-outline'}`;
           } else if (routeName === 'Activity' && `${ICON_PREFIX}` === 'ios') {
-            iconName = `${ICON_PREFIX}-folder${focused ? '' : '-outline'}`;
+            iconName = `${ICON_PREFIX}-person${focused ? '' : '-outline'}`;
           } else if (routeName === 'Settings' && `${ICON_PREFIX}` === 'ios') {
             iconName = `${ICON_PREFIX}-options${focused ? '' : '-outline'}`;
           } else if (routeName === 'Home') {
             iconName = `${ICON_PREFIX}-home${focused ? '' : ''}`;
           } else if (routeName === 'Feed') {
-            iconName = `${ICON_PREFIX}-paper${focused ? '' : ''}`;
+            iconName = `${ICON_PREFIX}-clock${focused ? '' : ''}`;
           } else if (routeName === 'Activity') {
-            iconName = `${ICON_PREFIX}-folder${focused ? '' : ''}`;
+            iconName = `${ICON_PREFIX}-person${focused ? '' : ''}`;
           } else if (routeName === 'Options') {
             iconName = `${ICON_PREFIX}-options${focused ? '' : ''}`;
           }

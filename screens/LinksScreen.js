@@ -19,18 +19,25 @@ export default class LinksScreen extends React.Component {
     }
 
   async componentDidMount() {
+
+    AdMobRewarded.setAdUnitID('ca-app-pub-9430927632405311/3049946540');
     AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
       (reward) => {
         console.log('AdMobRewarded => rewarded', reward)
         theme.ASUP = false;
         setTimeout(function() {
-        theme.ASUP = true;
-      }.bind(this), (reward.amount * 60 * 60 * 1000));
+          theme.ASUP = true;
+        }.bind(this), (
+          reward.amount * 60 * 60 * 1000
+        ));
       }
     );
+    
+    AdMobRewarded.requestAd();
+
     const username = await AsyncStorage.getItem('@username:key');
     const encodedToken = await AsyncStorage.getItem('@encodedToken:key');
-    if (username && encodedToken !== null){
+    if (username && encodedToken !== null) {
       this.state = {
         username: username,
         encodedToken: encodedToken,
@@ -92,54 +99,7 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
-
-          { SYSTEM === "android" ? (
-            <View>
-          <Touchable
-            style={styles.option}
-            background={Touchable.Ripple('#ccc', false)}
-            onPress={this._handleRate}>
-            <View style={{ flexDirection: 'row' }}>
-              <View style={styles.optionIconContainer}>
-                <Ionicons name="md-star" size={22} color="#ccc" />
-              </View>
-              <View style={styles.optionTextContainer}>
-                <Text style={styles.optionText}>Rate on PlayStore</Text>
-              </View>
-            </View>
-          </Touchable>
-
-
-          <Touchable
-            background={Touchable.Ripple('#ccc', false)}
-            style={styles.option}
-            onPress={this._handlePaypal}>
-            <View style={{ flexDirection: 'row' }}>
-              <View style={styles.optionIconContainer}>
-                <Ionicons name="md-heart" size={22} color="#ccc" />
-              </View>
-              <View style={styles.optionTextContainer}>
-                <Text style={styles.optionText}> Donate via PayPal</Text>
-              </View>
-            </View>
-          </Touchable>
-
-          <Touchable
-            background={Touchable.Ripple('#ccc', false)}
-            style={styles.option}
-            onPress={this._handleBitcoin}>
-            <View style={{ paddingLeft: 2, flexDirection: 'row' }}>
-              <View style={styles.optionIconContainer}>
-                <Ionicons name="logo-bitcoin" size={22} color="#ccc" />
-              </View>
-              <View style={styles.optionTextContainer}>
-                <Text style={styles.optionText}> Donate via Bitcoin</Text>
-              </View>
-            </View>
-          </Touchable>
-          </View>
-         ): null}
-
+          
           <Touchable
             background={Touchable.Ripple('#ccc', false)}
             style={styles.option}
@@ -150,6 +110,20 @@ export default class LinksScreen extends React.Component {
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionText}> Like</Text>
+              </View>
+            </View>
+          </Touchable>
+          
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            style={styles.option}
+            onPress={this._handleHideAds}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="md-color-wand" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}> Watch video & hide Ads for 2h</Text>
               </View>
             </View>
           </Touchable>
@@ -167,7 +141,7 @@ export default class LinksScreen extends React.Component {
                   <Ionicons name="md-color-palette" size={22} color="#ccc" />
                 </View>
                 <View style={styles.optionTextContainer}>
-                  <Text style={styles.optionText}> Night Mode (Experimental)</Text>
+                  <Text style={styles.optionText}> Night Mode (Experimental - Reload to show)</Text>
                 </View>
               </View>
             </Touchable>
@@ -177,11 +151,15 @@ export default class LinksScreen extends React.Component {
   }
 
     _handleReddit = () => {
-      WebBrowser.openBrowserAsync('https://www.reddit.com/r/dtube/comments/7vqxmd/unofficial_android_app/');
+      WebBrowser.openBrowserAsync('https://www.reddit.com/r/dtube/comments/848rpw/android_and_ios_apps/');
     };
 
     _handleBlog = () => {
-      WebBrowser.openBrowserAsync('https://bostrot.pro/index.php/blog/1');
+      WebBrowser.openBrowserAsync('https://bostrot.pro/index.php/blog/dtube_app');
+    };
+
+    _handleRateAppStore = () => {
+      WebBrowser.openBrowserAsync('https://itunes.apple.com/us/app/dtube-viewer/id1358140255?l=de&ls=1&mt=8');
     };
 
     _handleRate = () => {
@@ -201,9 +179,7 @@ export default class LinksScreen extends React.Component {
     };
 
     _handleHideAds = () => {
-      AdMobRewarded.setAdUnitID('ca-app-pub-9430927632405311/3049946540'); // Test ID, Replace with your-admob-unit-id
-      AdMobRewarded.setTestDeviceID('EMULATOR');
-      AdMobRewarded.requestAd(() => AdMobRewarded.showAd());
+      AdMobRewarded.isReady(() => AdMobRewarded.showAd());
     }
 
 
