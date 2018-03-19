@@ -5,22 +5,26 @@ This is a native Android & iOS app developed for d.tube the ipfs/blockchain vide
 ## Screenshots
 <table>
 <tr>
-  <td><img width="240" src="https://i.imgur.com/BRmeveF.jpg"></img></td>
-  <td><img width="240" src="https://i.imgur.com/obT2dJz.jpg"></img></td>
-  <td><img width="240" src="https://i.imgur.com/eFoHwyi.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/tpf89jl.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/srB97TA.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/QDD5sKH.jpg"></img></td>
+</tr>
+<tr>
+  <td><img width="240" src="https://i.imgur.com/jAjjhM3.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/IhAtpqj.jpg"></img></td>
+  <td><img width="240" src="https://i.imgur.com/gCMrizX.jpg"></img></td>
 </tr>
 </table>
 
 ## Features
 * Uses Google <a href="https://github.com/google/ExoPlayer">ExoPlayer</a>
 * Smoother mobile experience
-* PiP on Android 8.0 (not yet)
+* PiP (only on iPad atm)
 * Deep Linking including PiP (not yet)
 * Full and background playback (not yet)
 * Improved compatibilty layer for mobile
 including the design
 * Cast (not yet)
-* Crash reporting (not yet)
 * Notifications (not yet)
 * Faster loading (ipfs on device)
 * more (multiple custom modifications)
