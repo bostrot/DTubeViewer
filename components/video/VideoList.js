@@ -1,11 +1,11 @@
 import React, { Component }  from 'react';
-import { ActivityIndicator, Animated, FlatList, View, ImageBackground, Platform, AsyncStorage } from 'react-native';
+import { ActivityIndicator, Animated, FlatList, View, ImageBackground, Platform, AsyncStorage, Text } from 'react-native';
 import { Card, ListItem, SearchBar, Header } from "react-native-elements";
 import moment from 'moment'
 import styles from '../style/Style'
 import theme from '../style/Theme'
 import Touchable from 'react-native-platform-touchable';
-import VideoScreen from '../../screens/VideoScreen'
+import VideoScreen from './VideoScreen'
 import { Analytics, PageHit } from 'expo-analytics';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
@@ -27,6 +27,7 @@ class VideoList extends Component  {
         videoComponentData: [],
         username: null,
         encodedToken: null,
+        videoData: null,
       };
     this.baseState = this.state
     }
@@ -43,9 +44,9 @@ class VideoList extends Component  {
   
         this.setState({
           username,
-          encodedToken,
+          encodedToken,          
+          videoData: null,
         });
-        
         this.makeRemoteRequest();
     }
 
@@ -181,11 +182,7 @@ class VideoList extends Component  {
         }
       );
     };
-
-    handleVideoPress(data) {
-        this.props.nav('VideoScreen', { ...data.item });
-    };
-
+    
     render(){
         const vidWidth = 180;
         const vidHeight = 101.25;
@@ -202,7 +199,7 @@ class VideoList extends Component  {
                             titleStyle= {{color: (`${theme.COLOR_TEXT}`)}}>
                     <Touchable
                         background={Touchable.Ripple('#ccc', false)}
-                        onPress={() => this.handleVideoPress({item})}>
+                        onPress={() => this._handleVideoPress({item})}>
                             <ListItem
                                 style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                                 button
@@ -236,10 +233,20 @@ class VideoList extends Component  {
                 refreshing={this.state.refreshing}
                 //onEndReached={() => this.handleLoadMore()}
                 onEndReachedThreshold={100}
-              />
+              />{
+          (this.state.videoData !== null ? <VideoScreen data={this.state.videoData} screen={this.props.screen} /> : null)}
           </View>
       );
     }
+    _handleVideoPress(data) {
+      console.log("handleVideo");
+      this.setState({
+        videoData: null,
+        videoData: data.item,
+      })
+        //this.props.nav('VideoScreen', { ...data.item });
+    };
+
 }
 
 export default VideoList;

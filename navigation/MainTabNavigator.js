@@ -35,7 +35,7 @@ export default TabNavigator(
         const { routeName } = navigation.state;
         let iconName;
           if (routeName === 'Home' && `${ICON_PREFIX}` === 'ios') {
-            iconName = `${ICON_PREFIX}-home${focused ? '' : '-outline'}`;
+            iconName = `${ICON_PREFIX}-flame${focused ? '' : '-outline'}`;
           } else if (routeName === 'Feed' && `${ICON_PREFIX}` === 'ios') {
             iconName = `${ICON_PREFIX}-clock${focused ? '' : '-outline'}`;
           } else if (routeName === 'Activity' && `${ICON_PREFIX}` === 'ios') {
@@ -43,7 +43,7 @@ export default TabNavigator(
           } else if (routeName === 'Settings' && `${ICON_PREFIX}` === 'ios') {
             iconName = `${ICON_PREFIX}-options${focused ? '' : '-outline'}`;
           } else if (routeName === 'Home') {
-            iconName = `${ICON_PREFIX}-home${focused ? '' : ''}`;
+            iconName = `${ICON_PREFIX}-flame${focused ? '' : ''}`;
           } else if (routeName === 'Feed') {
             iconName = `${ICON_PREFIX}-clock${focused ? '' : ''}`;
           } else if (routeName === 'Activity') {

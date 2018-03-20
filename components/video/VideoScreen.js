@@ -1,22 +1,25 @@
 import React, { Component }  from 'react';
-import { View, FlatList, Text, ScrollView, Dimensions, StatusBar, AsyncStorage, Platform, Alert, StyleSheet, WebView, Animated, PanResponder } from 'react-native';
+import { View, FlatList, Text, ScrollView, Dimensions, StatusBar, AsyncStorage, Platform, Alert, StyleSheet, WebView, Animated, LayoutAnimation, PanResponder } from 'react-native';
 import { ListItem, Divider, Button, Input, Slider } from 'react-native-elements';
-import theme from '../components/style/Theme'
-import { ScreenOrientation, KeepAwake, Video, AdMobBanner } from 'expo';
+import theme from '../style/Theme'
+import { ScreenOrientation, KeepAwake, Video, AdMobBanner, AdMobRewarded } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@expo/videoplayer';
 import moment from 'moment'
 import Touchable from 'react-native-platform-touchable';
 import HTMLView from 'react-native-htmlview';
-import Home from '../navigation/RootNavigation'
+import Home from '../../navigation/RootNavigation'
 import { Analytics, PageHit } from 'expo-analytics';
+import ProfileScreen from '../../screens/ProfileScreen';
+
+import VideoList from './VideoList'
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'md';
 const SYSTEM0 = Platform.OS === 'ios' ? 'ios' : 'android';
 const { width: DEVICE_WIDTH, height: DEVICE_HEIGHT } = Dimensions.get('window');
 
 
-class VideoScreen extends Component {
+class player extends Component {
   static navigationOptions = ({ navigation }) => ({
     header: null,
     tabBarVisible:
@@ -41,10 +44,37 @@ class VideoScreen extends Component {
         commentText: "",
         sliderValue: 0,
         subscribed: 'Subscribe',
+        feedScreenHeight: 0,    
+        visible: false,
+        x: new Animated.Value(-100),
       };
     }
 
+    
+  slide = () => {
+    Animated.spring(this.state.x, {
+      toValue: 0,
+    }).start();
+    this.setState({
+      visible: true,
+    });
+  };
+
+
     async componentDidMount() {
+      AdMobRewarded.setAdUnitID('ca-app-pub-9430927632405311/3049946540');
+      AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
+        (reward) => {
+          console.log('AdMobRewarded => rewarded', reward)
+          theme.ASUP = false;
+          setTimeout(function() {
+            theme.ASUP = true;
+          }.bind(this), (
+            reward.amount * 60 * 60 * 1000
+          ));
+        }
+      );
+
       const username = await AsyncStorage.getItem('@username:key');
       const encodedToken = await AsyncStorage.getItem('@encodedToken:key');
       if (username && encodedToken !== null){
@@ -68,7 +98,7 @@ class VideoScreen extends Component {
     }
 
     makeRemoteRequest = () => {
-        const { url } = this.props.navigation.state.params;
+        const { url } = this.props.data;
         const body = {"id":0,"jsonrpc":"2.0","method":"call","params":["database_api","get_state",[(`${url}`)]]};
         this.setState({ loading: true });
 
@@ -100,6 +130,11 @@ class VideoScreen extends Component {
   }
 
   componentWillMount() {
+    if (this.props.screen === "Settings") {
+      this.setState({
+        feedScreenHeight: 60,
+      })
+    }
     this._y = 0;
     this._animation = new Animated.Value(0);
     this._animation.addListener(({ value }) => {
@@ -155,7 +190,7 @@ class VideoScreen extends Component {
   }
 
   _makeBroadcastRequest = (like) => {
-        const { permlink, author } = this.props.navigation.state.params;
+        const { permlink, author } = this.props.data;
         console.log(`user ${this.state.username} ${this.state.encodedToken}`);
         var weight = 0;
         if (like) {
@@ -202,7 +237,7 @@ class VideoScreen extends Component {
     }
 
     _makeCommentBroadcastRequest = (e) => {
-          const { permlink, author } = this.props.navigation.state.params;
+          const { permlink, author } = this.props.data;
           const tempString = this.randString();
           const text = e.nativeEvent.text;
           console.log(text);
@@ -237,7 +272,7 @@ class VideoScreen extends Component {
             this.setState({
               subscribed: 'Subscribed'
             })
-            const { permlink, author } = this.props.navigation.state.params;
+            const { permlink, author } = this.props.data;
             const body = {"operations":[["custom_json",{"required_auths":[],"required_posting_auths":[`${this.state.username}`],"id":"follow","json":"[\"follow\",{\"follower\":\""+`${this.state.username}`+"\",\"following\":\""+`${author}`+"\",\"what\":[\"blog\"]}]"}]]};
             console.log("body", body)
             fetch('https://v2.steemconnect.com/api/broadcast', {
@@ -290,38 +325,39 @@ class VideoScreen extends Component {
         };
 
   render() {
-    console.log("VideoScreen");
-    
     const analytics = new Analytics('UA-108863569-3');
     analytics.hit(new PageHit('Video Screen'), { ua: `${SYSTEM0}` })
       .then(() => console.log("success"))
       .catch(e => console.log(e.message));
 
-    const videoHeight = DEVICE_WIDTH * (DEVICE_WIDTH / DEVICE_HEIGHT);
-    var { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.navigation.state.params;
+      
+    console.log("data", this.state.videoData);
+    
 
+    const videoHeight = DEVICE_WIDTH * (DEVICE_WIDTH / DEVICE_HEIGHT);
+    var { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.data;
     const { width, height: screenHeight } = Dimensions.get("window");
     const height = width * 0.5625;
 
     const opacityInterpolate = this._animation.interpolate({
-      inputRange: [0, 300],
+      inputRange: [0, height],
       outputRange: [1, 0],
     });
 
     const translateYInterpolate = this._animation.interpolate({
-      inputRange: [0, 300],
-      outputRange: [0, screenHeight - height + 40],
+      inputRange: [0, height],
+      outputRange: [0, screenHeight - height - 100 + 40 - this.state.feedScreenHeight],
       extrapolate: "clamp",
     });
 
     const scaleInterpolate = this._animation.interpolate({
-      inputRange: [0, 300],
+      inputRange: [0, height],
       outputRange: [1, 0.5],
       extrapolate: "clamp",
     });
 
     const translateXInterpolate = this._animation.interpolate({
-      inputRange: [0, 300],
+      inputRange: [0, height],
       outputRange: [0, 85],
       extrapolate: "clamp",
     });
@@ -350,11 +386,10 @@ class VideoScreen extends Component {
     };
 
     if (pending_payout_value === undefined) {
-      const { meta, payout } = this.props.navigation.state.params;
+      const { meta, payout } = this.props.data;
       pending_payout_value = payout;
       json_metadata = JSON.stringify(meta);
     }
-
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none"
         {...this._panResponder.panHandlers}>
@@ -372,8 +407,9 @@ class VideoScreen extends Component {
               switchToPortrait={this.switchToPortrait.bind(this)}
               playFromPositionMillis={0}
               useNativeControls={true}
-              style={StyleSheet.absoluteFill}
+              style={[{backgroundColor: "#000"},StyleSheet.absoluteFill]}
             >
+            
               <KeepAwake />
             </Video>
           </Animated.View>
@@ -424,6 +460,9 @@ class VideoScreen extends Component {
                 containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
               />
           <Divider />
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            onPress={() => this._handleAuthorPress()}>
             <ListItem
               roundAvatar
               titleNumberOfLines={3}
@@ -436,15 +475,28 @@ class VideoScreen extends Component {
               }
             >
           </ListItem>
-
+          </Touchable>
           <Divider />
             {
               `${theme.ASUP}` === "true" ?
+              <View>
                 <AdMobBanner
                   bannerSize="smartBannerPortrait"
                   adUnitID={'ca-app-pub-9430927632405311/3217467505'}
                   didFailToReceiveAdWithError={this.bannerError}
-                /> : null
+                />
+              </View>: null
+            }
+            
+            {
+              `${theme.ASUP}` === "true" ?
+              <View>
+                  <Button 
+                    onPress={() => this._handleHideAds()}
+                    textStyle={{ color: '#000000' }}
+                    buttonStyle={{ width: "100%", backgroundColor: "#fff", height: 50, textAlign: "center", fontWeight: 'bold', fontSize: 15 }}
+                    text="Tired of this Ad?"></Button>
+              </View>: null
             }
             <Divider />
 
@@ -483,13 +535,13 @@ class VideoScreen extends Component {
                   avatarOverlayContainerStyle={{ flex: 4, justifyContent: "flex-start", backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
                   avatar={{uri: `https://img.busy.org/@${item.author}?width=96&height=96` }}
                   titleStyle={{ backgroundColor: `${theme.COLOR_GREY}`, textAlign: 'center', borderRadius: 10, color: "white", width: ((`${item.author}`).length * 10) }}
-                  title={'    ' + (`${item.author}`) + '    '}
+                  title={(`${item.author}`)}
                   subtitleNumberOfLines={100}
                   subtitle={
                     <View>
                       <HTMLView
                         value={(`${item.body}`)}
-                        style={{ color: (`${theme.COLOR_GREY}`), padding: 10 }}
+                        style={{ padding: 10 }}
                       />
                       <View style={{flexDirection: 'row', marginLeft: 10 }}>
                         <Touchable
@@ -523,6 +575,15 @@ class VideoScreen extends Component {
         </View>
     );
   }
+  _handleHideAds = () => {
+      AdMobRewarded.requestAd(() => AdMobRewarded.showAd());
+  }
+  
+  _handleAuthorPress() {
+    console.log("handleAuthor");
+    this.props.navigation.navigate('ProfileScreen', { author })
+      //this.props.nav('VideoScreen', { ...data.item });
+  };
 
 }
     const styles = StyleSheet.create({
@@ -530,6 +591,8 @@ class VideoScreen extends Component {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
+        position: 'absolute',
+        top: 0
       },
       scrollView: {
         flex: 1,
@@ -537,4 +600,4 @@ class VideoScreen extends Component {
       },
     });
 
-export default VideoScreen;
+export default player;

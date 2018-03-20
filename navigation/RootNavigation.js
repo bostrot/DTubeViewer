@@ -4,8 +4,10 @@ import { Animated } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import MainTabNavigator from './MainTabNavigator';
-import VideoScreen from '../screens/VideoScreen';
+import VideoScreen from '../components/video/VideoScreen';
 import registerForPushNotificationsAsync from '../api/registerForPushNotificationsAsync';
+import theme from '../components/style/Theme';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const RootStackNavigator = StackNavigator(
   {
@@ -20,23 +22,18 @@ const RootStackNavigator = StackNavigator(
           }
         }),
     },
-    VideoScreen: {
-      screen: VideoScreen,
+    ProfileScreen: {
+      screen: ProfileScreen,
+        navigationOptions: () => ({
+          headerTitleStyle: {
+            fontWeight: 'normal',
+          },
+        }),
     },
   },
-  {
-    mode: 'modal',
-    navigationOptions: {
-      gesturesEnabled: true,
-      gestureResponseDistance: {
-        vertical: 300
-      }
-    },
-  }
 );
 
 export default class RootNavigator extends React.Component {
-
 
   componentDidMount() {
     this._notificationSubscription = this._registerForPushNotifications();
@@ -47,7 +44,9 @@ export default class RootNavigator extends React.Component {
   }
 
   render() {
-    return <RootStackNavigator />;
+    return (
+      <RootStackNavigator> </RootStackNavigator>
+    );
   }
 
   _registerForPushNotifications() {

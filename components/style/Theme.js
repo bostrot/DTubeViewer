@@ -7,7 +7,8 @@ class theme {
     this.COLOR_GREY= "#CFD8DC";
     this.COLOR_BLUE= "#2f95dc";
     this.COLOR_TEXT= "#000";
-    this.ASUP= true;
+    this.ASUP = true;
+    this.VideoData = null;
   }
 }
 

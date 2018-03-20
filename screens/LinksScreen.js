@@ -189,7 +189,7 @@ export default class LinksScreen extends React.Component {
             var weight = 10000;
             console.log("like true")
 
-            const body = {"operations":[["vote",{"voter":`${this.state.username}`,"author":'bostrot',"permlink":'uc43y5y7',"weight":weight}]]};
+            const body = {"operations":[["vote",{"voter":`${this.state.username}`,"author":'bostrot',"permlink":'772roz4o',"weight":weight}]]};
             console.log("body", body)
             fetch('https://v2.steemconnect.com/api/broadcast', {
                 method: 'POST',
