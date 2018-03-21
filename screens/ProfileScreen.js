@@ -22,18 +22,19 @@ class ProfileScreen extends Component  {
       }
 
       
-    componentDidMount() {        
-        console.log("profilescreen");
-        
-        const { user } = this.props.navigation.state.params;
-        this.makeRemoteRequestForUserData(user);
+    componentDidMount() {
+        this.makeRemoteRequest();
     }
 
-    makeRemoteRequestForUserData = (user) => {
-        const { page } = this.state;
-        const url = `https://api.steemit.com`;
-        var body = {"id":6,"jsonrpc":"2.0","method":"call","params":["database_api","get_accounts",[[user]]]};
+    makeRemoteRequest = () => {
+        const { author } = this.props.navigation.state.params;
+        console.log("we are here");
         
+        const url = `https://api.steemit.com`;
+        var body = {"id":6,"jsonrpc":"2.0","method":"call","params":["database_api","get_accounts",[[author]]]};
+        
+        this.setState({ loading: true });
+
         fetch('https://api.steemit.com', {
             method: 'POST',
             headers: {
@@ -43,16 +44,19 @@ class ProfileScreen extends Component  {
             body: JSON.stringify(body),
             })
             .then(res => res.json())
-            .then(res => {              
-            this.setState({
-                data: res.result,
-                error: res.error || null,
-                loading: false,
-                refreshing: false,
+            .then(res => {           
+                console.log("userData0", res.result);                        
+                this.setState({
+                    userData: res.result,
+                    error: res.error || null,
+                    loading: false,
+                    refreshing: false,
                 });
+                console.log("userData1", this.state.userData);
+                
             })
-            .catch(error => {
-            this.setState({ error, loading: false, refreshing: false });
+            .catch(error => {                
+                this.setState({ error, loading: false, refreshing: false });
         });
     };
 
@@ -63,14 +67,16 @@ class ProfileScreen extends Component  {
         .catch(e => console.log(e.message));
       
       const { navigate } = this.props.navigation;
-      const { user } = this.props.navigation.state.params;
+      const { author } = this.props.navigation.state.params;
+      console.log("data", this.state.userData[0]);
+      
         
       return (
         <View>
             <ImageBackground source={{uri: JSON.parse(this.state.userData[0].json_metadata).profile.profile_image}}>
-                <Image source={{uri: 'https://steemitimages.com/u/'+user+'/avatar/'}}></Image>
+                <Image source={{uri: 'https://steemitimages.com/u/'+author+'/avatar/'}}></Image>
             </ImageBackground>
-            <VideoList screen="Profile" user={user} nav={navigate} />
+            <VideoList screen="Profile" user={author} nav={navigate} />
         </View>
       );
     }

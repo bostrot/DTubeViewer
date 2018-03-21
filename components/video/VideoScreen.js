@@ -45,21 +45,8 @@ class player extends Component {
         sliderValue: 0,
         subscribed: 'Subscribe',
         feedScreenHeight: 0,    
-        visible: false,
-        x: new Animated.Value(-100),
       };
     }
-
-    
-  slide = () => {
-    Animated.spring(this.state.x, {
-      toValue: 0,
-    }).start();
-    this.setState({
-      visible: true,
-    });
-  };
-
 
     async componentDidMount() {
       AdMobRewarded.setAdUnitID('ca-app-pub-9430927632405311/3049946540');
@@ -340,24 +327,24 @@ class player extends Component {
     const height = width * 0.5625;
 
     const opacityInterpolate = this._animation.interpolate({
-      inputRange: [0, height],
+      inputRange: [0, 300],
       outputRange: [1, 0],
     });
 
     const translateYInterpolate = this._animation.interpolate({
-      inputRange: [0, height],
+      inputRange: [0, 300],
       outputRange: [0, screenHeight - height - 100 + 40 - this.state.feedScreenHeight],
       extrapolate: "clamp",
     });
 
     const scaleInterpolate = this._animation.interpolate({
-      inputRange: [0, height],
+      inputRange: [0, 300],
       outputRange: [1, 0.5],
       extrapolate: "clamp",
     });
 
     const translateXInterpolate = this._animation.interpolate({
-      inputRange: [0, height],
+      inputRange: [0, 300],
       outputRange: [0, 85],
       extrapolate: "clamp",
     });
@@ -391,9 +378,9 @@ class player extends Component {
       json_metadata = JSON.stringify(meta);
     }
     return (
-        <View style={StyleSheet.absoluteFill} pointerEvents="box-none"
-        {...this._panResponder.panHandlers}>
-          <Animated.View style={[{ width, height }, videoStyles]}>
+        <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          <Animated.View style={[{ width, height }, videoStyles]}
+            {...this._panResponder.panHandlers}>
             <Video
               source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash !== undefined ? JSON.parse(`${json_metadata}`).video.content.video240hash : JSON.parse(`${json_metadata}`).video.content.video720hash)) : "") }}
               rate={1.0}
@@ -461,8 +448,7 @@ class player extends Component {
               />
           <Divider />
           <Touchable
-            background={Touchable.Ripple('#ccc', false)}
-            onPress={() => this._handleAuthorPress()}>
+            background={Touchable.Ripple('#ccc', false)}>
             <ListItem
               roundAvatar
               titleNumberOfLines={3}
@@ -493,8 +479,8 @@ class player extends Component {
               <View>
                   <Button 
                     onPress={() => this._handleHideAds()}
-                    textStyle={{ color: '#000000' }}
-                    buttonStyle={{ width: "100%", backgroundColor: "#fff", height: 50, textAlign: "center", fontWeight: 'bold', fontSize: 15 }}
+                    textStyle={{ color: '#000000', textAlign: "center", fontWeight: 'bold', fontSize: 15 }}
+                    buttonStyle={{ width: "100%", backgroundColor: "#fff", height: 50 }}
                     text="Tired of this Ad?"></Button>
               </View>: null
             }
@@ -580,9 +566,8 @@ class player extends Component {
   }
   
   _handleAuthorPress() {
-    console.log("handleAuthor");
-    this.props.navigation.navigate('ProfileScreen', { author })
-      //this.props.nav('VideoScreen', { ...data.item });
+    var { author } = this.props.data;    
+    this.props.nav("ProfileScreen", {author})
   };
 
 }

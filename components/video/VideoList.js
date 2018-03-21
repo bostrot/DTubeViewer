@@ -234,7 +234,7 @@ class VideoList extends Component  {
                 //onEndReached={() => this.handleLoadMore()}
                 onEndReachedThreshold={100}
               />{
-          (this.state.videoData !== null ? <VideoScreen data={this.state.videoData} screen={this.props.screen} /> : null)}
+          (this.state.videoData !== null ? <VideoScreen data={this.state.videoData} nav={this.props.nav} screen={this.props.screen} /> : null)}
           </View>
       );
     }
