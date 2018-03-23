@@ -45,6 +45,7 @@ class player extends Component {
         sliderValue: 0,
         subscribed: 'Subscribe',
         feedScreenHeight: 0,    
+        nav: this.props.nav,
       };
     }
 
@@ -78,10 +79,6 @@ class player extends Component {
 
       this.makeRemoteRequest();
       ScreenOrientation.allow(ScreenOrientation.Orientation.ALL);
-      Dimensions.addEventListener(
-        'change',
-        this.orientationChangeHandler.bind(this)
-      );
     }
 
     makeRemoteRequest = () => {
@@ -155,18 +152,6 @@ class player extends Component {
     });
   }
 
-  orientationChangeHandler(dims) {
-    const { width, height } = dims.window;
-    const isLandscape = width > height;
-    this.setState({ isPortrait: !isLandscape });
-    this.props.navigation.setParams({ tabBarHidden: isLandscape });
-    ScreenOrientation.allow(ScreenOrientation.Orientation.ALL);
-    if (isLandscape) {
-      StatusBar.setHidden(true);
-    } else {
-      StatusBar.setHidden(false);
-    }
-  }
   switchToLandscape() {
       ScreenOrientation.allow(ScreenOrientation.Orientation.LANDSCAPE);
       StatusBar.setHidden(true);
