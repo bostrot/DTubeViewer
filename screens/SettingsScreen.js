@@ -10,6 +10,7 @@ import { Actions as NavigationActions } from 'react-native-router-flux';
 import moment from 'moment'
 import { Analytics, PageHit } from 'expo-analytics';
 import VideoList from '../components/video/VideoList';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'android';
 
@@ -130,6 +131,7 @@ export default class SettingsScreen extends React.Component {
           avatarContainerStyle={{ width: 60, height: 60, backgroundColor: `${Colors.tabIconSelected}`}}
           title={`Logged in as ${this.state.username}`}
           containerStyle={{ borderBottomWidth: 0, height: 80 }}
+          onPress={() => this._handlePress(navigate)}
           avatar={{uri: `https://img.busy.org/@${this.state.username}?width=96&height=96` }} />
 
         <VideoList screen="Settings" nav={navigate} />
@@ -156,6 +158,9 @@ export default class SettingsScreen extends React.Component {
 
     _handleLogin = () => {
       WebBrowser.openBrowserAsync('https://v2.steemconnect.com/oauth2/authorize?client_id=dtube.app&redirect_uri=https%3A%2F%2Fd.tube%2F%23!%2Fsc2login&scope=');
+    };
+
+    _handlePress = (navigate) => {
     };
 
 };

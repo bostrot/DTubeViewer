@@ -17,7 +17,7 @@ class ProfileScreen extends Component  {
             error: null,
             loading: false,
             refreshing: false,
-            userData: [],
+            user: [],
         };
       }
 
@@ -27,11 +27,13 @@ class ProfileScreen extends Component  {
     }
 
     makeRemoteRequest = () => {
+        console.log("autr");
         const { author } = this.props.navigation.state.params;
-        console.log("we are here");
+        console.log("author", author);
+        
         
         const url = `https://api.steemit.com`;
-        var body = {"id":6,"jsonrpc":"2.0","method":"call","params":["database_api","get_accounts",[[author]]]};
+        var body = {"id":6,"jsonrpc":"2.0","method":"call","params":["base_api","get_accounts",[[author]]]};
         
         this.setState({ loading: true });
 
@@ -45,17 +47,19 @@ class ProfileScreen extends Component  {
             })
             .then(res => res.json())
             .then(res => {           
-                console.log("userData0", res.result);                        
+                console.log("user0", res.result);                        
                 this.setState({
-                    userData: res.result,
+                    user: res.result,
                     error: res.error || null,
                     loading: false,
                     refreshing: false,
                 });
-                console.log("userData1", this.state.userData);
+                console.log("user1", this.state.user);
                 
             })
-            .catch(error => {                
+            .catch(error => {         
+                
+                console.log("error", error);       
                 this.setState({ error, loading: false, refreshing: false });
         });
     };
@@ -68,12 +72,12 @@ class ProfileScreen extends Component  {
       
       const { navigate } = this.props.navigation;
       const { author } = this.props.navigation.state.params;
-      console.log("data", this.state.userData[0]);
+      console.log("cygy", this.state.user);
       
         
       return (
         <View>
-            <ImageBackground source={{uri: JSON.parse(this.state.userData[0].json_metadata).profile.profile_image}}>
+            <ImageBackground source={{uri: JSON.parse(this.state.user[0].json_meta).profile.profile_image}}>
                 <Image source={{uri: 'https://steemitimages.com/u/'+author+'/avatar/'}}></Image>
             </ImageBackground>
             <VideoList screen="Profile" user={author} nav={navigate} />

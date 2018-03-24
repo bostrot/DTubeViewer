@@ -239,9 +239,11 @@ class VideoList extends Component  {
       );
     }
     _handleVideoPress(data) {
-      console.log("handleVideo");
       this.setState({
         videoData: null,
+      })
+      console.log("handleVideo");
+      this.setState({
         videoData: data.item,
       })
         //this.props.nav('VideoScreen', { ...data.item });

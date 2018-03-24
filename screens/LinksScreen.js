@@ -99,7 +99,11 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
-          
+        </View>
+        <View>
+          <Text style={styles.optionsTitleText}>
+            Help
+          </Text>
           <Touchable
             background={Touchable.Ripple('#ccc', false)}
             style={styles.option}
@@ -124,6 +128,20 @@ export default class LinksScreen extends React.Component {
               </View>
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionText}> Watch video & hide Ads for 2h</Text>
+              </View>
+            </View>
+          </Touchable>
+          
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            style={styles.option}
+            onPress={this._handleSubscribe}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="md-mail" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}> Subscribe to Newsletter</Text>
               </View>
             </View>
           </Touchable>
@@ -152,6 +170,10 @@ export default class LinksScreen extends React.Component {
 
     _handleReddit = () => {
       WebBrowser.openBrowserAsync('https://www.reddit.com/r/dtube/comments/848rpw/android_and_ios_apps/');
+    };
+
+    _handleSubscribe = () => {
+      WebBrowser.openBrowserAsync('http://eepurl.com/do_FIr');
     };
 
     _handleBlog = () => {
