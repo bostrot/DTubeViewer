@@ -114,7 +114,7 @@ class player extends Component {
   }
 
   componentWillMount() {
-    if (this.props.screen === "Settings") {
+    if (this.props.screen === "Settings" || this.props.screen === "Profile" ) {
       this.setState({
         feedScreenHeight: 60,
       })
@@ -163,39 +163,44 @@ class player extends Component {
 
   _makeBroadcastRequest = (like) => {
         const { permlink, author } = this.props.data;
-        console.log(`user ${this.state.username} ${this.state.encodedToken}`);
-        var weight = 0;
-        if (like) {
-          console.log("like true")
-          weight = this.state.sliderValue * 100;
-          this.setState({
-            upColor: `${theme.COLOR_BLUE}`,
-          })
-        } else {
-          console.log("like false")
-          weight = this.state.sliderValue * -100;
-          this.setState({
-            downColor: `${theme.COLOR_BLUE}`,
-          })
-        };
-        const body = {"operations":[["vote",{"voter":`${this.state.username}`,"author":`${author}`,"permlink":`${permlink}`,"weight":weight}]]};
-        console.log("body", body)
-        fetch('https://v2.steemconnect.com/api/broadcast', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'authorization': `${this.state.encodedToken}`
-            },
-            body: JSON.stringify(body),
-          })
-          .then(res => res.json())
-          .then(res => {
-            console.log("res... ", res);
+        if (this.state.username !== null && this.state.encodedToken !== null ) {
+          var weight = 0;
+          if (like) {
+            console.log("like true")
+            weight = this.state.sliderValue * 100;
+            this.setState({
+              upColor: `${theme.COLOR_BLUE}`,
             })
-          .catch(error => {
-        console.log(error);
-            this.setState({ error });
-          });
+          } else {
+            console.log("like false")
+            weight = this.state.sliderValue * -100;
+            this.setState({
+              downColor: `${theme.COLOR_BLUE}`,
+            })
+          };
+          const body = {"operations":[["vote",{"voter":`${this.state.username}`,"author":`${author}`,"permlink":`${permlink}`,"weight":weight}]]};
+          fetch('https://v2.steemconnect.com/api/broadcast', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'authorization': `${this.state.encodedToken}`
+              },
+              body: JSON.stringify(body),
+            })
+            .then(res => res.json())
+            .then(res => {
+              console.log("this", res);
+                if (res.error !== undefined) {
+                  Alert.alert("Error", "Please make sure you are logged in before continue.")
+                }
+              })
+            .catch(error => {
+          console.log(error);
+              this.setState({ error });
+            });
+        } else {
+          Alert.alert("Error", "Please make sure you are logged in before continue.")
+        }
     };
 
     randString() {
@@ -209,6 +214,7 @@ class player extends Component {
     }
 
     _makeCommentBroadcastRequest = (e) => {
+      if (this.state.username !== null && this.state.encodedToken !== null ) {
           const { permlink, author } = this.props.data;
           const tempString = this.randString();
           const text = e.nativeEvent.text;
@@ -238,9 +244,13 @@ class player extends Component {
               console.log(error);
               this.setState({ error });
             });
+          } else {
+            Alert.alert("Error", "Please make sure you are logged in before continue.")
+          }
       };
 
       _subscribeRequest = () => {
+        if (this.state.username !== null && this.state.encodedToken !== null ) {
             this.setState({
               subscribed: 'Subscribed'
             })
@@ -264,9 +274,13 @@ class player extends Component {
                 console.log(error);
                 this.setState({ error });
               });
+          } else {
+            Alert.alert("Error", "Please make sure you are logged in before continue.")
+          }
       }
 
       _makeCommentsBroadcastRequest = (permlink, author, like) => {
+        if (this.state.username !== null && this.state.encodedToken !== null ) {
             const tempString = this.randString();
 
             var weight = 0;
@@ -289,11 +303,15 @@ class player extends Component {
 
               .then(res => res.json())
               .then(res => {
+                  console.log("Like", res.result)
                 })
               .catch(error => {
                 console.log(error);
                 this.setState({ error });
               });
+            } else {
+              Alert.alert("Error", "Please make sure you are logged in before continue.")
+            }
         };
 
   render() {
@@ -367,7 +385,7 @@ class player extends Component {
           <Animated.View style={[{ width, height }, videoStyles]}
             {...this._panResponder.panHandlers}>
             <Video
-              source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : ((JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : (JSON.parse(`${json_metadata}`).video.content.video240hash !== undefined ? JSON.parse(`${json_metadata}`).video.content.video240hash : JSON.parse(`${json_metadata}`).video.content.video720hash)) : "") }}
+              source={{ uri: 'https://gateway.ipfs.io/ipfs/' + (JSON.parse(`${json_metadata}`).video !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.video480hash) : ((JSON.parse(`${json_metadata}`).video.content.videohash) !== undefined ? (JSON.parse(`${json_metadata}`).video.content.videohash) : (JSON.parse(`${json_metadata}`).video.content.video240hash !== undefined ? JSON.parse(`${json_metadata}`).video.content.video240hash : JSON.parse(`${json_metadata}`).video.content.video720hash)) : "") }}
               rate={1.0}
               volume={1.0}
               isMuted={false}
@@ -432,8 +450,6 @@ class player extends Component {
                 containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
               />
           <Divider />
-          <Touchable
-            background={Touchable.Ripple('#ccc', false)}>
             <ListItem
               roundAvatar
               titleNumberOfLines={3}
@@ -441,12 +457,12 @@ class player extends Component {
               subtitleNumberOfLines={5}
               containerStyle={{ borderBottomWidth: 0, backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
               avatar={{uri: `https://img.busy.org/@${author}?width=96&height=96` }}
+              onPress={() => this._handleAuthorPress()}
               rightIcon={
                     <Button text={this.state.subscribed} onPress={() => this._subscribeRequest() } buttonStyle={{backgroundColor: (`${theme.COLOR_ACCENT}`)}} ></Button>
               }
             >
           </ListItem>
-          </Touchable>
           <Divider />
             {
               `${theme.ASUP}` === "true" ?
@@ -552,7 +568,7 @@ class player extends Component {
   
   _handleAuthorPress() {
     var { author } = this.props.data;    
-    this.props.nav("ProfileScreen", {author})
+    this.props.nav("ProfileScreen", {author: author})
   };
 
 }

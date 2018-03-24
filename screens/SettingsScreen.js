@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppRegistry, AsyncStorage, SectionList, ImageBackground, StyleSheet, Text, View, FlatList, Alert, Platform } from 'react-native';
 import { Button, ListItem } from 'react-native-elements';
-import { WebBrowser, AuthSession } from 'expo';
+import { WebBrowser, AuthSession, Util } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import theme from '../components/style/Theme';
@@ -111,6 +111,7 @@ export default class SettingsScreen extends React.Component {
       console.error('Could not save token to local storage.');
     }
     this.setState({ username, encodedToken });
+    Util.reload();
   }
 
   render() {
@@ -122,7 +123,7 @@ export default class SettingsScreen extends React.Component {
     if (this.state.username !== null ) {
       return (
         <View
-          style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}>
+          style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`), flex:1}}>
         <ListItem
           roundAvatar
           style={{ backgroundColor: (`${theme.BACKGROUND_COLOR}`) }}
@@ -161,6 +162,7 @@ export default class SettingsScreen extends React.Component {
     };
 
     _handlePress = (navigate) => {
+      navigate("ProfileScreen", { author: this.state.username })
     };
 
 };

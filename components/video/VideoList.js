@@ -1,5 +1,5 @@
 import React, { Component }  from 'react';
-import { ActivityIndicator, Animated, FlatList, View, ImageBackground, Platform, AsyncStorage, Text } from 'react-native';
+import { ActivityIndicator, Animated, FlatList, View, ImageBackground, Platform, AsyncStorage, Text, ScrollView } from 'react-native';
 import { Card, ListItem, SearchBar, Header } from "react-native-elements";
 import moment from 'moment'
 import styles from '../style/Style'
@@ -19,7 +19,7 @@ class VideoList extends Component  {
       this.state = {
         loading: false,
         data: [],
-        page: 12,
+        page: 20,
         error: null,
         refreshing: false,
         value: '',
@@ -63,7 +63,10 @@ class VideoList extends Component  {
                 body = {"id":"5","jsonrpc":"2.0","method":"call","params":["database_api","get_discussions_by_created",[{"tag":"dtube","limit":`${page}`,"truncate_body":1}]]};
                 break;
             case "Settings":
-                body = {"id":8,"jsonrpc":"2.0","method":"call","params":["database_api","get_discussions_by_feed",[{"tag":this.state.username,"limit":12,"truncate_body":1}]]};
+                body = {"id":8,"jsonrpc":"2.0","method":"call","params":["database_api","get_discussions_by_feed",[{"tag":this.state.username,"limit":20,"truncate_body":1}]]};
+                break;
+            case "Profile":
+                body = {"id":9,"jsonrpc":"2.0","method":"call","params":["database_api","get_discussions_by_blog",[{"tag":this.props.user,"limit":20,"truncate_body":1}]]};
                 break;
         }
         this.setState({ loading: true });
@@ -77,7 +80,7 @@ class VideoList extends Component  {
             body: JSON.stringify(body),
           })
           .then(res => res.json())
-          .then(res => {              
+          .then(res => {        
             this.setState({
                 data: page === 12 ? res.result : [...this.state.data, ...res.result],
                 error: res.error || null,
@@ -162,7 +165,7 @@ class VideoList extends Component  {
       this.setState(this.baseState)
       this.setState(
         {
-            page: this.state.page + 12,
+            page: this.state.page + 20,
         },
         () => {
           this.makeRemoteRequest();
@@ -174,7 +177,7 @@ class VideoList extends Component  {
     this.setState(this.baseState)
       this.setState(
         {
-          page: 12,
+          page: 20,
           refreshing: true,
         },
         () => {
@@ -187,7 +190,7 @@ class VideoList extends Component  {
         const vidWidth = 180;
         const vidHeight = 101.25;
       return (
-        <View>
+        <View style={{flex:1}}>
               <FlatList
                 style={{backgroundColor: (`${theme.BACKGROUND_COLOR}`)}}
                 data={this.state.data}
@@ -241,12 +244,12 @@ class VideoList extends Component  {
     _handleVideoPress(data) {
       this.setState({
         videoData: null,
+      }, () => {
+        this.setState({
+          videoData: data.item,
+        })
       })
       console.log("handleVideo");
-      this.setState({
-        videoData: data.item,
-      })
-        //this.props.nav('VideoScreen', { ...data.item });
     };
 
 }

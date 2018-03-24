@@ -1,5 +1,5 @@
 import React from 'react';
-import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage, Platform } from 'react-native';
+import { SectionList, ScrollView, StyleSheet, Image, Text, View, AsyncStorage, Platform, Alert } from 'react-native';
 import { WebBrowser, Constants, AdMobRewarded } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
@@ -99,6 +99,20 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
+
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            style={styles.option}
+            onPress={this._handleFeedback}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="md-chatbubbles" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}> Feedback</Text>
+              </View>
+            </View>
+          </Touchable>
         </View>
         <View>
           <Text style={styles.optionsTitleText}>
@@ -145,6 +159,20 @@ export default class LinksScreen extends React.Component {
               </View>
             </View>
           </Touchable>
+          
+          <Touchable
+            background={Touchable.Ripple('#ccc', false)}
+            style={styles.option}
+            onPress={this._handleTwitter}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={styles.optionIconContainer}>
+                <Ionicons name="logo-twitter" size={22} color="#ccc" />
+              </View>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}> Follow me on Twitter</Text>
+              </View>
+            </View>
+          </Touchable>
         </View>
         <View>
           <Text style={styles.optionsTitleText}>
@@ -174,6 +202,52 @@ export default class LinksScreen extends React.Component {
 
     _handleSubscribe = () => {
       WebBrowser.openBrowserAsync('http://eepurl.com/do_FIr');
+    };
+
+    _handleTwitter = () => {
+      WebBrowser.openBrowserAsync('https://twitter.com/Bostrot_');
+    };
+
+    _handleFeedback = () => {
+      Alert.alert(
+        'Feedback',
+        'Do you like this App?',
+        [
+          {text: 'Cancel', onPress: () => {}, style: 'cancel'},
+          {text: 'No', onPress: () => {
+            Alert.alert(
+              'Feedback',
+              'I am sorry you don\'t like it. Would you like say what you don\'t like?',
+              [
+                {text: 'No', onPress: () => {}},
+                {text: 'Yes', onPress: () => {
+                  WebBrowser.openBrowserAsync('mailto:feedback@bostrot.pro');
+                }},
+              ],
+              { cancelable: false }
+            )
+          }},
+          {text: 'Yes', onPress: () => {
+            Alert.alert(
+              'Feedback',
+              'I am happy you like it! Do you want to help and rate this app on the store?',
+              [
+                {text: 'No', onPress: () => {}},
+                {text: 'Yes', onPress: () => {
+                  if (SYSTEM !== 'ios') {
+                    WebBrowser.openBrowserAsync('https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer');
+                  } else {
+                    WebBrowser.openBrowserAsync('https://itunes.apple.com/us/app/dtube-viewer/id1358140255');
+                  }
+                  
+                }},
+              ],
+              { cancelable: false }
+            )
+          }},
+        ],
+        { cancelable: false }
+      )
     };
 
     _handleBlog = () => {
