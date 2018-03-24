@@ -11,7 +11,6 @@ import HTMLView from 'react-native-htmlview';
 import Home from '../../navigation/RootNavigation'
 import { Analytics, PageHit } from 'expo-analytics';
 import ProfileScreen from '../../screens/ProfileScreen';
-
 import VideoList from './VideoList'
 
 const SYSTEM = Platform.OS === 'ios' ? 'ios' : 'md';
@@ -46,6 +45,8 @@ class player extends Component {
         subscribed: 'Subscribe',
         feedScreenHeight: 0,    
         nav: this.props.nav,
+        tempHeight: 0,
+        deviceWidth: DEVICE_WIDTH,
       };
     }
 
@@ -79,6 +80,10 @@ class player extends Component {
 
       this.makeRemoteRequest();
       ScreenOrientation.allow(ScreenOrientation.Orientation.ALL);
+      Dimensions.addEventListener(
+        'change',
+        this.orientationChangeHandler.bind(this)
+      );
     }
 
     makeRemoteRequest = () => {
@@ -108,6 +113,20 @@ class player extends Component {
           });
       };
 
+
+      orientationChangeHandler(dims) {
+        const { width, height } = dims.window;
+        const isLandscape = width > height;
+        if (isLandscape) {
+            this.setState({
+              deviceWidth: width,
+            })
+        } else {
+          this.setState({
+            deviceWidth: width,
+          })
+        }
+      }
   componentWillUnmount() {
     ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT);
     Dimensions.removeEventListener('change', this.orientationChangeHandler);
@@ -151,12 +170,23 @@ class player extends Component {
       },
     });
   }
-
   switchToLandscape() {
+    console.log("landscape")
+    const { width, height } = Dimensions.get('window');
+      this.setState({
+        deviceWidth: width,
+        tempHeight: this.state.feedScreenHeight,
+        feedScreenHeight: 400,
+      })
       ScreenOrientation.allow(ScreenOrientation.Orientation.LANDSCAPE);
       StatusBar.setHidden(true);
     }
   switchToPortrait() {
+    const { width, height } = Dimensions.get('window');
+    this.setState({
+      deviceWidth: width,
+      feedScreenHeight: this.state.tempHeight,
+    })
     ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT);
     StatusBar.setHidden(false);
   }
@@ -226,7 +256,6 @@ class player extends Component {
           Alert.alert("Success", "Successfully posted comment.")
 
           const body = {"operations":[["comment",{"parent_author":`${author}`,"parent_permlink":`${permlink}`,"author":`${this.state.username}`,"permlink":`${tempString}`,"title":`${tempString}`,"body":`${text}`,"json_metadata":"{\"app\":\"dtube/0.6\"}"}]]};
-          console.log("body", body)
           fetch('https://v2.steemconnect.com/api/broadcast', {
               method: 'POST',
               headers: {
@@ -318,15 +347,13 @@ class player extends Component {
     const analytics = new Analytics('UA-108863569-3');
     analytics.hit(new PageHit('Video Screen'), { ua: `${SYSTEM0}` })
       .then(() => console.log("success"))
-      .catch(e => console.log(e.message));
+      .catch(e => console.log(e.message));    
 
       
-    console.log("data", this.state.videoData);
-    
-
-    const videoHeight = DEVICE_WIDTH * (DEVICE_WIDTH / DEVICE_HEIGHT);
-    var { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.data;
     const { width, height: screenHeight } = Dimensions.get("window");
+    console.log(width)
+    const videoHeight = width * (width / height);
+    var { author, permlink, title, created, json_metadata, pending_payout_value, active_votes } = this.props.data;
     const height = width * 0.5625;
 
     const opacityInterpolate = this._animation.interpolate({
@@ -380,6 +407,7 @@ class player extends Component {
       pending_payout_value = payout;
       json_metadata = JSON.stringify(meta);
     }
+    
     return (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
           <Animated.View style={[{ width, height }, videoStyles]}
