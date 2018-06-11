@@ -43,6 +43,8 @@ class VideoScreen extends StatefulWidget {
 }
 
 class VideoScreenState extends State<VideoScreen> {
+  var upvoteColor = theme(selectedTheme)["accent"];
+  var downvoteColor = theme(selectedTheme)["accent"];
   var subscribed = "Subscribe";
   var gateway = "https://video.dtube.top/ipfs/";
   VideoPlayerController _controller;
@@ -106,10 +108,8 @@ class VideoScreenState extends State<VideoScreen> {
     int b = 0;
     String _tempVideo;
     for (int i = 0; i < 5; i++) {
-      print(i);
       _tempVideo = videoJSON["video"]["content"]["video${sourcesInit[i]}hash"];
       if (_tempVideo != null) {
-        print(_tempVideo);
         sources[b] = gateway + _tempVideo;
         b++;
       }
@@ -134,14 +134,14 @@ class VideoScreenState extends State<VideoScreen> {
     Screen.keepOn(true);
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.white,
-        title: new Text(widget.data["title"], style: new TextStyle(color: Colors.grey)),
+        backgroundColor: theme(selectedTheme)["background"],
+        title: new Text(widget.data["title"], style: new TextStyle(color: theme(selectedTheme)["accent"])),
         actions: <Widget>[
           new FlatButton(
             onPressed: () {
               _launch(_vidString);
             },
-            child: new Icon(Icons.open_in_new, color: Colors.grey),
+            child: new Icon(Icons.open_in_new, color: theme(selectedTheme)["accent"]),
           )
         ],
         automaticallyImplyLeading: false,
@@ -152,7 +152,7 @@ class VideoScreenState extends State<VideoScreen> {
             new IconButton(
               icon: new Icon(
                 Icons.arrow_back,
-                color: Colors.grey,
+                color: theme(selectedTheme)["accent"],
               ),
               onPressed: () async {
                 try {
@@ -160,7 +160,8 @@ class VideoScreenState extends State<VideoScreen> {
                 } catch (e) {
                   try {
                     _controller.dispose();
-                  } catch(e) {};
+                  } catch (e) {}
+                  ;
                 }
                 Navigator.pop(contextWidget);
                 tempShowAd--;
@@ -220,7 +221,7 @@ class VideoScreenState extends State<VideoScreen> {
                                               child: new Text(widget.data["author"]),
                                             ),
                                             new RaisedButton(
-                                              color: Colors.redAccent,
+                                              color: theme(selectedTheme)["primary"],
                                               onPressed: () async {
                                                 var tempSub = await broadcastSubscribe(contextListViewBuilder, widget.data["author"]);
                                                 setState(() {
@@ -238,8 +239,11 @@ class VideoScreenState extends State<VideoScreen> {
                                       children: <Widget>[
                                         new IconButton(
                                             icon: const Icon(FontAwesomeIcons.thumbsUp),
-                                            color: Colors.grey,
+                                            color: upvoteColor,
                                             onPressed: () {
+                                              setState(() {
+                                                upvoteColor = theme(selectedTheme)["primary"];
+                                              });
                                               return showDialog(
                                                 context: contextListViewBuilder,
                                                 barrierDismissible: false, // user must tap button!
@@ -277,16 +281,9 @@ class VideoScreenState extends State<VideoScreen> {
                                                         ),
                                                         new FlatButton(
                                                           child: new Text('UPVOTE'),
-                                                          onPressed: () async {
+                                                          onPressed: () {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            var voted =
-                                                                await broadcastVote(widget.data["author"], widget.permlink, toInt(sliderValue));
-
-                                                            return Scaffold.of(contextListViewBuilder).showSnackBar(new SnackBar(
-                                                                  content: new Text(voted["result"] != null
-                                                                      ? "Success"
-                                                                      : voted["error_description"].toString().split(":")[1]),
-                                                                ));
+                                                            broadcastVote(contextStatefulBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
                                                           },
                                                         ),
                                                       ],
@@ -297,8 +294,11 @@ class VideoScreenState extends State<VideoScreen> {
                                             }),
                                         new IconButton(
                                             icon: const Icon(FontAwesomeIcons.thumbsDown),
-                                            color: Colors.grey,
+                                            color: downvoteColor,
                                             onPressed: () {
+                                              setState(() {
+                                                downvoteColor = theme(selectedTheme)["primary"];
+                                              });
                                               return showDialog(
                                                 context: contextListViewBuilder,
                                                 barrierDismissible: false, // user must tap button!
@@ -338,15 +338,7 @@ class VideoScreenState extends State<VideoScreen> {
                                                           child: new Text('DOWNVOTE'),
                                                           onPressed: () async {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            var voted =
-                                                                await broadcastVote(widget.data["author"], widget.permlink, toInt(sliderValue));
-
-                                                            return Scaffold.of(contextListViewBuilder)
-                                                              ..showSnackBar(new SnackBar(
-                                                                content: new Text(voted["result"] != null
-                                                                    ? "Success"
-                                                                    : voted["error_description"].toString().split(":")[1]),
-                                                              ));
+                                                            await broadcastVote(contextListViewBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
                                                           },
                                                         ),
                                                       ],
@@ -366,7 +358,7 @@ class VideoScreenState extends State<VideoScreen> {
                               ),
                               new Divider(
                                 height: 1.0,
-                                color: Colors.grey,
+                                color: theme(selectedTheme)["accent"],
                                 indent: 0.0,
                               ),
                               new Padding(
@@ -378,9 +370,10 @@ class VideoScreenState extends State<VideoScreen> {
                                       new Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: new TextField(
+                                          autofocus: true,
                                           decoration: new InputDecoration(hintText: 'Comment something...'),
                                           onSubmitted: (comment) {
-                                            broadcastComment(widget.data["author"], widget.permlink, comment.toString());
+                                            broadcastComment(contextListViewBuilder, widget.data["author"], widget.permlink, comment.toString());
                                           },
                                         ),
                                       ),
@@ -423,12 +416,12 @@ class VideoScreenState extends State<VideoScreen> {
                                                 children: <Widget>[
                                                   new Text(
                                                     moment.from(DateTime.parse(reply["created"])),
-                                                    style: TextStyle(color: Colors.grey, fontSize: 12.0),
+                                                    style: TextStyle(color: theme(selectedTheme)["accent"], fontSize: 12.0),
                                                   ),
                                                   new Padding(
                                                     padding: const EdgeInsets.only(left: 4.0),
                                                     child: new Text("\$" + reply["pending_payout_value"].toString().replaceFirst("SBD", ""),
-                                                        style: TextStyle(color: Colors.grey, fontSize: 12.0)),
+                                                        style: TextStyle(color: theme(selectedTheme)["accent"], fontSize: 12.0)),
                                                   ),
                                                 ],
                                               ),
@@ -449,14 +442,14 @@ class VideoScreenState extends State<VideoScreen> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: new Icon(
                                           FontAwesomeIcons.thumbsUp,
-                                          color: Colors.grey,
+                                          color: theme(selectedTheme)["accent"],
                                         ),
                                       ),
                                       new Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: new Icon(
                                           FontAwesomeIcons.thumbsDown,
-                                          color: Colors.grey,
+                                          color: theme(selectedTheme)["accent"],
                                         ),
                                       ),
                                     ],
@@ -464,9 +457,10 @@ class VideoScreenState extends State<VideoScreen> {
                                   new Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: new TextField(
+                                      autofocus: true,
                                       decoration: new InputDecoration(hintText: 'Comment something...'),
                                       onSubmitted: (comment) {
-                                        broadcastComment(reply["author"], reply["permlink"], comment);
+                                        broadcastComment(contextListViewBuilder, reply["author"], reply["permlink"], comment);
                                       },
                                     ),
                                   )
@@ -570,10 +564,10 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
     Screen.keepOn(true);
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme(selectedTheme)["background"],
         title: new Row(
           children: <Widget>[
-            new Text(widget.data["title"], style: new TextStyle(color: Colors.grey)),
+            new Text(widget.data["title"], style: new TextStyle(color: theme(selectedTheme)["accent"])),
             new FlatButton(
                 onPressed: () {
                   _launch(_vidString);
@@ -589,7 +583,7 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
             new IconButton(
               icon: new Icon(
                 Icons.arrow_back,
-                color: Colors.grey,
+                color: theme(selectedTheme)["accent"],
               ),
               onPressed: () {
                 try {
@@ -597,7 +591,8 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                 } catch (e) {
                   try {
                     _controller.dispose();
-                  } catch(e) {};
+                  } catch (e) {}
+                  ;
                 }
                 Navigator.pop(context);
               },
@@ -639,7 +634,7 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                                     child: new Text(widget.data["author"]),
                                   ),
                                   new RaisedButton(
-                                    color: Colors.redAccent,
+                                    color: theme(selectedTheme)["primary"],
                                     onPressed: () async {
                                       var tempSub = await broadcastSubscribe(context, widget.data["author"]);
                                       subscribed = "Subscribed";
@@ -653,13 +648,13 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                                 children: <Widget>[
                                   new IconButton(
                                       icon: const Icon(FontAwesomeIcons.thumbsUp),
-                                      color: Colors.grey,
+                                      color: theme(selectedTheme)["accent"],
                                       onPressed: () {
                                         print("pressed");
                                       }),
                                   new IconButton(
                                       icon: const Icon(FontAwesomeIcons.thumbsDown),
-                                      color: Colors.grey,
+                                      color: theme(selectedTheme)["accent"],
                                       onPressed: () {
                                         print("pressed");
                                       }),
@@ -674,7 +669,7 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                         ),
                         new Divider(
                           height: 1.0,
-                          color: Colors.grey,
+                          color: theme(selectedTheme)["accent"],
                           indent: 0.0,
                         ),
                         new Padding(

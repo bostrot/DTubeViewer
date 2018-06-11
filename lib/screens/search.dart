@@ -36,7 +36,7 @@ class SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme(selectedTheme)["background"],
         title: new Text(widget.search),
         automaticallyImplyLeading: false,
         leading: new Row(
@@ -46,7 +46,7 @@ class SearchScreenState extends State<SearchScreen> {
             new IconButton(
               icon: new Icon(
                 Icons.arrow_back,
-                color: Colors.grey,
+                color: theme(selectedTheme)["accent"],
               ),
               onPressed: () {
                 Navigator.pop(context);
@@ -123,14 +123,14 @@ class SearchScreenState extends State<SearchScreen> {
           _placeholderImage(json_metadata['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
           new Text("by " + data['author'],
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
           new Text(
               "\$" +
                   data['payout'].toString() +
                   " • " +
                   moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
         ],
       ),

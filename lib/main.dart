@@ -14,6 +14,7 @@ import 'screens/search.dart';
 import 'package:uni_links/uni_links.dart';
 import 'dart:async';
 import 'dart:io';
+import 'screens/feed.dart';
 
 var apiData;
 var videoData;
@@ -26,24 +27,28 @@ class TabNav extends StatefulWidget {
 
 Future<Null> initUniLinks() async {
   // Platform messages may fail, so we use a try/catch PlatformException.
-  try {
+  /*try {
     String initialLink = await getInitialLink();
-    print("link: " + initialLink);
+    print("link: " + initialLink.toString());
     // Parse the link and warn the user, if it is not correct,
     // but keep in mind it could be `null`.
   } on PlatformException {
+
     // Handle exception by warning the user their action did not succeed
     // return?
-  }
+  }*/
 
   // Attach a listener to the stream
   _sub = getLinksStream().listen((String link) {
-    saveData(link.split("username=")[1], link.split("access_token=")[1].split("&expires")[0]);
-    print(link.split("username=")[1] + link.split("access_token=")[1].split("&expires")[0]);
+    saveData("user", link.split("username=")[1]);
+    saveData("key", link.split("access_token=")[1].split("&expires")[0]);
+    //print(link.split("access_token=")[1].split("&expires")[0]);
     // Parse the link and warn the user, if it is not correct
   }, onError: (err) {
+    print(err);
     // Handle exception by warning the user their action did not succeed
   });
+  _sub;
 }
 
 class TabNavState extends State<TabNav> {
@@ -54,11 +59,11 @@ class TabNavState extends State<TabNav> {
       child: new Scaffold(
         // TODO: remove appbar and add tabbar right under statusbar
         appBar: new AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: theme(selectedTheme)["background"],
           bottom: new TabBar(
-            indicatorColor: Colors.redAccent,
-            labelColor: Colors.redAccent,
-            unselectedLabelColor: Colors.grey,
+            indicatorColor: theme(selectedTheme)["primary"],
+            labelColor: theme(selectedTheme)["primary"],
+            unselectedLabelColor: theme(selectedTheme)["accent"],
             indicatorWeight: 0.5,
             tabs: [
               new Tab(icon: new Icon(FontAwesomeIcons.fire)),
@@ -97,41 +102,44 @@ class TabNavState extends State<TabNav> {
   Widget _buildSubtitles(int tab) {
     int jump = 0;
     return new RefreshIndicator(
-      child: new GridView.builder(
-          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: 2.0,
-            crossAxisCount: 2,
-            mainAxisSpacing: 5.0,
-          ),
-          itemCount: 30, // TODO: add _subtitles.length after update
-          padding: const EdgeInsets.all(4.0),
-          itemBuilder: (context, i) {
-            i = i + jump;
-            final index = i;
-            var data = apiData[tab]["result"][index];
-            var permlink = data["permlink"];
-            try {
-              var title =
-                  data['json_metadata'].split('"title":"')[1].split('",')[0];
-              String description = data['json_metadata']
-                  .split(',"description":"')[1]
-                  .split('",')[0];
-              return _buildRow(data, index, title, description, permlink);
-            } catch (e) {
-              return new InkResponse(
-                child: new Column(
-                  children: <Widget>[
-                    _placeholderImage(null),
-                    new Text("uploader messed up.",
-                        style: new TextStyle(fontSize: 14.0), maxLines: 2),
-                  ],
-                ),
-                onTap: () {
-                  print('tabbed');
-                },
-              );
-            }
-          }),
+      child: new Container(
+        color: theme(selectedTheme)["background"],
+        child: new GridView.builder(
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisSpacing: 2.0,
+              crossAxisCount: 2,
+              mainAxisSpacing: 5.0,
+            ),
+            itemCount: 30, // TODO: add _subtitles.length after update
+            padding: const EdgeInsets.all(4.0),
+            itemBuilder: (context, i) {
+              i = i + jump;
+              final index = i;
+              var data = apiData[tab]["result"][index];
+              var permlink = data["permlink"];
+              try {
+                var title =
+                    data['json_metadata'].split('"title":"')[1].split('",')[0];
+                String description = data['json_metadata']
+                    .split(',"description":"')[1]
+                    .split('",')[0];
+                return _buildRow(data, index, title, description, permlink);
+              } catch (e) {
+                return new InkResponse(
+                  child: new Column(
+                    children: <Widget>[
+                      _placeholderImage(null),
+                      new Text("uploader messed up.",
+                          style: new TextStyle(fontSize: 14.0), maxLines: 2),
+                    ],
+                  ),
+                  onTap: () {
+                    print('tabbed');
+                  },
+                );
+              }
+            }),
+      ),
       onRefresh: () async {
         setState(() async {
           apiData = [
@@ -165,16 +173,16 @@ class TabNavState extends State<TabNav> {
       child: new Column(
         children: <Widget>[
           _placeholderImage(json_metadata['video']['info']['snaphash']),
-          new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
+          new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
           new Text("by " + data['author'],
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
           new Text(
               "\$" +
                   data['pending_payout_value'].replaceAll("SBD", "") +
                   " • " +
                   moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
         ],
       ),
@@ -194,23 +202,36 @@ class TabNavState extends State<TabNav> {
 }
 
 void main() async {
-  initUniLinks();
+  var _tempTheme = await retrieveData("theme");
+  if (_tempTheme != null && _tempTheme != "value") {
+    print(_tempTheme);
+    selectedTheme = _tempTheme;
+  } else {
+    selectedTheme = "normal";
+  }
 
+  initUniLinks();
+  var internet = true;
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   // TODO: splashscreen
   // TODO: icons
-  apiData = [
-    await getDiscussions(0, null, null),
-    await getDiscussions(1, null, null),
-    await getDiscussions(2, null, null)
-  ];
+  try {
+    apiData = [
+      await getDiscussions(0, null, null),
+      await getDiscussions(1, null, null),
+      await getDiscussions(2, null, null)
+    ];
+  }
+  catch (e) {
+    internet = false;
+  }
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TabNav(),
+      home: internet ? TabNav() : new Center(child: new Text("An error occured. Please check your internet connection.")),
     ),
   );
 }

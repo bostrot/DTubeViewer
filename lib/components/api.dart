@@ -3,6 +3,21 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:async';
+
+var selectedTheme = "normal";
+
+theme(String mode) {
+  switch (mode) {
+    case "blue":
+      return { "primary": Colors.blue, "accent": Colors.grey, "text": Colors.black, "background": Colors.white };
+    case "black":
+      return { "primary": Colors.red, "accent": Colors.white, "text": Colors.white, "background": Colors.black };
+    case "normal":
+      return { "primary": Colors.red, "accent": Colors.grey, "text": Colors.black, "background": Colors.white };
+      break;
+  }
+}
 
 getDiscussions(var tab, String search, var user) async {
   Dio dio = new Dio();
@@ -78,22 +93,24 @@ int toInt(double doub) {
   return (multiplier * doub).round();
 }
 
-broadcastVote(String author, String permlink, int weight) async {
+broadcastVote(BuildContext context, String author, String permlink, int weight) async {
   var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
   Dio dio = new Dio();
-  dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
+  dio.options.headers = {'Content-Type': 'application/json', 'authorization': _tempAuthData["key"]};
+  print(_tempAuthData);
   Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
     "operations": [
       [
         "vote",
-        {"voter": await _tempAuthData["user"], "author": author, "permlink": permlink, "weight": weight}
+        {"voter": _tempAuthData["user"].toString(), "author": author, "permlink": permlink, "weight": weight}
       ]
     ]
   });
+  toast(context, "Voted sucessfully");
   return (response.data);
 }
 
-broadcastComment(String author, String permlink, String text) async {
+broadcastComment(BuildContext context, String author, String permlink, String text) async {
   var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
   var rng = new Random().nextInt(25);
   String randStr = rng.toString();
@@ -106,7 +123,7 @@ broadcastComment(String author, String permlink, String text) async {
         {
           "parent_author": author,
           "parent_permlink": permlink,
-          "author": _tempAuthData["user"],
+          "author": _tempAuthData["user"].toString(),
           "permlink": randStr,
           "title": randStr,
           "body": text,
@@ -115,6 +132,7 @@ broadcastComment(String author, String permlink, String text) async {
       ]
     ]
   });
+  toast(context, "Commented sucessfully");
   return (response.data);
 }
 
@@ -128,14 +146,13 @@ broadcastSubscribe(context, String author) async {
         "custom_json",
         {
           "required_auths": [],
-          "required_posting_auths": [_tempAuthData["user"]],
+          "required_posting_auths": [_tempAuthData["user"].toString()],
           "id": "follow",
           "json": "[\"follow\",{\"follower\":\"" + _tempAuthData["user"] + "\",\"following\":\"" + author + "\",\"what\":[\"blog\"]}]"
         }
       ]
     ]
   });
-  print(response.data);
   toast(context, "Subscribed");
   return (response.data);
 }

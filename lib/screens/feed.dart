@@ -16,12 +16,11 @@ class buildFeedState extends State<buildFeed> {
   var key;
   var apiData4;
 
-  _checkUser() async {
-    var _tempUser = await retrieveData("user");
-    var _tempKey = await retrieveData("key");
+  checkUser() async {
+    var _temp = { "user": await retrieveData("user"), "key": await retrieveData("key")};
     setState(() {
-      user = _tempUser;
-      key = _tempKey;
+      user = _temp["user"];
+      key = _temp["key"];
     });
     if (user != null && key != null)
       _getVideos();
@@ -36,77 +35,78 @@ class buildFeedState extends State<buildFeed> {
 
   @override
   void initState() {
-
-    initUniLinks();
-    _checkUser();
-    print(user);
+    checkUser();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return user == null
-        ? new Column(
-            children: <Widget>[
-              new Card(
-                child: new Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: new Center(
-                    child: new Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        new Padding(
-                          padding: const EdgeInsets.only(
-                              top: 16.0, left: 4.0, right: 4.0),
-                          child: new Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              new RaisedButton(
-                                onPressed: () {
-                                  launchURL("https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://d.tube&scope=");
-                                },
-                                child: new Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    new Text(
-                                      "Login with Steemconnect",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    )
-                                  ],
+    return new Container(
+      color: theme(selectedTheme)["background"],
+      child: user == null
+          ? new Column(
+              children: <Widget>[
+                new Card(
+                  color: theme(selectedTheme)["background"],
+                  child: new Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: new Center(
+                      child: new Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          new Padding(
+                            padding: const EdgeInsets.only(
+                                top: 16.0, left: 4.0, right: 4.0),
+                            child: new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                new RaisedButton(
+                                  onPressed: () {
+                                    launchURL("https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://d.tube&scope=");
+                                  },
+                                  child: new Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      new Text(
+                                        "Login with Steemconnect",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.white),
+                                      )
+                                    ],
+                                  ),
+                                  color: Colors.blueAccent,
                                 ),
-                                color: Colors.blueAccent,
-                              ),
-                              new FlatButton(
-                                  onPressed: () {
-                                    launchURL("https://signup.steemit.com/");
-                                  },
-                                  child: new Text(
-                                      "No account? Register now on steemit.com")),
-                              new FlatButton(
-                                  onPressed: () {
-                                    launchURL("https://about.d.tube/#faq1");
-                                  },
-                                  child: new Text(
-                                      "Trouble logging in? Visit the FAQ")),
-                            ],
+                                new FlatButton(
+                                    onPressed: () {
+                                      launchURL("https://signup.steemit.com/");
+                                    },
+                                    child: new Text(
+                                        "No account? Register now on steemit.com", style: TextStyle(color: theme(selectedTheme)["text"]),)),
+                                new FlatButton(
+                                    onPressed: () {
+                                      launchURL("https://about.d.tube/#faq1");
+                                    },
+                                    child: new Text(
+                                        "Trouble logging in? Visit the FAQ", style: TextStyle(color: theme(selectedTheme)["text"]),)),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          )
-        : apiData4 != null
-            ? new Container(
-                child: _buildSubtitles(),
-              )
-            : new Center(
-                child: new CircularProgressIndicator(),
-              );
+              ],
+            )
+          : apiData4 != null
+              ? new Container(
+                  child: _buildSubtitles(),
+                )
+              : new Center(
+                  child: new CircularProgressIndicator(),
+                ),
+    );
   }
 
   Widget _buildSubtitles() {
@@ -185,16 +185,16 @@ class buildFeedState extends State<buildFeed> {
       child: new Column(
         children: <Widget>[
           _placeholderImage(json_metadata['video']['info']['snaphash']),
-          new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
+          new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
           new Text("by " + data['author'],
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
           new Text(
               "\$" +
                   data['pending_payout_value'].replaceAll("SBD", "") +
                   " • " +
                   moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: Colors.grey),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
               maxLines: 1),
         ],
       ),
