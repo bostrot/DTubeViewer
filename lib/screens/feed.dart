@@ -17,10 +17,11 @@ class buildFeedState extends State<buildFeed> {
   var apiData4;
 
   _checkUser() async {
-    var temp = await retrieveData();
+    var _tempUser = await retrieveData("user");
+    var _tempKey = await retrieveData("key");
     setState(() {
-      user = temp["user"];
-      key = temp["key"];
+      user = _tempUser;
+      key = _tempKey;
     });
     if (user != null && key != null)
       _getVideos();
@@ -121,8 +122,7 @@ class buildFeedState extends State<buildFeed> {
           padding: const EdgeInsets.all(4.0),
           itemBuilder: (context, i) {
             i = i + jump;
-            final index = i;
-            var data = apiData4["result"][index];
+            var data = apiData4["result"][i];
             var permlink = data["permlink"];
             try {
               var title =
@@ -130,7 +130,7 @@ class buildFeedState extends State<buildFeed> {
               String description = data['json_metadata']
                   .split(',"description":"')[1]
                   .split('",')[0];
-              return _buildRow(data, index, title, description, permlink);
+              return _buildRow(data, i, title, description, permlink);
             } catch (e) {
               return new InkResponse(
                 child: new Column(

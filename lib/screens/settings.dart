@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../main.dart';
 import '../components/api.dart';
+import 'package:flutter_billing/flutter_billing.dart';
 
 class buildSettings extends StatefulWidget {
   @override
@@ -11,14 +12,102 @@ class buildSettings extends StatefulWidget {
 class buildSettingsState extends State<buildSettings> {
   var user;
   var key;
+  var _gateway;
+  var currentGateway;
+
+  _getCurrentGateway() async {
+    var _temp = await retrieveData("gateway");
+    setState(() {
+      currentGateway = _temp;
+    });
+  }
+
+  @override
+  void initState() {
+    _getCurrentGateway();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
         new ListTile(
+          leading: const Icon(FontAwesomeIcons.shoppingCart),
+          title: const Text("Remove ads"),
+          onTap: () async {
+            final Billing billing = new Billing(onError: (e) {
+              return Scaffold.of(context)
+                ..showSnackBar(new SnackBar(
+                  content: new Text(e.toString()),
+                ));
+            });
+            final bool purchased = await billing.isPurchased('no_ads');
+            if (purchased) {
+              await saveData("no_ads", "true");
+              return Scaffold.of(context)
+                ..showSnackBar(new SnackBar(
+                  content: new Text("Thanks for supporting me! Ads will not show up again."),
+                ));
+            } else {
+              final bool purchased = await billing.purchase('no_ads');
+              if (purchased) {
+                await saveData("no_ads", "true");
+                return Scaffold.of(context)
+                  ..showSnackBar(new SnackBar(
+                    content: new Text("Thanks for supporting me! Ads will not show up again."),
+                  ));
+              }
+            }
+          },
+        ),
+        new Divider(),
+        new ListTile(
           title: const Text("Options"),
         ),
+        new ListTile(
+          leading: const Icon(FontAwesomeIcons.server),
+          title: const Text("Gateway"),
+          onTap: () {
+            return showDialog<Null>(
+              context: context,
+              barrierDismissible: false, // user must tap button!
+              builder: (BuildContext context) {
+                return new AlertDialog(
+                  title: new Text('Enter your gateway'),
+                  content: new SingleChildScrollView(
+                    child: new ListBody(
+                      children: <Widget>[
+                        TextField(
+                          decoration: new InputDecoration(hintText: currentGateway),
+                          onChanged: (e) {
+                            _gateway = e;
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    new FlatButton(
+                      child: new Text('CANCEL'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    new FlatButton(
+                      child: new Text('OK'),
+                      onPressed: () async {
+                        await saveData("gateway", _gateway);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+        new Divider(),
         new ListTile(
           leading: const Icon(FontAwesomeIcons.paintBrush),
           title: const Text("Theme"),
@@ -34,10 +123,7 @@ class buildSettingsState extends State<buildSettings> {
           leading: const Icon(FontAwesomeIcons.upload),
           title: const Text("Upload"),
           onTap: () {
-            final snackBar = new SnackBar(
-              content: new Text('This feature is planned!'),
-            );
-            Scaffold.of(context).showSnackBar(snackBar);
+            launchURL("https://d.tube/#!/upload");
           },
         ),
         new Divider(),
@@ -47,8 +133,7 @@ class buildSettingsState extends State<buildSettings> {
           onTap: () {
             saveData(null, null);
             final snackBar = new SnackBar(
-              content: new Text(
-                  'All user data has been cleared. You may need to restart the app.'),
+              content: new Text('All user data has been cleared. You may need to restart the app.'),
             );
             Scaffold.of(context).showSnackBar(snackBar);
           },
@@ -75,9 +160,8 @@ class buildSettingsState extends State<buildSettings> {
                             'can be connected and used with various open source video ' +
                             'projects. It is open source and available on. Feel free to ' +
                             'contribute.'),
-                        new Text(
-                            'The distributor and developer of this app are in no way affiliated ' +
-                                'with the video project\'s company or developer.'),
+                        new Text('The distributor and developer of this app are in no way affiliated ' +
+                            'with the video project\'s company or developer.'),
                         new FlatButton(
                           onPressed: () {
                             launchURL("https://bostrot.pro/");
@@ -109,15 +193,13 @@ class buildSettingsState extends State<buildSettings> {
                         ),
                         new FlatButton(
                           onPressed: () {
-                            launchURL(
-                                "https://github.com/rinukkusu/simple_moment");
+                            launchURL("https://github.com/rinukkusu/simple_moment");
                           },
                           child: new Text('\nsimple_moment'),
                         ),
                         new FlatButton(
                           onPressed: () {
-                            launchURL(
-                                "https://github.com/flutter/plugins/tree/master/packages/video_player");
+                            launchURL("https://github.com/flutter/plugins/tree/master/packages/video_player");
                           },
                           child: new Text('\nvideo_player'),
                         ),
@@ -129,22 +211,19 @@ class buildSettingsState extends State<buildSettings> {
                         ),
                         new FlatButton(
                           onPressed: () {
-                            launchURL(
-                                "https://github.com/flutter/plugins/tree/master/packages/url_launcher");
+                            launchURL("https://github.com/flutter/plugins/tree/master/packages/url_launcher");
                           },
                           child: new Text('\nurl_launcher'),
                         ),
                         new FlatButton(
                           onPressed: () {
-                            launchURL(
-                                "https://github.com/flutter/plugins/tree/master/packages/shared_preferences");
+                            launchURL("https://github.com/flutter/plugins/tree/master/packages/shared_preferences");
                           },
                           child: new Text('\nshared_preferences'),
                         ),
                         new FlatButton(
                           onPressed: () {
-                            launchURL(
-                                "https://pub.dartlang.org/packages/screen");
+                            launchURL("https://pub.dartlang.org/packages/screen");
                           },
                           child: new Text('\nscreen'),
                         ),

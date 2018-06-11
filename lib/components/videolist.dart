@@ -5,19 +5,27 @@ import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
-import 'package:chewie/chewie.dart';
+import '../chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import '../main.dart';
 import 'package:screen/screen.dart';
 import '../flutter_html_view/flutter_html_text.dart';
 import 'api.dart';
-import 'package:admob/admob.dart';
-import 'package:flutter/services.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:video_launcher/video_launcher.dart';
 
-String APP_ID = "ca-app-pub-9430927632405311~3245387668";
-String AD_UNIT_ID = "ca-app-pub-9430927632405311/4144105868";
-String DEVICE_ID = "Only necessary for testing: The device id you are testing with";
-bool TESTING = true;
+const String testDevice = 'YOUR_DEVICE_ID';
+
+int initialShowAd = 3;
+int tempShowAd = initialShowAd;
+
+Future<Null> _launch(String url) async {
+  if (await canLaunchVideo(url)) {
+    await launchVideo(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 
 class VideoScreen extends StatefulWidget {
   final String permlink;
@@ -35,39 +43,31 @@ class VideoScreen extends StatefulWidget {
 }
 
 class VideoScreenState extends State<VideoScreen> {
-  var _loadInterstitialResponse;
-  var _showInterstitialResponse;
+  var subscribed = "Subscribe";
+  var gateway = "https://video.dtube.top/ipfs/";
+  VideoPlayerController _controller;
+  String _vidString;
+
+  InterstitialAd myInterstitial = new InterstitialAd(
+    // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+    // https://developers.google.com/admob/android/test-ads
+    // https://developers.google.com/admob/ios/test-ads
+    adUnitId: "ca-app-pub-9430927632405311/4144105868",
+    listener: (MobileAdEvent event) {
+      print("InterstitialAd event is $event");
+    },
+  );
 
   @override
   void initState() {
     super.initState();
-    print(_loadInterstitialResponse);
-    loadInterstitialAd();
     getVideo(widget.permlink, widget.data["author"]);
-  }
-
-  loadInterstitialAd() async {
-    var loadResponse;
-    try {
-      loadResponse = await Admob.loadInterstitial(APP_ID, AD_UNIT_ID, DEVICE_ID, TESTING);
-    } on PlatformException {
-      loadResponse = "false";
-    }
-    setState(() {
-      _loadInterstitialResponse = loadResponse;
-    });
-  }
-
-  showInterstitialAd() async {
-    var showResponse;
-    try {
-      showResponse = await Admob.showInterstitial;
-    } on PlatformException {
-      showResponse = "false";
-    }
-    setState(() {
-      _showInterstitialResponse = showResponse;
-    });
+    () async {
+      if (await retrieveData("no_ads") == null) {
+        FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
+        myInterstitial..load();
+      }
+    };
   }
 
   double sliderValue;
@@ -86,27 +86,38 @@ class VideoScreenState extends State<VideoScreen> {
       ]
     });
     content = response.data["result"]["content"];
+    var _temp = await retrieveData("gateway");
     setState(() {
       result = "loaded";
+      gateway = _temp;
     });
+    await sVideoController(widget.json_metadata);
   }
 
-  videoController(var vidURL) {
-    try {
-      return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video480hash"]);
-    } catch (e) {
-      try {
-        return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video240hash"]);
-      } catch (e) {
-        try {
-          return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video720hash"]);
-        } catch (e) {
-          try {
-            return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video1080hash"]);
-          } catch (e) {
-            return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["videohash"]);
-          }
-        }
+  sVideoController(var videoJSON) async {
+    var sourcesInit = [
+      "480",
+      "240",
+      "720",
+      "1080",
+      "",
+    ];
+    var sources = {};
+    int b = 0;
+    String _tempVideo;
+    for (int i = 0; i < 5; i++) {
+      print(i);
+      _tempVideo = videoJSON["video"]["content"]["video${sourcesInit[i]}hash"];
+      if (_tempVideo != null) {
+        print(_tempVideo);
+        sources[b] = gateway + _tempVideo;
+        b++;
+      }
+      if (i == 4) {
+        setState(() {
+          _controller = VideoPlayerController.network(sources[0]);
+          _vidString = gateway + sources[0];
+        });
       }
     }
   }
@@ -125,6 +136,14 @@ class VideoScreenState extends State<VideoScreen> {
       appBar: new AppBar(
         backgroundColor: Colors.white,
         title: new Text(widget.data["title"], style: new TextStyle(color: Colors.grey)),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () {
+              _launch(_vidString);
+            },
+            child: new Icon(Icons.open_in_new, color: Colors.grey),
+          )
+        ],
         automaticallyImplyLeading: false,
         leading: new Row(
           textDirection: TextDirection.ltr,
@@ -135,9 +154,24 @@ class VideoScreenState extends State<VideoScreen> {
                 Icons.arrow_back,
                 color: Colors.grey,
               ),
-              onPressed: () {
+              onPressed: () async {
+                try {
+                  _controller.pause();
+                } catch (e) {
+                  try {
+                    _controller.dispose();
+                  } catch(e) {};
+                }
                 Navigator.pop(contextWidget);
-                showInterstitialAd();
+                tempShowAd--;
+                if (tempShowAd == 0 && await retrieveData("no_ads") == null) {
+                  myInterstitial
+                    ..load()
+                    ..show().then((e) {
+                      myInterstitial..load();
+                    });
+                  tempShowAd = initialShowAd;
+                }
               },
             ),
           ],
@@ -146,12 +180,14 @@ class VideoScreenState extends State<VideoScreen> {
       body: new Center(
         child: new Column(
           children: <Widget>[
-            new Chewie(
-              videoController(widget.json_metadata),
-              aspectRatio: 3 / 2,
-              autoPlay: true,
-              looping: true,
-            ),
+            _controller != null
+                ? new Chewie(
+                    _controller,
+                    aspectRatio: 16 / 9,
+                    autoPlay: true,
+                    looping: false,
+                  )
+                : new Text("Loading video..."),
             new Container(
               child: result == "loading"
                   ? new Text("loading...")
@@ -185,10 +221,13 @@ class VideoScreenState extends State<VideoScreen> {
                                             ),
                                             new RaisedButton(
                                               color: Colors.redAccent,
-                                              onPressed: () {
-                                                print("pressed");
+                                              onPressed: () async {
+                                                var tempSub = await broadcastSubscribe(contextListViewBuilder, widget.data["author"]);
+                                                setState(() {
+                                                  subscribed = "Subscribed";
+                                                });
                                               },
-                                              child: new Text("Subscribe", style: new TextStyle(color: Colors.white)),
+                                              child: new Text(subscribed, style: new TextStyle(color: Colors.white)),
                                             ),
                                           ],
                                         ),
@@ -240,7 +279,8 @@ class VideoScreenState extends State<VideoScreen> {
                                                           child: new Text('UPVOTE'),
                                                           onPressed: () async {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            var voted = await broadcast(widget.data["author"], widget.permlink, toInt(sliderValue));
+                                                            var voted =
+                                                                await broadcastVote(widget.data["author"], widget.permlink, toInt(sliderValue));
 
                                                             return Scaffold.of(contextListViewBuilder).showSnackBar(new SnackBar(
                                                                   content: new Text(voted["result"] != null
@@ -298,7 +338,8 @@ class VideoScreenState extends State<VideoScreen> {
                                                           child: new Text('DOWNVOTE'),
                                                           onPressed: () async {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            var voted = await broadcast(widget.data["author"], widget.permlink, toInt(sliderValue));
+                                                            var voted =
+                                                                await broadcastVote(widget.data["author"], widget.permlink, toInt(sliderValue));
 
                                                             return Scaffold.of(contextListViewBuilder)
                                                               ..showSnackBar(new SnackBar(
@@ -338,7 +379,9 @@ class VideoScreenState extends State<VideoScreen> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: new TextField(
                                           decoration: new InputDecoration(hintText: 'Comment something...'),
-                                          onSubmitted: (comment) {},
+                                          onSubmitted: (comment) {
+                                            broadcastComment(widget.data["author"], widget.permlink, comment.toString());
+                                          },
                                         ),
                                       ),
                                     ],
@@ -422,7 +465,9 @@ class VideoScreenState extends State<VideoScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: new TextField(
                                       decoration: new InputDecoration(hintText: 'Comment something...'),
-                                      onSubmitted: (comment) {},
+                                      onSubmitted: (comment) {
+                                        broadcastComment(reply["author"], reply["permlink"], comment);
+                                      },
                                     ),
                                   )
                                 ],
@@ -464,6 +509,11 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
 
   var content;
   var result = "loading";
+  var subscribed = "Subscribe";
+  var gateway = "https://video.dtube.top/ipfs/";
+  VideoPlayerController _controller;
+  String _vidString = "";
+
   getVideo(var permlink, var author) async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
@@ -477,27 +527,39 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
       ]
     });
     content = response.data["result"];
+    var _temp = await retrieveData("gateway");
     setState(() {
       result = "loaded";
+      gateway = _temp;
     });
+
+    await sVideoController;
   }
 
-  videoController(var vidURL) {
-    try {
-      return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video480hash"]);
-    } catch (e) {
-      try {
-        return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video240hash"]);
-      } catch (e) {
-        try {
-          return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video720hash"]);
-        } catch (e) {
-          try {
-            return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["video1080hash"]);
-          } catch (e) {
-            return new VideoPlayerController.network("https://ipfs.io/ipfs/" + vidURL["video"]["content"]["videohash"]);
-          }
-        }
+  sVideoController(var videoJSON) async {
+    var sourcesInit = [
+      "480",
+      "240",
+      "720",
+      "1080",
+      "",
+    ];
+    var sources = {};
+    int b = 0;
+    String _tempVideo;
+    for (int i = 0; i < 5; i++) {
+      print(i);
+      _tempVideo = videoJSON["video"]["content"]["video${sourcesInit[i]}hash"];
+      if (_tempVideo != null) {
+        print(_tempVideo);
+        sources[b] = gateway + _tempVideo;
+        b++;
+      }
+      if (i == 4) {
+        setState(() {
+          _controller = VideoPlayerController.network(sources[0]);
+          _vidString = gateway + sources[0];
+        });
       }
     }
   }
@@ -509,7 +571,16 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: Colors.white,
-        title: new Text(widget.data["title"], style: new TextStyle(color: Colors.grey)),
+        title: new Row(
+          children: <Widget>[
+            new Text(widget.data["title"], style: new TextStyle(color: Colors.grey)),
+            new FlatButton(
+                onPressed: () {
+                  _launch(_vidString);
+                },
+                child: new Icon(Icons.open_in_new))
+          ],
+        ),
         automaticallyImplyLeading: false,
         leading: new Row(
           textDirection: TextDirection.ltr,
@@ -521,6 +592,13 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                 color: Colors.grey,
               ),
               onPressed: () {
+                try {
+                  _controller.pause();
+                } catch (e) {
+                  try {
+                    _controller.dispose();
+                  } catch(e) {};
+                }
                 Navigator.pop(context);
               },
             ),
@@ -530,12 +608,14 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
       body: new Center(
         child: new Column(
           children: <Widget>[
-            new Chewie(
-              videoController(widget.json_metadata),
-              aspectRatio: 3 / 2,
-              autoPlay: true,
-              looping: true,
-            ),
+            _controller != null
+                ? new Chewie(
+                    _controller,
+                    aspectRatio: 16 / 9,
+                    autoPlay: true,
+                    looping: false,
+                  )
+                : new Text("Loading video..."),
             new Container(
               child: result == "loading"
                   ? new Text("loading...")
@@ -560,10 +640,11 @@ class VideoScreenSearchState extends State<VideoScreenSearch> {
                                   ),
                                   new RaisedButton(
                                     color: Colors.redAccent,
-                                    onPressed: () {
-                                      print("pressed");
+                                    onPressed: () async {
+                                      var tempSub = await broadcastSubscribe(context, widget.data["author"]);
+                                      subscribed = "Subscribed";
                                     },
-                                    child: new Text("Subscribe", style: new TextStyle(color: Colors.white)),
+                                    child: new Text(subscribed, style: new TextStyle(color: Colors.white)),
                                   ),
                                 ],
                               ),

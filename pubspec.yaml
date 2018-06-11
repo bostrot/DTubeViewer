@@ -17,12 +17,13 @@ dependencies:
   screen: ^0.0.3
   open_iconic_flutter: ">=0.2.0 <0.3.0"
   html: any
-  fluttersteem: "^0.0.7"
   uni_links: "^0.1.1"
-  chewie: ^0.6.0
   flutter_custom_tabs: ^0.2.0
   cached_network_image: ^0.4.1
-  admob: "^0.1.27"
+  firebase_admob: ^0.5.5
+  video_launcher: "^0.3.0"
+  video_player: ^0.6.0
+  flutter_billing: "^0.2.2"
 
 dev_dependencies:
   flutter_test:

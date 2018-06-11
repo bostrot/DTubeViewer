@@ -147,10 +147,10 @@ class TabNavState extends State<TabNav> {
 
   Widget _placeholderImage(var imgURL) {
     try {
-      return Image.network("https://ipfs.io/ipfs/" + imgURL, fit: BoxFit.scaleDown,);
+      return Image.network("https://snap1.d.tube/ipfs/" + imgURL, fit: BoxFit.scaleDown,);
     } catch (e) {
       return Image.network(
-          "https://ipfs.io/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1", fit: BoxFit.scaleDown,);
+          "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1", fit: BoxFit.scaleDown,);
     }
   }
 
@@ -194,7 +194,6 @@ class TabNavState extends State<TabNav> {
 }
 
 void main() async {
-
   initUniLinks();
 
   SystemChrome.setPreferredOrientations([

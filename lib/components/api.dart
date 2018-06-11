@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttersteem/fluttersteem.dart';
+import 'package:flutter/material.dart';
+import 'dart:math';
 
 getDiscussions(var tab, String search, var user) async {
   Dio dio = new Dio();
@@ -50,10 +51,7 @@ getDiscussions(var tab, String search, var user) async {
       });
       break;
     case 3:
-      response = await dio.get(
-          "https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" +
-              search +
-              "&include=meta%2Cpayout");
+      response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
       break;
     case 4:
       response = await dio.post("https://api.steemit.com", data: {
@@ -80,29 +78,65 @@ int toInt(double doub) {
   return (multiplier * doub).round();
 }
 
-broadcast(String author, String permlink, int weight) async {
-  var _tempAuthData = await retrieveData();
-  print(_tempAuthData["key"]);
+broadcastVote(String author, String permlink, int weight) async {
+  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
   Dio dio = new Dio();
-  dio.options.headers = {
-    'Content-Type': 'application/json',
-    'authorization': await _tempAuthData["key"]
-  };
-  Response response =
-      await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
+  dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
+  Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
     "operations": [
       [
         "vote",
+        {"voter": await _tempAuthData["user"], "author": author, "permlink": permlink, "weight": weight}
+      ]
+    ]
+  });
+  return (response.data);
+}
+
+broadcastComment(String author, String permlink, String text) async {
+  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
+  var rng = new Random().nextInt(25);
+  String randStr = rng.toString();
+  Dio dio = new Dio();
+  dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
+  Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
+    "operations": [
+      [
+        "comment",
         {
-          "voter": await _tempAuthData["user"],
-          "author": author,
-          "permlink": permlink,
-          "weight": weight
+          "parent_author": author,
+          "parent_permlink": permlink,
+          "author": _tempAuthData["user"],
+          "permlink": randStr,
+          "title": randStr,
+          "body": text,
+          "json_metadata": "{\"app\":\"dtube/0.7\"}"
+        }
+      ]
+    ]
+  });
+  return (response.data);
+}
+
+broadcastSubscribe(context, String author) async {
+  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
+  Dio dio = new Dio();
+  dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
+  Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
+    "operations": [
+      [
+        "custom_json",
+        {
+          "required_auths": [],
+          "required_posting_auths": [_tempAuthData["user"]],
+          "id": "follow",
+          "json": "[\"follow\",{\"follower\":\"" + _tempAuthData["user"] + "\",\"following\":\"" + author + "\",\"what\":[\"blog\"]}]"
         }
       ]
     ]
   });
   print(response.data);
+  toast(context, "Subscribed");
   return (response.data);
 }
 
@@ -114,27 +148,31 @@ launchURL(var url) async {
   }
 }
 
-void saveData(var user, var key) async {
+void saveData(var key, var data) async {
   final prefs = await SharedPreferences.getInstance();
-  prefs.setString('user', user);
-  prefs.setString('key', key);
+  prefs.setString(key, data);
 }
 
-retrieveData() async {
+retrieveData(var key) async {
   final prefs = await SharedPreferences.getInstance();
-  return ({"user": prefs.getString('user'), "key": prefs.getString('key')});
+  return (prefs.getString(key));
 }
 
 String linkify(String text) {
   text = text.replaceAll("\\n", "\n");
-  var urlPattern =
-      r"(https?|ftp)://([-A-Z0-9.]+)(/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(\?[A-Z0-9+&@#/%=~_|!:‌​,.;]*)?";
+  var urlPattern = r"(https?|ftp)://([-A-Z0-9.]+)(/[-A-Z0-9+&@#/%=~_|!:,.;]*)?(\?[A-Z0-9+&@#/%=~_|!:‌​,.;]*)?";
   var result = new RegExp(urlPattern, caseSensitive: false).allMatches(text);
 
   for (Match m in result) {
     String match = m.group(0);
-    text =
-        text.replaceFirst(match, "<a href=\"" + match + "\">" + match + "</a>");
+    text = text.replaceFirst(match, "<a href=\"" + match + "\">" + match + "</a>");
   }
   return text;
+}
+
+toast(context, text) {
+  return Scaffold.of(context)
+    ..showSnackBar(new SnackBar(
+      content: new Text(text),
+    ));
 }
