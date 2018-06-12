@@ -74,15 +74,9 @@ class TabNavState extends State<TabNav> {
             ],
           ),
           title: new TextField(
-            decoration: new InputDecoration(
-                border: InputBorder.none, hintText: 'Search...'),
+            decoration: new InputDecoration(border: InputBorder.none, hintText: 'Search...'),
             onSubmitted: (search) {
-              Navigator.push(
-                  context,
-                  new MaterialPageRoute(
-                  builder: (context) => new SearchScreen(
-                  search: search))
-              );
+              Navigator.push(context, new MaterialPageRoute(builder: (context) => new SearchScreen(search: search)));
             },
           ),
         ),
@@ -118,19 +112,15 @@ class TabNavState extends State<TabNav> {
               var data = apiData[tab]["result"][index];
               var permlink = data["permlink"];
               try {
-                var title =
-                    data['json_metadata'].split('"title":"')[1].split('",')[0];
-                String description = data['json_metadata']
-                    .split(',"description":"')[1]
-                    .split('",')[0];
+                var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
                 return _buildRow(data, index, title, description, permlink);
               } catch (e) {
                 return new InkResponse(
                   child: new Column(
                     children: <Widget>[
                       _placeholderImage(null),
-                      new Text("uploader messed up.",
-                          style: new TextStyle(fontSize: 14.0), maxLines: 2),
+                      new Text("uploader messed up.", style: new TextStyle(fontSize: 14.0), maxLines: 2),
                     ],
                   ),
                   onTap: () {
@@ -142,11 +132,7 @@ class TabNavState extends State<TabNav> {
       ),
       onRefresh: () async {
         setState(() async {
-          apiData = [
-            await getDiscussions(0, null, null),
-            await getDiscussions(1, null, null),
-            await getDiscussions(2, null, null)
-          ];
+          apiData = [await getDiscussions(0, null, null), await getDiscussions(1, null, null), await getDiscussions(2, null, null)];
         });
         return apiData;
       },
@@ -155,46 +141,37 @@ class TabNavState extends State<TabNav> {
 
   Widget _placeholderImage(var imgURL) {
     try {
-      return Image.network("https://snap1.d.tube/ipfs/" + imgURL, fit: BoxFit.scaleDown,);
+      return Image.network(
+        "https://snap1.d.tube/ipfs/" + imgURL,
+        fit: BoxFit.scaleDown,
+      );
     } catch (e) {
       return Image.network(
-          "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1", fit: BoxFit.scaleDown,);
+        "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1",
+        fit: BoxFit.scaleDown,
+      );
     }
   }
 
-  Widget _buildRow(
-      var data, var index, var title, var description, var permlink) {
+  Widget _buildRow(var data, var index, var title, var description, var permlink) {
     var moment = new Moment.now();
     // handle metadata from (string)json_metadata
-    var json_metadata = json.decode(data['json_metadata']
-        .replaceAll(description, "")
-        .replaceAll(title, ""));
+    var json_metadata = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
     return new InkWell(
       child: new Column(
         children: <Widget>[
           _placeholderImage(json_metadata['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
-          new Text("by " + data['author'],
-              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
-              maxLines: 1),
-          new Text(
-              "\$" +
-                  data['pending_payout_value'].replaceAll("SBD", "") +
-                  " • " +
-                  moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
-              maxLines: 1),
+          new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+          new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
         ],
       ),
       onTap: () {
         Navigator.push(
           context,
           new MaterialPageRoute(
-              builder: (context) => new VideoScreen(
-                  permlink: permlink,
-                  data: data,
-                  description: description,
-                  json_metadata: json_metadata)),
+              builder: (context) => new VideoScreen(permlink: permlink, data: data, description: description, json_metadata: json_metadata)),
         );
       },
     );
@@ -219,13 +196,8 @@ void main() async {
   // TODO: splashscreen
   // TODO: icons
   try {
-    apiData = [
-      await getDiscussions(0, null, null),
-      await getDiscussions(1, null, null),
-      await getDiscussions(2, null, null)
-    ];
-  }
-  catch (e) {
+    apiData = [await getDiscussions(0, null, null), await getDiscussions(1, null, null), await getDiscussions(2, null, null)];
+  } catch (e) {
     internet = false;
   }
   runApp(

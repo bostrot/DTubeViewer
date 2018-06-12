@@ -24,6 +24,7 @@ dependencies:
   video_launcher: "^0.3.0"
   video_player: ^0.6.0
   flutter_billing: "^0.2.2"
+  chewie: ^0.6.0
 
 dev_dependencies:
   flutter_test:

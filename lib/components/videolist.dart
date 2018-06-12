@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
-import '../chewie/chewie.dart';
+import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import '../main.dart';
 import 'package:screen/screen.dart';
@@ -46,7 +46,7 @@ class VideoScreenState extends State<VideoScreen> {
   var upvoteColor = theme(selectedTheme)["accent"];
   var downvoteColor = theme(selectedTheme)["accent"];
   var subscribed = "Subscribe";
-  var gateway = "https://video.dtube.top/ipfs/";
+  var gateway = "https://ipfs.io/ipfs/";
   VideoPlayerController _controller;
   String _vidString;
 
@@ -89,6 +89,9 @@ class VideoScreenState extends State<VideoScreen> {
     });
     content = response.data["result"]["content"];
     var _temp = await retrieveData("gateway");
+    if (_temp == "https://video.dtube.top/ipfs/") {
+      saveData("gateway", "https://ipfs.io/ipfs/");
+    }
     setState(() {
       result = "loaded";
       gateway = _temp;
@@ -283,7 +286,8 @@ class VideoScreenState extends State<VideoScreen> {
                                                           child: new Text('UPVOTE'),
                                                           onPressed: () {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            broadcastVote(contextStatefulBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
+                                                            broadcastVote(
+                                                                contextStatefulBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
                                                           },
                                                         ),
                                                       ],
@@ -338,7 +342,8 @@ class VideoScreenState extends State<VideoScreen> {
                                                           child: new Text('DOWNVOTE'),
                                                           onPressed: () async {
                                                             Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                                                            await broadcastVote(contextListViewBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
+                                                            await broadcastVote(
+                                                                contextListViewBuilder, widget.data["author"], widget.permlink, toInt(sliderValue));
                                                           },
                                                         ),
                                                       ],
