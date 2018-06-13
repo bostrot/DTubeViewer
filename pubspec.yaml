@@ -21,10 +21,12 @@ dependencies:
   flutter_custom_tabs: ^0.2.0
   cached_network_image: ^0.4.1
   firebase_admob: ^0.5.5
+  firebase_analytics: ^1.0.1
   video_launcher: "^0.3.0"
   video_player: ^0.6.0
   flutter_billing: "^0.2.2"
   chewie: ^0.6.0
+  package_info: ^0.3.2
 
 dev_dependencies:
   flutter_test:

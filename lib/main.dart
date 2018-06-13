@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:english_words/english_words.dart';
-import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
@@ -12,13 +10,16 @@ import 'screens/feed.dart';
 import 'screens/settings.dart';
 import 'screens/search.dart';
 import 'package:uni_links/uni_links.dart';
-import 'dart:async';
-import 'dart:io';
-import 'screens/feed.dart';
+import 'package:package_info/package_info.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 var apiData;
 var videoData;
 StreamSubscription _sub;
+
+// analytics
+FirebaseAnalytics analytics = new FirebaseAnalytics();
 
 class TabNav extends StatefulWidget {
   @override
@@ -39,11 +40,12 @@ Future<Null> initUniLinks() async {
   }*/
 
   // Attach a listener to the stream
-  _sub = getLinksStream().listen((String link) {
+  _sub = getLinksStream().listen((String link) async {
     saveData("user", link.split("username=")[1]);
     saveData("key", link.split("access_token=")[1].split("&expires")[0]);
     //print(link.split("access_token=")[1].split("&expires")[0]);
     // Parse the link and warn the user, if it is not correct
+    await analytics.logLogin();
   }, onError: (err) {
     print(err);
     // Handle exception by warning the user their action did not succeed
@@ -171,7 +173,13 @@ class TabNavState extends State<TabNav> {
         Navigator.push(
           context,
           new MaterialPageRoute(
-              builder: (context) => new VideoScreen(permlink: permlink, data: data, description: description, json_metadata: json_metadata)),
+              builder: (context) => new VideoScreen(
+                    permlink: permlink,
+                    data: data,
+                    description: description,
+                    json_metadata: json_metadata,
+                    search: false,
+                  )),
         );
       },
     );
@@ -179,6 +187,7 @@ class TabNavState extends State<TabNav> {
 }
 
 void main() async {
+  // set theme
   var _tempTheme = await retrieveData("theme");
   if (_tempTheme != null && _tempTheme != "value") {
     print(_tempTheme);
@@ -187,14 +196,27 @@ void main() async {
     selectedTheme = "normal";
   }
 
+  // first start
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  int buildNumber = int.parse(packageInfo.buildNumber);
+  var _tempBuildNumber = await retrieveData("buildNumber");
+  if (_tempBuildNumber == null || int.parse(_tempBuildNumber) < buildNumber) {
+    saveData("gateway", "https://ipfs.io/ipfs/");
+    saveData("buildNumber", buildNumber.toString());
+    print("success");
+  }
+
+  // set up linking listener
   initUniLinks();
   var internet = true;
+
+  // lock orientation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // TODO: splashscreen
-  // TODO: icons
+
+  // get api data
   try {
     apiData = [await getDiscussions(0, null, null), await getDiscussions(1, null, null), await getDiscussions(2, null, null)];
   } catch (e) {
@@ -204,6 +226,10 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: internet ? TabNav() : new Center(child: new Text("An error occured. Please check your internet connection.")),
+      navigatorObservers: [
+        new FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     ),
   );
+  analytics.logAppOpen();
 }

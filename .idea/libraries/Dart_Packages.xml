@@ -114,6 +114,13 @@
             </list>
           </value>
         </entry>
+        <entry key="firebase_analytics">
+          <value>
+            <list>
+              <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-1.0.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="flutter">
           <value>
             <list>
@@ -272,6 +279,13 @@
           <value>
             <list>
               <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-1.0.3/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="package_info">
+          <value>
+            <list>
+              <option value="C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_info-0.3.2/lib" />
             </list>
           </value>
         </entry>
@@ -546,6 +560,7 @@
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/dio-0.0.14/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/english_words-3.1.0/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_admob-0.5.5/lib" />
+      <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-1.0.1/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_billing-0.2.2/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_cache_manager-0.1.1/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_custom_tabs-0.2.0/lib" />
@@ -567,6 +582,7 @@
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/node_preamble-1.4.1/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/open_iconic_flutter-0.2.0/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-1.0.3/lib" />
+      <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_info-0.3.2/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/package_resolver-1.0.2/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.5.1/lib" />
       <root url="file://C:/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.4.1/lib" />

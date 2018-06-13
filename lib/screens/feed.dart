@@ -17,13 +17,12 @@ class buildFeedState extends State<buildFeed> {
   var apiData4;
 
   checkUser() async {
-    var _temp = { "user": await retrieveData("user"), "key": await retrieveData("key")};
+    var _temp = {"user": await retrieveData("user"), "key": await retrieveData("key")};
     setState(() {
       user = _temp["user"];
       key = _temp["key"];
     });
-    if (user != null && key != null)
-      _getVideos();
+    if (user != null && key != null) _getVideos();
   }
 
   _getVideos() async {
@@ -55,14 +54,14 @@ class buildFeedState extends State<buildFeed> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           new Padding(
-                            padding: const EdgeInsets.only(
-                                top: 16.0, left: 4.0, right: 4.0),
+                            padding: const EdgeInsets.only(top: 16.0, left: 4.0, right: 4.0),
                             child: new Column(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 new RaisedButton(
                                   onPressed: () {
-                                    launchURL("https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://d.tube&scope=");
+                                    launchURL(
+                                        "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://d.tube&scope=");
                                   },
                                   child: new Row(
                                     mainAxisSize: MainAxisSize.max,
@@ -82,13 +81,17 @@ class buildFeedState extends State<buildFeed> {
                                       launchURL("https://signup.steemit.com/");
                                     },
                                     child: new Text(
-                                        "No account? Register now on steemit.com", style: TextStyle(color: theme(selectedTheme)["text"]),)),
+                                      "No account? Register now on steemit.com",
+                                      style: TextStyle(color: theme(selectedTheme)["text"]),
+                                    )),
                                 new FlatButton(
                                     onPressed: () {
                                       launchURL("https://about.d.tube/#faq1");
                                     },
                                     child: new Text(
-                                        "Trouble logging in? Visit the FAQ", style: TextStyle(color: theme(selectedTheme)["text"]),)),
+                                      "Trouble logging in? Visit the FAQ",
+                                      style: TextStyle(color: theme(selectedTheme)["text"]),
+                                    )),
                               ],
                             ),
                           ),
@@ -125,19 +128,15 @@ class buildFeedState extends State<buildFeed> {
             var data = apiData4["result"][i];
             var permlink = data["permlink"];
             try {
-              var title =
-                  data['json_metadata'].split('"title":"')[1].split('",')[0];
-              String description = data['json_metadata']
-                  .split(',"description":"')[1]
-                  .split('",')[0];
+              var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+              String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
               return _buildRow(data, i, title, description, permlink);
             } catch (e) {
               return new InkResponse(
                 child: new Column(
                   children: <Widget>[
                     _placeholderImage(null),
-                    new Text("uploader messed up.",
-                        style: new TextStyle(fontSize: 14.0), maxLines: 2),
+                    new Text("uploader messed up.", style: new TextStyle(fontSize: 14.0), maxLines: 2),
                   ],
                 ),
                 onTap: () {
@@ -174,28 +173,18 @@ class buildFeedState extends State<buildFeed> {
     }
   }
 
-  Widget _buildRow(
-      var data, var index, var title, var description, var permlink) {
+  Widget _buildRow(var data, var index, var title, var description, var permlink) {
     var moment = new Moment.now();
     // handle metadata from (string)json_metadata
-    var json_metadata = json.decode(data['json_metadata']
-        .replaceAll(description, "")
-        .replaceAll(title, ""));
+    var json_metadata = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
     return new InkWell(
       child: new Column(
         children: <Widget>[
           _placeholderImage(json_metadata['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
-          new Text("by " + data['author'],
-              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
-              maxLines: 1),
-          new Text(
-              "\$" +
-                  data['pending_payout_value'].replaceAll("SBD", "") +
-                  " • " +
-                  moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
-              maxLines: 1),
+          new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+          new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
+              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
         ],
       ),
       onTap: () {
@@ -203,10 +192,12 @@ class buildFeedState extends State<buildFeed> {
           context,
           new MaterialPageRoute(
               builder: (context) => new VideoScreen(
-                  permlink: permlink,
-                  data: data,
-                  description: description,
-                  json_metadata: json_metadata)),
+                    permlink: permlink,
+                    data: data,
+                    description: description,
+                    json_metadata: json_metadata,
+                    search: false,
+                  )),
         );
       },
     );
