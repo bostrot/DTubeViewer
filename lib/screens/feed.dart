@@ -61,7 +61,7 @@ class buildFeedState extends State<buildFeed> {
                                 new RaisedButton(
                                   onPressed: () {
                                     launchURL(
-                                        "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://d.tube&scope=");
+                                        "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://dtubeviewer.firebaseapp.com&scope=");
                                   },
                                   child: new Row(
                                     mainAxisSize: MainAxisSize.max,
