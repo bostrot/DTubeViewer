@@ -145,7 +145,7 @@ class TabNavState extends State<TabNav> {
     try {
       return Image.network(
         "https://snap1.d.tube/ipfs/" + imgURL,
-        fit: BoxFit.scaleDown,
+        fit: BoxFit.fill,
       );
     } catch (e) {
       return Image.network(
@@ -201,9 +201,8 @@ void main() async {
   int buildNumber = int.parse(packageInfo.buildNumber);
   var _tempBuildNumber = await retrieveData("buildNumber");
   if (_tempBuildNumber == null || int.parse(_tempBuildNumber) < buildNumber) {
-    saveData("gateway", "https://ipfs.io/ipfs/");
+    saveData("gateway", "https://video.dtube.top/ipfs/");
     saveData("buildNumber", buildNumber.toString());
-    print("success");
   }
 
   // set up linking listener

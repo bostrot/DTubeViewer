@@ -13,6 +13,7 @@ import '../flutter_html_view/flutter_html_text.dart';
 import 'api.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:video_launcher/video_launcher.dart';
+import 'dart:io' show Platform;
 
 const String testDevice = 'YOUR_DEVICE_ID';
 
@@ -48,30 +49,38 @@ class VideoScreenState extends State<VideoScreen> {
   var upvoteColor = theme(selectedTheme)["accent"];
   var downvoteColor = theme(selectedTheme)["accent"];
   var subscribed = "Subscribe";
-  var gateway = "https://ipfs.io/ipfs/";
+  var gateway = "https://video.dtube.top/ipfs/";
   VideoPlayerController _controller;
   String _vidString;
 
-  InterstitialAd myInterstitial = new InterstitialAd(
-    // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-    // https://developers.google.com/admob/android/test-ads
-    // https://developers.google.com/admob/ios/test-ads
-    adUnitId: "ca-app-pub-9430927632405311/4144105868",
-    listener: (MobileAdEvent event) {
-      print("InterstitialAd event is $event");
-    },
-  );
+  var _ios = Platform.isIOS;
+  InterstitialAd myInterstitial;
 
   @override
   void initState() {
     super.initState();
     getVideo(widget.permlink, widget.data["author"]);
-    () async {
-      if (await retrieveData("no_ads") == null) {
-        FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
-        myInterstitial..load();
-      }
+    if (_ios == true) {
+      FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~9708042281");
+    } else {
+      FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
     };
+    if (_ios == true) {
+      myInterstitial = new InterstitialAd(
+        adUnitId: "ca-app-pub-9430927632405311/9921156081",
+        listener: (MobileAdEvent event) {
+          print("InterstitialAd event is $event");
+        },
+      );
+    } else {
+      myInterstitial = new InterstitialAd(
+        adUnitId: "ca-app-pub-9430927632405311/4144105868",
+        listener: (MobileAdEvent event) {
+          print("InterstitialAd event is $event");
+        },
+      );
+    };
+    myInterstitial..load();
   }
 
   double sliderValue;
@@ -91,9 +100,6 @@ class VideoScreenState extends State<VideoScreen> {
     });
     content = response.data["result"]["content"];
     var _temp = await retrieveData("gateway");
-    if (_temp == "https://video.dtube.top/ipfs/") {
-      saveData("gateway", "https://ipfs.io/ipfs/");
-    }
     setState(() {
       result = "loaded";
       gateway = _temp;
