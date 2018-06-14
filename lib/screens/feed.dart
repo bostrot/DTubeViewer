@@ -5,6 +5,7 @@ import '../components/api.dart';
 import '../components/videolist.dart';
 import 'package:simple_moment/simple_moment.dart';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 class buildFeed extends StatefulWidget {
   @override
@@ -60,8 +61,13 @@ class buildFeedState extends State<buildFeed> {
                               children: <Widget>[
                                 new RaisedButton(
                                   onPressed: () {
-                                    launchURL(
-                                        "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://dtubeviewer.firebaseapp.com&scope=");
+                                    if (Platform.isAndroid) {
+                                      launchURL(
+                                          "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=dtubeapp://d.tube&scope=");
+                                    } else {
+                                      launchURL(
+                                          "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://dtubeviewer.firebaseapp.com&scope=");
+                                    }
                                   },
                                   child: new Row(
                                     mainAxisSize: MainAxisSize.max,

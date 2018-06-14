@@ -32,7 +32,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="https"
+                    android:scheme="dtubeapp"
                     android:host="d.tube" />
             </intent-filter>
             <!-- This keeps the window background of the activity showing
