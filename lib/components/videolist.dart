@@ -64,7 +64,8 @@ class VideoScreenState extends State<VideoScreen> {
       FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~9708042281");
     } else {
       FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
-    };
+    }
+    ;
     if (_ios == true) {
       myInterstitial = new InterstitialAd(
         adUnitId: "ca-app-pub-9430927632405311/9921156081",
@@ -79,7 +80,8 @@ class VideoScreenState extends State<VideoScreen> {
           print("InterstitialAd event is $event");
         },
       );
-    };
+    }
+    ;
     myInterstitial..load();
   }
 
@@ -388,7 +390,6 @@ class VideoScreenState extends State<VideoScreen> {
                                         new Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: new TextField(
-                                            autofocus: true,
                                             decoration: new InputDecoration(hintText: 'Comment something...'),
                                             onSubmitted: (comment) {
                                               broadcastComment(contextListViewBuilder, widget.data["author"], widget.permlink, comment.toString());
@@ -452,7 +453,10 @@ class VideoScreenState extends State<VideoScreen> {
                                     ],
                                   ),
                                   children: <Widget>[
-                                    new HtmlText(data: linkify(reply["body"])),
+                                    new Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: new HtmlText(data: linkify(reply["body"])),
+                                    ),
                                     new Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: <Widget>[
@@ -475,7 +479,6 @@ class VideoScreenState extends State<VideoScreen> {
                                     new Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: new TextField(
-                                        autofocus: true,
                                         decoration: new InputDecoration(hintText: 'Comment something...'),
                                         onSubmitted: (comment) {
                                           broadcastComment(contextListViewBuilder, reply["author"], reply["permlink"], comment);
