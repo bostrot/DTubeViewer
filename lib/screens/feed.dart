@@ -119,12 +119,14 @@ class buildFeedState extends State<buildFeed> {
   }
 
   Widget _buildSubtitles() {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+    final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
     return new RefreshIndicator(
       child: new GridView.builder(
           gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisSpacing: 2.0,
-            crossAxisCount: 2,
+            crossAxisCount: isLandscape ? 4 : 2,
             mainAxisSpacing: 5.0,
           ),
           itemCount: 30, // TODO: add _subtitles.length after update

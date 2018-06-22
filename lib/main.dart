@@ -13,6 +13,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:package_info/package_info.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 var apiData;
 var videoData;
@@ -96,6 +97,8 @@ class TabNavState extends State<TabNav> {
   }
 
   Widget _buildSubtitles(int tab) {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+    final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
     return new RefreshIndicator(
       child: new Container(
@@ -103,7 +106,7 @@ class TabNavState extends State<TabNav> {
         child: new GridView.builder(
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisSpacing: 2.0,
-              crossAxisCount: 2,
+              crossAxisCount: isLandscape ? 4 : 2,
               mainAxisSpacing: 5.0,
             ),
             itemCount: 30, // TODO: add _subtitles.length after update
@@ -209,11 +212,11 @@ void main() async {
   initUniLinks();
   var internet = true;
 
-  // lock orientation
+  /* lock orientation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]);
+  ]);*/
 
   // get api data
   try {

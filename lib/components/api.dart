@@ -10,11 +10,11 @@ var selectedTheme = "normal";
 theme(String mode) {
   switch (mode) {
     case "blue":
-      return { "primary": Colors.blue, "accent": Colors.grey, "text": Colors.black, "background": Colors.white };
+      return {"primary": Colors.blue, "accent": Colors.grey, "text": Colors.black, "background": Colors.white};
     case "black":
-      return { "primary": Colors.red, "accent": Colors.white, "text": Colors.white, "background": Colors.black };
+      return {"primary": Colors.red, "accent": Colors.white, "text": Colors.white, "background": Colors.black};
     case "normal":
-      return { "primary": Colors.red, "accent": Colors.grey, "text": Colors.black, "background": Colors.white };
+      return {"primary": Colors.red, "accent": Colors.grey, "text": Colors.black, "background": Colors.white};
       break;
   }
 }
@@ -32,7 +32,7 @@ getDiscussions(var tab, String search, var user) async {
           "database_api",
           "get_discussions_by_hot",
           [
-            {"tag": "dtube", "limit": 30, "truncate_body": 1}
+            {"tag": "dtube", "limit": 100, "truncate_body": 1}
           ]
         ]
       });
@@ -46,7 +46,7 @@ getDiscussions(var tab, String search, var user) async {
           "database_api",
           "get_discussions_by_trending",
           [
-            {"tag": "dtube", "limit": 30, "truncate_body": 1}
+            {"tag": "dtube", "limit": 100, "truncate_body": 1}
           ]
         ]
       });
@@ -60,7 +60,7 @@ getDiscussions(var tab, String search, var user) async {
           "database_api",
           "get_discussions_by_created",
           [
-            {"tag": "dtube", "limit": 30, "truncate_body": 1}
+            {"tag": "dtube", "limit": 100, "truncate_body": 1}
           ]
         ]
       });
@@ -77,7 +77,7 @@ getDiscussions(var tab, String search, var user) async {
           "database_api",
           "get_discussions_by_feed",
           [
-            {"tag": user, "limit": 30, "truncate_body": 1}
+            {"tag": user, "limit": 100, "truncate_body": 1}
           ]
         ]
       });
@@ -94,7 +94,7 @@ int toInt(double doub) {
 }
 
 broadcastVote(BuildContext context, String author, String permlink, int weight) async {
-  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
+  var _tempAuthData = {"user": await retrieveData("user"), "key": await retrieveData("key")};
   Dio dio = new Dio();
   dio.options.headers = {'Content-Type': 'application/json', 'authorization': _tempAuthData["key"]};
   print(_tempAuthData);
@@ -111,7 +111,7 @@ broadcastVote(BuildContext context, String author, String permlink, int weight) 
 }
 
 broadcastComment(BuildContext context, String author, String permlink, String text) async {
-  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
+  var _tempAuthData = {"user": await retrieveData("user"), "key": await retrieveData("key")};
   var rng = new Random().nextInt(25);
   String randStr = rng.toString();
   Dio dio = new Dio();
@@ -137,7 +137,7 @@ broadcastComment(BuildContext context, String author, String permlink, String te
 }
 
 broadcastSubscribe(context, String author) async {
-  var _tempAuthData = { "user": await retrieveData("user"), "key": await retrieveData("key") };
+  var _tempAuthData = {"user": await retrieveData("user"), "key": await retrieveData("key")};
   Dio dio = new Dio();
   dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
   Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {

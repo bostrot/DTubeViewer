@@ -196,14 +196,6 @@ class VideoScreenState extends State<VideoScreen> {
         body: new Center(
           child: new Column(
             children: <Widget>[
-              _controller != null
-                  ? new Chewie(
-                      _controller,
-                      aspectRatio: 16 / 9,
-                      autoPlay: true,
-                      looping: false,
-                    )
-                  : new Text("Loading video..."),
               new Container(
                 child: result == "loading"
                     ? new Text("loading...")
@@ -214,6 +206,14 @@ class VideoScreenState extends State<VideoScreen> {
                           if (index == 0)
                             return new Column(
                               children: <Widget>[
+                                _controller != null
+                                    ? new Chewie(
+                                        _controller,
+                                        aspectRatio: 16 / 9,
+                                        autoPlay: true,
+                                        looping: false,
+                                      )
+                                    : new Text("Loading video..."),
                                 new Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: new Row(

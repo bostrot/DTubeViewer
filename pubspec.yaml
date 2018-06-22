@@ -23,10 +23,12 @@ dependencies:
   firebase_admob: ^0.5.5
   firebase_analytics: ^1.0.1
   video_launcher: "^0.3.0"
-  video_player: ^0.6.0
+  video_player: ^0.6.1
   flutter_billing: "^0.2.2"
-  chewie: ^0.6.0
+  chewie: ^0.6.1
   package_info: ^0.3.2
+  oauth2: ^1.2.1
+  flutter_staggered_grid_view: "^0.2.1"
 
 dev_dependencies:
   flutter_test:
