@@ -13,7 +13,6 @@ import 'package:uni_links/uni_links.dart';
 import 'package:package_info/package_info.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 var apiData;
 var videoData;
@@ -104,40 +103,50 @@ class TabNavState extends State<TabNav> {
       child: new Container(
         color: theme(selectedTheme)["background"],
         child: new GridView.builder(
+            primary: true,
             gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisSpacing: 2.0,
               crossAxisCount: isLandscape ? 4 : 2,
               mainAxisSpacing: 5.0,
             ),
-            itemCount: 30, // TODO: add _subtitles.length after update
+            itemCount: 100, // TODO: add _subtitles.length after update
             padding: const EdgeInsets.all(4.0),
             itemBuilder: (context, i) {
-              i = i + jump;
-              final index = i;
+              int index = i + jump;
               var data = apiData[tab]["result"][index];
               var permlink = data["permlink"];
+              print(index);
               try {
                 var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
                 String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
                 return _buildRow(data, index, title, description, permlink);
               } catch (e) {
-                return new InkResponse(
-                  child: new Column(
-                    children: <Widget>[
-                      _placeholderImage(null),
-                      new Text("uploader messed up.", style: new TextStyle(fontSize: 14.0), maxLines: 2),
-                    ],
-                  ),
-                  onTap: () {
-                    print('tabbed');
-                  },
-                );
+                try {
+                  index++;
+                  jump++;
+                  data = apiData[tab]["result"][index];
+                  permlink = data["permlink"];
+                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                  return _buildRow(data, index, title, description, permlink);
+                } catch (e) {
+                  try {
+                    index++;
+                    jump++;
+                    data = apiData[tab]["result"][index];
+                    permlink = data["permlink"];
+                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    return _buildRow(data, index, title, description, permlink);
+                  } catch (e) {}
+                }
               }
+              return null;
             }),
       ),
       onRefresh: () async {
         setState(() async {
-          apiData = [await getDiscussions(0, null, null), await getDiscussions(1, null, null), await getDiscussions(2, null, null)];
+          apiData = [await steemit.getDiscussionsByHot(), await steemit.getDiscussionsByTrending(), await steemit.getDiscussionsByCreated()];
         });
         return apiData;
       },
@@ -220,7 +229,7 @@ void main() async {
 
   // get api data
   try {
-    apiData = [await getDiscussions(0, null, null), await getDiscussions(1, null, null), await getDiscussions(2, null, null)];
+    apiData = [await steemit.getDiscussionsByHot(), await steemit.getDiscussionsByTrending(), await steemit.getDiscussionsByCreated()];
   } catch (e) {
     internet = false;
   }

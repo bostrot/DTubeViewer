@@ -37,7 +37,10 @@ class buildSettingsState extends State<buildSettings> {
         children: <Widget>[
           new ListTile(
             leading: new Icon(FontAwesomeIcons.shoppingCart, color: theme(selectedTheme)["accent"]),
-            title: new Text("Remove ads", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Remove ads",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () async {
               final Billing billing = new Billing(onError: (e) {
                 return Scaffold.of(context)
@@ -66,11 +69,17 @@ class buildSettingsState extends State<buildSettings> {
           ),
           new Divider(),
           new ListTile(
-            title: new Text("Options", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Options",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
           ),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.server, color: theme(selectedTheme)["accent"]),
-            title: new Text("Gateway", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Gateway",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               return showDialog<Null>(
                 context: context,
@@ -113,7 +122,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.paintBrush, color: theme(selectedTheme)["accent"]),
-            title: new Text("Theme", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Theme",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               return showDialog(
                 context: context,
@@ -192,7 +204,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.upload, color: theme(selectedTheme)["accent"]),
-            title: new Text("Upload", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Upload",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               launchURL("https://d.tube/#!/upload");
             },
@@ -200,7 +215,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.signOutAlt, color: theme(selectedTheme)["accent"]),
-            title: new Text("Logout", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Logout",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               saveData("user", null);
               saveData("key", null);
@@ -212,12 +230,18 @@ class buildSettingsState extends State<buildSettings> {
           ),
           new Divider(),
           new ListTile(
-            title: new Text("Ressources", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Ressources",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
           ),
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.infoCircle, color: theme(selectedTheme)["accent"]),
-            title: new Text("About", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "About",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               return showDialog<Null>(
                 context: context,
@@ -318,7 +342,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.comment, color: theme(selectedTheme)["accent"]),
-            title: new Text("Feedback", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Feedback",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               final snackBar = new SnackBar(
                 content: new Text('This feature is planned!'),
@@ -329,19 +356,28 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.userSecret, color: theme(selectedTheme)["accent"]),
-            title: new Text("Privacy Policy", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "Privacy Policy",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               launchURL("https://www.iubenda.com/privacy-policy/8143066");
             },
           ),
           new Divider(),
           new ListTile(
-            title: new Text("My Links", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "My Links",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
           ),
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.rss, color: theme(selectedTheme)["accent"]),
-            title: new Text("My Blog", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "My Blog",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               launchURL("https://bostrot.pro/");
             },
@@ -349,7 +385,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.twitter, color: theme(selectedTheme)["accent"]),
-            title: new Text("My Twitter", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "My Twitter",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               launchURL("https://twitter.com/Bostrot_");
             },
@@ -357,7 +396,10 @@ class buildSettingsState extends State<buildSettings> {
           new Divider(),
           new ListTile(
             leading: new Icon(FontAwesomeIcons.newspaper, color: theme(selectedTheme)["accent"]),
-            title: new Text("My Newsletter", style: TextStyle(color: theme(selectedTheme)["text"]),),
+            title: new Text(
+              "My Newsletter",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
             onTap: () {
               launchURL("http://eepurl.com/do_FIr");
             },

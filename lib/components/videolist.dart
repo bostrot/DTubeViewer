@@ -198,7 +198,7 @@ class VideoScreenState extends State<VideoScreen> {
             children: <Widget>[
               new Container(
                 child: result == "loading"
-                    ? new Text("loading...")
+                    ? Center(child: new CircularProgressIndicator())
                     : new Expanded(
                         child: ListView.builder(
                         itemCount: 10,
@@ -213,7 +213,7 @@ class VideoScreenState extends State<VideoScreen> {
                                         autoPlay: true,
                                         looping: false,
                                       )
-                                    : new Text("Loading video..."),
+                                    : new CircularProgressIndicator(),
                                 new Padding(
                                   padding: const EdgeInsets.all(16.0),
                                   child: new Row(

@@ -16,6 +16,7 @@ class buildFeedState extends State<buildFeed> {
   var user;
   var key;
   var apiData4;
+  var userData;
 
   checkUser() async {
     var _temp = {"user": await retrieveData("user"), "key": await retrieveData("key")};
@@ -23,11 +24,21 @@ class buildFeedState extends State<buildFeed> {
       user = _temp["user"];
       key = _temp["key"];
     });
-    if (user != null && key != null) _getVideos();
+    if (user != null && key != null) {
+      _getVideos();
+      var _tempData = await steemit.getAccount(user);
+      var _tempPrice = await steemit.getSteemPrice();
+      setState(() {
+        userData = _tempData;
+      });
+
+      print(double.parse(userData["result"][0]["balance"].toString().replaceAll(" STEEM", "")) * double.parse(_tempPrice[0]["price_usd"]));
+    }
+    ;
   }
 
   _getVideos() async {
-    apiData4 = await getDiscussions(4, null, user);
+    apiData4 = await steemit.getDiscussionsByFeed(user);
     setState(() {
       apiData4 = apiData4;
     });
@@ -123,36 +134,65 @@ class buildFeedState extends State<buildFeed> {
     final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
     return new RefreshIndicator(
-      child: new GridView.builder(
-          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: 2.0,
-            crossAxisCount: isLandscape ? 4 : 2,
-            mainAxisSpacing: 5.0,
+      child: Column(
+        children: <Widget>[
+          new FlatButton(
+            onPressed: () {
+              print("pressed");
+            },
+            child: new ListTile(
+              leading: new CircleAvatar(
+                backgroundColor: Color.fromRGBO(0, 0, 0, 0.0),
+                backgroundImage: new NetworkImage("https://steemitimages.com/u/" + user + "/avatar/small"),
+              ),
+              title: new Text(user),
+              trailing: userData != null ? new Text("data") : new Text("loading"),
+            ),
           ),
-          itemCount: 30, // TODO: add _subtitles.length after update
-          padding: const EdgeInsets.all(4.0),
-          itemBuilder: (context, i) {
-            i = i + jump;
-            var data = apiData4["result"][i];
-            var permlink = data["permlink"];
-            try {
-              var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-              String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-              return _buildRow(data, i, title, description, permlink);
-            } catch (e) {
-              return new InkResponse(
-                child: new Column(
-                  children: <Widget>[
-                    _placeholderImage(null),
-                    new Text("uploader messed up.", style: new TextStyle(fontSize: 14.0), maxLines: 2),
-                  ],
+          new Expanded(
+            child: new GridView.builder(
+                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisSpacing: 2.0,
+                  crossAxisCount: isLandscape ? 4 : 2,
+                  mainAxisSpacing: 5.0,
                 ),
-                onTap: () {
-                  print('tabbed');
-                },
-              );
-            }
-          }),
+                itemCount: 100, // TODO: add _subtitles.length after update
+                padding: const EdgeInsets.all(4.0),
+                itemBuilder: (context, i) {
+                  int index = i + jump;
+                  var data = apiData4["result"][index];
+                  var permlink = data["permlink"];
+                  print(index);
+                  try {
+                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    return _buildRow(data, index, title, description, permlink);
+                  } catch (e) {
+                    try {
+                      index++;
+                      jump++;
+                      data = apiData4["result"][index];
+                      permlink = data["permlink"];
+                      var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                      String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                      return _buildRow(data, index, title, description, permlink);
+                    } catch (e) {
+                      try {
+                        index++;
+                        jump++;
+                        data = apiData4["result"][index];
+                        permlink = data["permlink"];
+                        var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                        String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                        return _buildRow(data, index, title, description, permlink);
+                      } catch (e) {}
+                    }
+                  }
+                  return null;
+                }),
+          ),
+        ],
+      ),
       onRefresh: () async {
         /*
         setState(() async {

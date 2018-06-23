@@ -19,7 +19,7 @@ class SearchScreenState extends State<SearchScreen> {
   var apiData3;
 
   _getVideos() async {
-    apiData3 = await getDiscussions(3, widget.search, null);
+    apiData3 = await steemit.getDiscussionsBySearch(widget.search);
     setState(() {
       apiData3 = apiData3;
     });

@@ -19,73 +19,122 @@ theme(String mode) {
   }
 }
 
-getDiscussions(var tab, String search, var user) async {
-  Dio dio = new Dio();
-  Response response;
-  switch (tab) {
-    case 0:
-      response = await dio.post("https://api.steemit.com", data: {
-        "id": "0",
-        "jsonrpc": "2.0",
-        "method": "call",
-        "params": [
-          "database_api",
-          "get_discussions_by_hot",
-          [
-            {"tag": "dtube", "limit": 100, "truncate_body": 1}
-          ]
+Steemit steemit = new Steemit();
+
+class Steemit {
+  getDiscussionsByHot() async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": "0",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_discussions_by_hot",
+        [
+          {"tag": "dtube", "limit": 100, "truncate_body": 1}
         ]
-      });
-      break;
-    case 1:
-      response = await dio.post("https://api.steemit.com", data: {
-        "id": "1",
-        "jsonrpc": "2.0",
-        "method": "call",
-        "params": [
-          "database_api",
-          "get_discussions_by_trending",
-          [
-            {"tag": "dtube", "limit": 100, "truncate_body": 1}
-          ]
-        ]
-      });
-      break;
-    case 2:
-      response = await dio.post("https://api.steemit.com", data: {
-        "id": "2",
-        "jsonrpc": "2.0",
-        "method": "call",
-        "params": [
-          "database_api",
-          "get_discussions_by_created",
-          [
-            {"tag": "dtube", "limit": 100, "truncate_body": 1}
-          ]
-        ]
-      });
-      break;
-    case 3:
-      response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
-      break;
-    case 4:
-      response = await dio.post("https://api.steemit.com", data: {
-        "id": "4",
-        "jsonrpc": "2.0",
-        "method": "call",
-        "params": [
-          "database_api",
-          "get_discussions_by_feed",
-          [
-            {"tag": user, "limit": 100, "truncate_body": 1}
-          ]
-        ]
-      });
-      break;
-    default:
-      break;
+      ]
+    });
+    return (response.data);
   }
-  return (response.data);
+
+  getDiscussionsByTrending() async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": "1",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_discussions_by_trending",
+        [
+          {"tag": "dtube", "limit": 100, "truncate_body": 1}
+        ]
+      ]
+    });
+    return (response.data);
+  }
+
+  getDiscussionsByCreated() async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": "2",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_discussions_by_created",
+        [
+          {"tag": "dtube", "limit": 100, "truncate_body": 1}
+        ]
+      ]
+    });
+    return (response.data);
+  }
+
+  getDiscussionsByFeed(var user) async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": "4",
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_discussions_by_feed",
+        [
+          {"tag": user, "limit": 100, "truncate_body": 1}
+        ]
+      ]
+    });
+    return (response.data);
+  }
+
+  getDiscussionsByBlog(var user) async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": 5,
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_discussions_by_blog",
+        [
+          {"tag": user, "limit": 100, "truncate_body": 1}
+        ]
+      ]
+    });
+    return (response.data);
+  }
+
+  getAccount(var user) async {
+    Dio dio = new Dio();
+    Response response = await dio.post("https://api.steemit.com", data: {
+      "id": 6,
+      "jsonrpc": "2.0",
+      "method": "call",
+      "params": [
+        "database_api",
+        "get_accounts",
+        [
+          [user]
+        ]
+      ]
+    });
+    return (response.data);
+  }
+
+  getDiscussionsBySearch(var search) async {
+    Dio dio = new Dio();
+    Response response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
+    return (response.data);
+  }
+
+  getSteemPrice() async {
+    Dio dio = new Dio();
+    Response response = await dio.get("https://api.coinmarketcap.com/v1/ticker/STEEM/");
+    return (response.data);
+  }
 }
 
 int toInt(double doub) {
