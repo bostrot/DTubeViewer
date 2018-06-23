@@ -126,14 +126,12 @@ class Steemit {
 
   getDiscussionsBySearch(var search) async {
     Dio dio = new Dio();
-    Response response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
-    return (response.data);
+    return (dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout"));
   }
 
   getSteemPrice() async {
     Dio dio = new Dio();
-    Response response = await dio.get("https://api.coinmarketcap.com/v1/ticker/STEEM/");
-    return (response.data);
+    return (dio.get("https://api.coinmarketcap.com/v1/ticker/STEEM/"));
   }
 }
 

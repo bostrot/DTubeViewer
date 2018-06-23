@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:english_words/english_words.dart';
 import 'package:dio/dio.dart';
-import 'dart:convert';
 import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-import '../main.dart';
 import 'package:screen/screen.dart';
 import '../flutter_html_view/flutter_html_text.dart';
 import 'api.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:video_launcher/video_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:share/share.dart';
+import 'RateWidget.dart';
 import 'dart:io' show Platform;
 
 const String testDevice = 'YOUR_DEVICE_ID';
@@ -20,11 +19,16 @@ const String testDevice = 'YOUR_DEVICE_ID';
 int initialShowAd = 3;
 int tempShowAd = initialShowAd;
 
-Future<Null> _launch(String url) async {
-  if (await canLaunchVideo(url)) {
-    await launchVideo(url);
-  } else {
-    throw 'Could not launch $url';
+class VideoList extends StatefulWidget {
+  @override
+  VideoListState createState() => new VideoListState();
+}
+
+class VideoListState extends State<VideoList> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return null;
   }
 }
 
@@ -154,10 +158,11 @@ class VideoScreenState extends State<VideoScreen> {
           actions: <Widget>[
             new FlatButton(
               onPressed: () {
-                _launch(_vidString);
+                print(widget.data["url"]);
+                Share.share("https://d.tube/v/" + widget.data["author"] + "/" + widget.data["permlink"]);
               },
-              child: new Icon(Icons.open_in_new, color: theme(selectedTheme)["accent"]),
-            )
+              child: new Icon(Icons.share, color: theme(selectedTheme)["accent"]),
+            ),
           ],
           automaticallyImplyLeading: false,
           leading: new Row(
@@ -381,6 +386,7 @@ class VideoScreenState extends State<VideoScreen> {
                                   color: theme(selectedTheme)["accent"],
                                   indent: 0.0,
                                 ),
+                                RateWidget(),
                                 new Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: new Column(
@@ -455,7 +461,7 @@ class VideoScreenState extends State<VideoScreen> {
                                   children: <Widget>[
                                     new Padding(
                                       padding: const EdgeInsets.all(16.0),
-                                      child: new HtmlText(data: linkify(reply["body"])),
+                                      child: (reply["body"].toString()).length > 100 ? new HtmlText(data: linkify(reply["body"])) : new Container(),
                                     ),
                                     new Row(
                                       mainAxisAlignment: MainAxisAlignment.end,

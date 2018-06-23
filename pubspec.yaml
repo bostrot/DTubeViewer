@@ -27,6 +27,9 @@ dependencies:
   flutter_billing: "^0.2.2"
   chewie: ^0.6.1
   package_info: ^0.3.2
+  share: "^0.5.2"
+  flutter_android_pip: ^0.0.1
+  flutter_webview_plugin: "^0.1.6"
 
 dev_dependencies:
   flutter_test:

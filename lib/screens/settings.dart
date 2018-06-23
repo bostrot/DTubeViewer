@@ -203,17 +203,6 @@ class buildSettingsState extends State<buildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.upload, color: theme(selectedTheme)["accent"]),
-            title: new Text(
-              "Upload",
-              style: TextStyle(color: theme(selectedTheme)["text"]),
-            ),
-            onTap: () {
-              launchURL("https://d.tube/#!/upload");
-            },
-          ),
-          new Divider(),
-          new ListTile(
             leading: new Icon(FontAwesomeIcons.signOutAlt, color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Logout",
@@ -234,6 +223,17 @@ class buildSettingsState extends State<buildSettings> {
               "Ressources",
               style: TextStyle(color: theme(selectedTheme)["text"]),
             ),
+          ),
+          new Divider(),
+          new ListTile(
+            leading: new Icon(FontAwesomeIcons.upload, color: theme(selectedTheme)["accent"]),
+            title: new Text(
+              "Upload",
+              style: TextStyle(color: theme(selectedTheme)["text"]),
+            ),
+            onTap: () {
+              launchURL("https://d.tube/#!/upload");
+            },
           ),
           new Divider(),
           new ListTile(
@@ -337,20 +337,6 @@ class buildSettingsState extends State<buildSettings> {
                   );
                 },
               );
-            },
-          ),
-          new Divider(),
-          new ListTile(
-            leading: new Icon(FontAwesomeIcons.comment, color: theme(selectedTheme)["accent"]),
-            title: new Text(
-              "Feedback",
-              style: TextStyle(color: theme(selectedTheme)["text"]),
-            ),
-            onTap: () {
-              final snackBar = new SnackBar(
-                content: new Text('This feature is planned!'),
-              );
-              Scaffold.of(context).showSnackBar(snackBar);
             },
           ),
           new Divider(),

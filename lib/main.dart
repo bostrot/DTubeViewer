@@ -63,6 +63,7 @@ class TabNavState extends State<TabNav> {
         appBar: new AppBar(
           backgroundColor: theme(selectedTheme)["background"],
           bottom: new TabBar(
+            isScrollable: false,
             indicatorColor: theme(selectedTheme)["primary"],
             labelColor: theme(selectedTheme)["primary"],
             unselectedLabelColor: theme(selectedTheme)["accent"],
@@ -96,53 +97,33 @@ class TabNavState extends State<TabNav> {
   }
 
   Widget _buildSubtitles(int tab) {
+    int jump = 0;
+    var videoItemList = <Widget>[];
+    for (var i = 0; i < 100; i++) {
+      {
+        int index = i + jump;
+        var data = apiData[tab]["result"][index];
+        var permlink = data["permlink"];
+        try {
+          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+          videoItemList.add(_buildRow(data, index, title, description, permlink));
+        } catch (e) {}
+      }
+    }
     final Orientation orientation = MediaQuery.of(context).orientation;
     final bool isLandscape = orientation == Orientation.landscape;
-    int jump = 0;
     return new RefreshIndicator(
       child: new Container(
         color: theme(selectedTheme)["background"],
-        child: new GridView.builder(
-            primary: true,
-            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 2.0,
-              crossAxisCount: isLandscape ? 4 : 2,
-              mainAxisSpacing: 5.0,
-            ),
-            itemCount: 100, // TODO: add _subtitles.length after update
-            padding: const EdgeInsets.all(4.0),
-            itemBuilder: (context, i) {
-              int index = i + jump;
-              var data = apiData[tab]["result"][index];
-              var permlink = data["permlink"];
-              print(index);
-              try {
-                var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                return _buildRow(data, index, title, description, permlink);
-              } catch (e) {
-                try {
-                  index++;
-                  jump++;
-                  data = apiData[tab]["result"][index];
-                  permlink = data["permlink"];
-                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                  return _buildRow(data, index, title, description, permlink);
-                } catch (e) {
-                  try {
-                    index++;
-                    jump++;
-                    data = apiData[tab]["result"][index];
-                    permlink = data["permlink"];
-                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                    return _buildRow(data, index, title, description, permlink);
-                  } catch (e) {}
-                }
-              }
-              return null;
-            }),
+        child: new GridView.count(
+          primary: true,
+          crossAxisSpacing: 2.0,
+          crossAxisCount: isLandscape ? 4 : 2,
+          mainAxisSpacing: 5.0,
+          padding: const EdgeInsets.all(4.0),
+          children: videoItemList,
+        ),
       ),
       onRefresh: () async {
         setState(() async {
@@ -216,6 +197,17 @@ void main() async {
     saveData("gateway", "https://video.dtube.top/ipfs/");
     saveData("buildNumber", buildNumber.toString());
   }
+
+  // start count
+  var _tempStarted = await retrieveData("started");
+  var _tempLastStarted = await retrieveData("lastStarted");
+
+  var date = new DateTime.now();
+  saveData("lastStarted", date.toString());
+
+  if (date.toString().substring(0, 8) == _tempLastStarted.toString().substring(0, 8) &&
+      int.parse(date.toString().substring(8, 10)) == int.parse(_tempLastStarted.substring(8, 10)) + 1)
+    saveData("started", ((_tempStarted != null ? int.parse(_tempStarted) : 0) + 1).toString());
 
   // set up linking listener
   initUniLinks();

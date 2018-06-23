@@ -60,43 +60,34 @@ class SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildSubtitles() {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+    final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
+    var videoItemList = <Widget>[];
+    for (var i = 0; i < 100; i++) {
+      {
+        int index = i + jump;
+        var data = apiData3["result"][index];
+        var permlink = data["permlink"];
+        try {
+          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+          videoItemList.add(_buildRow(data, index, title, description, permlink));
+        } catch (e) {}
+      }
+    }
     return new RefreshIndicator(
         onRefresh: () {
           print("test");
         },
         child: new Center(
-            child: GridView.builder(
-                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisSpacing: 2.0,
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 5.0,
-                ),
-                itemCount: 30, // TODO: add _subtitles.length after update
-                padding: const EdgeInsets.all(4.0),
-                itemBuilder: (context, i) {
-                  i = i + jump;
-                  final index = i;
-                  var data = apiData3["results"][index];
-                  var permlink = data["permlink"];
-                  try {
-                    String title = data['meta']['video']['info']['title'];
-                    String description = data['meta']['video']['content']['description'];
-                    return _buildRow(data, index, title, description, permlink);
-                  } catch (e) {
-                    return new InkResponse(
-                      child: new Column(
-                        children: <Widget>[
-                          _placeholderImage(null),
-                          new Text("uploader messed up", style: new TextStyle(fontSize: 14.0), maxLines: 2),
-                        ],
-                      ),
-                      onTap: () {
-                        print('tabbed');
-                      },
-                    );
-                  }
-                })));
+          child: new GridView.count(
+              crossAxisSpacing: 2.0,
+              crossAxisCount: isLandscape ? 4 : 2,
+              mainAxisSpacing: 5.0,
+              padding: const EdgeInsets.all(4.0),
+              children: videoItemList),
+        ));
   }
 
   Widget _placeholderImage(var imgURL) {

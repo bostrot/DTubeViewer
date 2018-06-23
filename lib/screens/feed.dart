@@ -7,6 +7,8 @@ import 'package:simple_moment/simple_moment.dart';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
+var apiData4;
+
 class buildFeed extends StatefulWidget {
   @override
   createState() => new buildFeedState();
@@ -15,8 +17,8 @@ class buildFeed extends StatefulWidget {
 class buildFeedState extends State<buildFeed> {
   var user;
   var key;
-  var apiData4;
   var userData;
+  var steemPriceData;
 
   checkUser() async {
     var _temp = {"user": await retrieveData("user"), "key": await retrieveData("key")};
@@ -30,9 +32,8 @@ class buildFeedState extends State<buildFeed> {
       var _tempPrice = await steemit.getSteemPrice();
       setState(() {
         userData = _tempData;
+        steemPriceData = _tempPrice;
       });
-
-      print(double.parse(userData["result"][0]["balance"].toString().replaceAll(" STEEM", "")) * double.parse(_tempPrice[0]["price_usd"]));
     }
     ;
   }
@@ -133,63 +134,88 @@ class buildFeedState extends State<buildFeed> {
     final Orientation orientation = MediaQuery.of(context).orientation;
     final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
+    var videoItemList = <Widget>[];
+    for (var i = 0; i < 100; i++) {
+      {
+        int index = i + jump;
+        var data = apiData4["result"][index];
+        var permlink = data["permlink"];
+        try {
+          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+          videoItemList.add(_buildRow(data, index, title, description, permlink));
+        } catch (e) {}
+      }
+    }
     return new RefreshIndicator(
-      child: Column(
+      child: new Stack(
         children: <Widget>[
-          new FlatButton(
-            onPressed: () {
-              print("pressed");
-            },
-            child: new ListTile(
-              leading: new CircleAvatar(
-                backgroundColor: Color.fromRGBO(0, 0, 0, 0.0),
-                backgroundImage: new NetworkImage("https://steemitimages.com/u/" + user + "/avatar/small"),
-              ),
-              title: new Text(user),
-              trailing: userData != null ? new Text("data") : new Text("loading"),
-            ),
-          ),
-          new Expanded(
-            child: new GridView.builder(
-                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisSpacing: 2.0,
-                  crossAxisCount: isLandscape ? 4 : 2,
-                  mainAxisSpacing: 5.0,
+          new GridView.count(
+              crossAxisSpacing: 2.0,
+              crossAxisCount: isLandscape ? 4 : 2,
+              mainAxisSpacing: 5.0,
+              padding: const EdgeInsets.all(4.0),
+              children: videoItemList),
+          new Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              new Opacity(
+                opacity: 0.9,
+                child: new FlatButton(
+                  color: theme(selectedTheme)["background"],
+                  onPressed: () {
+                    print("pressed");
+                  },
+                  child: new ListTile(
+                    leading: new CircleAvatar(
+                      backgroundColor: Color.fromRGBO(0, 0, 0, 0.0),
+                      backgroundImage: new NetworkImage("https://steemitimages.com/u/" + user + "/avatar/small"),
+                    ),
+                    title: new Text(user),
+                    trailing: userData != null && steemPriceData != null
+                        ? new Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              new Card(
+                                color: Colors.green,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      new Icon(
+                                        FontAwesomeIcons.bolt,
+                                        color: Colors.white,
+                                        size: 12.0,
+                                      ),
+                                      new Text(
+                                        " " + (userData["result"][0]["voting_power"] / 100).toString() + "%",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              new Card(
+                                color: Colors.green,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: new Text(
+                                    "\$" +
+                                        (double.parse(userData["result"][0]["balance"].toString().replaceAll(" STEEM", "")) +
+                                                double.parse(steemPriceData[0]["price_usd"]))
+                                            .toStringAsFixed(2)
+                                            .toString(),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : new Text("loading"),
+                  ),
                 ),
-                itemCount: 100, // TODO: add _subtitles.length after update
-                padding: const EdgeInsets.all(4.0),
-                itemBuilder: (context, i) {
-                  int index = i + jump;
-                  var data = apiData4["result"][index];
-                  var permlink = data["permlink"];
-                  print(index);
-                  try {
-                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                    return _buildRow(data, index, title, description, permlink);
-                  } catch (e) {
-                    try {
-                      index++;
-                      jump++;
-                      data = apiData4["result"][index];
-                      permlink = data["permlink"];
-                      var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                      String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                      return _buildRow(data, index, title, description, permlink);
-                    } catch (e) {
-                      try {
-                        index++;
-                        jump++;
-                        data = apiData4["result"][index];
-                        permlink = data["permlink"];
-                        var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                        String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                        return _buildRow(data, index, title, description, permlink);
-                      } catch (e) {}
-                    }
-                  }
-                  return null;
-                }),
+              ),
+            ],
           ),
         ],
       ),
