@@ -36,29 +36,7 @@ including the design
 
 ### Libs
 
-* cupertino_icons: ^0.1.2
-* english_words: ^3.1.0
-* font_awesome_flutter: ^6.0.0
-* dio: ^0.0.13
-* simple_moment: ^0.0.3
-* url_launcher: ^3.0.1
-* shared_preferences: ^0.4.1
-* screen: ^0.0.3
-* open_iconic_flutter: ">=0.2.0 <0.3.0"
-* html: any
-* uni_links: "^0.1.1"
-* flutter_custom_tabs: ^0.2.0
-* cached_network_image: ^0.4.1
-* firebase_admob: ^0.5.5
-* firebase_analytics: ^1.0.1
-* video_launcher: "^0.3.0"
-* video_player: ^0.6.1
-* flutter_billing: "^0.2.2"
-* chewie: ^0.6.1
-* package_info: ^0.3.2
-* share: "^0.5.2"
-* flutter_android_pip: ^0.0.1
-* flutter_webview_plugin: "^0.1.6"
+See <a href="https://github.com/bostrot/DTubeViewer/blob/master/pubspec.yaml">pubspec.yaml</a>
 
 ### Releases
 
