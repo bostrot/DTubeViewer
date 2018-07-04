@@ -40,7 +40,7 @@ See <a href="https://github.com/bostrot/DTubeViewer/blob/master/pubspec.yaml">pu
 
 ### Releases
 
-Get it on the <a href="https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer">Google Play Store</a> or at <a href="https://github.com/bostrot/DTubeViewer/releases">Releases</a> or on the <a href="https://itunes.apple.com/us/app/dtube-viewer/id1358140255?l=de&ls=1&mt=8">App Store</a>
+Get it on the <a target="_blank" href="https://play.google.com/store/apps/details?id=pro.bostrot.dtubeviewer">Google Play Store</a> or at <a target="_blank" href="https://github.com/bostrot/DTubeViewer/releases">Releases</a> or on the <a target="_blank" href="https://itunes.apple.com/us/app/dtube-viewer/id1358140255?l=de&ls=1&mt=8">App Store</a>
 
 ### Getting Started
 
