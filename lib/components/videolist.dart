@@ -8,7 +8,6 @@ import 'package:screen/screen.dart';
 import '../flutter_html_view/flutter_html_text.dart';
 import 'api.dart';
 import 'package:firebase_admob/firebase_admob.dart';
-import 'package:video_launcher/video_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
 import 'RateWidget.dart';
@@ -34,16 +33,16 @@ class VideoListState extends State<VideoList> {
 
 class VideoScreen extends StatefulWidget {
   final String permlink;
-  var data;
-  var description;
-  var json_metadata;
-  var search;
+  final data;
+  final description;
+  final meta;
+  final search;
   VideoScreen({
     this.data,
     this.search,
     this.permlink,
     this.description,
-    this.json_metadata,
+    this.meta,
   });
   @override
   VideoScreenState createState() => new VideoScreenState();
@@ -55,7 +54,6 @@ class VideoScreenState extends State<VideoScreen> {
   var subscribed = "Subscribe";
   var gateway = "https://video.dtube.top/ipfs/";
   VideoPlayerController _controller;
-  String _vidString;
 
   var _ios = Platform.isIOS;
   InterstitialAd myInterstitial;
@@ -69,7 +67,6 @@ class VideoScreenState extends State<VideoScreen> {
     } else {
       FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
     }
-    ;
     if (_ios == true) {
       myInterstitial = new InterstitialAd(
         adUnitId: "ca-app-pub-9430927632405311/9921156081",
@@ -85,7 +82,6 @@ class VideoScreenState extends State<VideoScreen> {
         },
       );
     }
-    ;
     myInterstitial..load();
   }
 
@@ -110,7 +106,7 @@ class VideoScreenState extends State<VideoScreen> {
       result = "loaded";
       gateway = _temp;
     });
-    await sVideoController(widget.json_metadata);
+    await sVideoController(widget.meta);
   }
 
   sVideoController(var videoJSON) async {
@@ -133,7 +129,6 @@ class VideoScreenState extends State<VideoScreen> {
       if (i == 4) {
         setState(() {
           _controller = VideoPlayerController.network(sources[0]);
-          _vidString = sources[0];
         });
       }
     }
@@ -181,7 +176,6 @@ class VideoScreenState extends State<VideoScreen> {
                     try {
                       _controller.dispose();
                     } catch (e) {}
-                    ;
                   }
                   tempShowAd--;
                   if (tempShowAd == 0 && await retrieveData("no_ads") == null) {
@@ -243,7 +237,7 @@ class VideoScreenState extends State<VideoScreen> {
                                               new RaisedButton(
                                                 color: theme(selectedTheme)["primary"],
                                                 onPressed: () async {
-                                                  var tempSub = await broadcastSubscribe(contextListViewBuilder, widget.data["author"]);
+                                                  await broadcastSubscribe(contextListViewBuilder, widget.data["author"]);
                                                   setState(() {
                                                     subscribed = "Subscribed";
                                                   });
@@ -506,14 +500,13 @@ class VideoScreenState extends State<VideoScreen> {
     );
   }
 
-  Future<bool> _onWillPop() async {
+  Future _onWillPop() async {
     try {
       _controller.pause();
     } catch (e) {
       try {
         _controller.dispose();
       } catch (e) {}
-      ;
     }
     tempShowAd--;
     if (tempShowAd == 0 && await retrieveData("no_ads") == null) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../main.dart';
 import '../components/api.dart';
 import '../components/videolist.dart';
 import 'package:simple_moment/simple_moment.dart';
@@ -9,12 +8,12 @@ import 'dart:io' show Platform;
 
 var apiData4;
 
-class buildFeed extends StatefulWidget {
+class BuildFeed extends StatefulWidget {
   @override
-  createState() => new buildFeedState();
+  createState() => new BuildFeedState();
 }
 
-class buildFeedState extends State<buildFeed> {
+class BuildFeedState extends State<BuildFeed> {
   var user;
   var key;
   var userData;
@@ -35,7 +34,6 @@ class buildFeedState extends State<buildFeed> {
         steemPriceData = _tempPrice;
       });
     }
-    ;
   }
 
   _getVideos() async {
@@ -134,28 +132,50 @@ class buildFeedState extends State<buildFeed> {
     final Orientation orientation = MediaQuery.of(context).orientation;
     final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
-    var videoItemList = <Widget>[];
-    for (var i = 0; i < 100; i++) {
-      {
-        int index = i + jump;
-        var data = apiData4["result"][index];
-        var permlink = data["permlink"];
-        try {
-          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-          videoItemList.add(_buildRow(data, index, title, description, permlink));
-        } catch (e) {}
-      }
-    }
     return new RefreshIndicator(
       child: new Stack(
         children: <Widget>[
-          new GridView.count(
-              crossAxisSpacing: 2.0,
-              crossAxisCount: isLandscape ? 4 : 2,
-              mainAxisSpacing: 5.0,
+          new GridView.builder(
+              primary: true,
+              gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisSpacing: 2.0,
+                crossAxisCount: isLandscape ? 4 : 2,
+                mainAxisSpacing: 5.0,
+              ),
+              itemCount: 100, // TODO: add _subtitles.length after update
               padding: const EdgeInsets.all(4.0),
-              children: videoItemList),
+              itemBuilder: (context, i) {
+                int index = i + jump;
+                var data = apiData4["result"][index];
+                var permlink = data["permlink"];
+                print(index);
+                try {
+                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                  return _buildRow(data, index, title, description, permlink);
+                } catch (e) {
+                  try {
+                    index++;
+                    jump++;
+                    data = apiData4["result"][index];
+                    permlink = data["permlink"];
+                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    return _buildRow(data, index, title, description, permlink);
+                  } catch (e) {
+                    try {
+                      index++;
+                      jump++;
+                      data = apiData4["result"][index];
+                      permlink = data["permlink"];
+                      var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                      String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                      return _buildRow(data, index, title, description, permlink);
+                    } catch (e) {}
+                  }
+                }
+                return null;
+              }),
           new Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -250,11 +270,11 @@ class buildFeedState extends State<buildFeed> {
   Widget _buildRow(var data, var index, var title, var description, var permlink) {
     var moment = new Moment.now();
     // handle metadata from (string)json_metadata
-    var json_metadata = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
+    var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
     return new InkWell(
       child: new Column(
         children: <Widget>[
-          _placeholderImage(json_metadata['video']['info']['snaphash']),
+          _placeholderImage(meta['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
           new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
           new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
@@ -269,7 +289,7 @@ class buildFeedState extends State<buildFeed> {
                     permlink: permlink,
                     data: data,
                     description: description,
-                    json_metadata: json_metadata,
+                    meta: meta,
                     search: false,
                   )),
         );

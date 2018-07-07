@@ -5,7 +5,6 @@ import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
 import 'components/videolist.dart';
 import 'components/api.dart';
-import 'package:flutter/services.dart';
 import 'screens/feed.dart';
 import 'screens/settings.dart';
 import 'screens/search.dart';
@@ -13,6 +12,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:package_info/package_info.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'dart:io';
 
 var apiData;
 var videoData;
@@ -28,17 +28,6 @@ class TabNav extends StatefulWidget {
 
 Future<Null> initUniLinks() async {
   // Platform messages may fail, so we use a try/catch PlatformException.
-  /*try {
-    String initialLink = await getInitialLink();
-    print("link: " + initialLink.toString());
-    // Parse the link and warn the user, if it is not correct,
-    // but keep in mind it could be `null`.
-  } on PlatformException {
-
-    // Handle exception by warning the user their action did not succeed
-    // return?
-  }*/
-
   // Attach a listener to the stream
   _sub = getLinksStream().listen((String link) async {
     saveData("user", link.split("username=")[1]);
@@ -88,8 +77,8 @@ class TabNavState extends State<TabNav> {
             _buildSubtitles(0),
             _buildSubtitles(1),
             _buildSubtitles(2),
-            buildFeed(),
-            buildSettings(),
+            BuildFeed(),
+            BuildSettings(),
           ],
         ),
       ),
@@ -98,32 +87,50 @@ class TabNavState extends State<TabNav> {
 
   Widget _buildSubtitles(int tab) {
     int jump = 0;
-    var videoItemList = <Widget>[];
-    for (var i = 0; i < 100; i++) {
-      {
-        int index = i + jump;
-        var data = apiData[tab]["result"][index];
-        var permlink = data["permlink"];
-        try {
-          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-          videoItemList.add(_buildRow(data, index, title, description, permlink));
-        } catch (e) {}
-      }
-    }
     final Orientation orientation = MediaQuery.of(context).orientation;
     final bool isLandscape = orientation == Orientation.landscape;
     return new RefreshIndicator(
       child: new Container(
         color: theme(selectedTheme)["background"],
-        child: new GridView.count(
-          primary: true,
-          crossAxisSpacing: 2.0,
-          crossAxisCount: isLandscape ? 4 : 2,
-          mainAxisSpacing: 5.0,
-          padding: const EdgeInsets.all(4.0),
-          children: videoItemList,
-        ),
+        child: new GridView.builder(
+            primary: true,
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisSpacing: 2.0,
+              crossAxisCount: isLandscape ? 4 : 2,
+              mainAxisSpacing: 5.0,
+            ),
+            padding: const EdgeInsets.all(4.0),
+            itemBuilder: (context, i) {
+              int index = i + jump;
+              var data = apiData[tab]["result"][index];
+              var permlink = data["permlink"];
+              try {
+                var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                return _buildRow(data, index, title, description, permlink);
+              } catch (e) {
+                try {
+                  index++;
+                  jump++;
+                  data = apiData[tab]["result"][index];
+                  permlink = data["permlink"];
+                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                  return _buildRow(data, index, title, description, permlink);
+                } catch (e) {
+                  try {
+                    index++;
+                    jump++;
+                    data = apiData[tab]["result"][index];
+                    permlink = data["permlink"];
+                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    return _buildRow(data, index, title, description, permlink);
+                  } catch (e) {}
+                }
+              }
+              return null;
+            }),
       ),
       onRefresh: () async {
         setState(() async {
@@ -151,11 +158,11 @@ class TabNavState extends State<TabNav> {
   Widget _buildRow(var data, var index, var title, var description, var permlink) {
     var moment = new Moment.now();
     // handle metadata from (string)json_metadata
-    var json_metadata = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
+    var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
     return new InkWell(
       child: new Column(
         children: <Widget>[
-          _placeholderImage(json_metadata['video']['info']['snaphash']),
+          _placeholderImage(meta['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
           new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
           new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
@@ -170,7 +177,7 @@ class TabNavState extends State<TabNav> {
                     permlink: permlink,
                     data: data,
                     description: description,
-                    json_metadata: json_metadata,
+                    meta: meta,
                     search: false,
                   )),
         );

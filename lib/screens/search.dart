@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:simple_moment/simple_moment.dart';
 import '../components/api.dart';
 import '../components/videolist.dart';
@@ -31,7 +30,6 @@ class SearchScreenState extends State<SearchScreen> {
     super.initState();
   }
 
-  //getVideo(permlink);
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -63,30 +61,53 @@ class SearchScreenState extends State<SearchScreen> {
     final Orientation orientation = MediaQuery.of(context).orientation;
     final bool isLandscape = orientation == Orientation.landscape;
     int jump = 0;
-    var videoItemList = <Widget>[];
-    for (var i = 0; i < 100; i++) {
-      {
-        int index = i + jump;
-        var data = apiData3["result"][index];
-        var permlink = data["permlink"];
-        try {
-          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-          videoItemList.add(_buildRow(data, index, title, description, permlink));
-        } catch (e) {}
-      }
-    }
+
     return new RefreshIndicator(
         onRefresh: () {
           print("test");
         },
         child: new Center(
-          child: new GridView.count(
-              crossAxisSpacing: 2.0,
-              crossAxisCount: isLandscape ? 4 : 2,
-              mainAxisSpacing: 5.0,
+          child: new GridView.builder(
+              primary: true,
+              gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisSpacing: 2.0,
+                crossAxisCount: isLandscape ? 4 : 2,
+                mainAxisSpacing: 5.0,
+              ),
+              itemCount: 100, // TODO: add _subtitles.length after update
               padding: const EdgeInsets.all(4.0),
-              children: videoItemList),
+              itemBuilder: (context, i) {
+                int index = i + jump;
+                var data = apiData3["result"][index];
+                var permlink = data["permlink"];
+                print(index);
+                try {
+                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                  return _buildRow(data, index, title, description, permlink);
+                } catch (e) {
+                  try {
+                    index++;
+                    jump++;
+                    data = apiData3["result"][index];
+                    permlink = data["permlink"];
+                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    return _buildRow(data, index, title, description, permlink);
+                  } catch (e) {
+                    try {
+                      index++;
+                      jump++;
+                      data = apiData3["result"][index];
+                      permlink = data["permlink"];
+                      var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                      String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                      return _buildRow(data, index, title, description, permlink);
+                    } catch (e) {}
+                  }
+                }
+                return null;
+              }),
         ));
   }
 
@@ -107,11 +128,11 @@ class SearchScreenState extends State<SearchScreen> {
   Widget _buildRow(var data, var index, var title, var description, var permlink) {
     var moment = new Moment.now();
     // handle metadata from (string)json_metadata
-    var json_metadata = data['meta'];
+    var meta = data['meta'];
     return new InkWell(
       child: new Column(
         children: <Widget>[
-          _placeholderImage(json_metadata['video']['info']['snaphash']),
+          _placeholderImage(meta['video']['info']['snaphash']),
           new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
           new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
           new Text("\$" + data['payout'].toString() + " • " + moment.from(DateTime.parse(data['created'])),
@@ -122,8 +143,7 @@ class SearchScreenState extends State<SearchScreen> {
         Navigator.push(
           context,
           new MaterialPageRoute(
-              builder: (context) =>
-                  new VideoScreen(permlink: permlink, data: data, description: description, json_metadata: json_metadata, search: true)),
+              builder: (context) => new VideoScreen(permlink: permlink, data: data, description: description, meta: meta, search: true)),
         );
       },
     );

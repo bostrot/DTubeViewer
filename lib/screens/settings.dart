@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../main.dart';
 import '../components/api.dart';
 import 'package:flutter_billing/flutter_billing.dart';
 
-class buildSettings extends StatefulWidget {
+class BuildSettings extends StatefulWidget {
   @override
-  createState() => new buildSettingsState();
+  createState() => new BuildSettingsState();
 }
 
-class buildSettingsState extends State<buildSettings> {
+class BuildSettingsState extends State<BuildSettings> {
   var user;
   var key;
   var _gateway;
@@ -50,7 +49,7 @@ class buildSettingsState extends State<buildSettings> {
               });
               final bool purchased = await billing.isPurchased('no_ads');
               if (purchased) {
-                await saveData("no_ads", "true");
+                saveData("no_ads", "true");
                 return Scaffold.of(context)
                   ..showSnackBar(new SnackBar(
                     content: new Text("Thanks for supporting me! Ads will not show up again."),
@@ -58,7 +57,7 @@ class buildSettingsState extends State<buildSettings> {
               } else {
                 final bool purchased = await billing.purchase('no_ads');
                 if (purchased) {
-                  await saveData("no_ads", "true");
+                  saveData("no_ads", "true");
                   return Scaffold.of(context)
                     ..showSnackBar(new SnackBar(
                       content: new Text("Thanks for supporting me! Ads will not show up again."),
@@ -109,7 +108,7 @@ class buildSettingsState extends State<buildSettings> {
                       new FlatButton(
                         child: new Text('OK'),
                         onPressed: () async {
-                          await saveData("gateway", _gateway);
+                          saveData("gateway", _gateway);
                           Navigator.of(context).pop();
                         },
                       ),
@@ -185,7 +184,7 @@ class buildSettingsState extends State<buildSettings> {
                         ],
                         onChanged: (String value) async {
                           setState(() => _value = value);
-                          await saveData("theme", value);
+                          saveData("theme", value);
                         },
                       ),
                       actions: <Widget>[

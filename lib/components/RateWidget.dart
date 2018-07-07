@@ -68,6 +68,7 @@ class RateWidgetState extends State<RateWidget> {
     } else {
       return new Container();
     }
+    return Container();
   }
 
   Widget rateWidget(String question, String negative, String positive) {
