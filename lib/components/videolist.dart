@@ -500,7 +500,7 @@ class VideoScreenState extends State<VideoScreen> {
     );
   }
 
-  Future _onWillPop() async {
+  Future<bool> _onWillPop() async {
     try {
       _controller.pause();
     } catch (e) {

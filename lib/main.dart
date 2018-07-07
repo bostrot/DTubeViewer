@@ -12,7 +12,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:package_info/package_info.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'dart:io';
+//import 'dart:io';
 
 var apiData;
 var videoData;
@@ -205,7 +205,7 @@ void main() async {
     saveData("buildNumber", buildNumber.toString());
   }
 
-  // start count
+  /* start count
   var _tempStarted = await retrieveData("started");
   var _tempLastStarted = await retrieveData("lastStarted");
 
@@ -215,6 +215,8 @@ void main() async {
   if (date.toString().substring(0, 8) == _tempLastStarted.toString().substring(0, 8) &&
       int.parse(date.toString().substring(8, 10)) == int.parse(_tempLastStarted.substring(8, 10)) + 1)
     saveData("started", ((_tempStarted != null ? int.parse(_tempStarted) : 0) + 1).toString());
+
+  */
 
   // set up linking listener
   initUniLinks();
