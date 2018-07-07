@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../components/api.dart';
 import 'package:flutter_billing/flutter_billing.dart';
+import 'dart:io' show Platform;
 
 class BuildSettings extends StatefulWidget {
   @override
@@ -41,27 +42,53 @@ class BuildSettingsState extends State<BuildSettings> {
               style: TextStyle(color: theme(selectedTheme)["text"]),
             ),
             onTap: () async {
-              final Billing billing = new Billing(onError: (e) {
-                return Scaffold.of(context)
-                  ..showSnackBar(new SnackBar(
-                    content: new Text(e.toString()),
-                  ));
-              });
-              final bool purchased = await billing.isPurchased('no_ads');
-              if (purchased) {
-                saveData("no_ads", "true");
-                return Scaffold.of(context)
-                  ..showSnackBar(new SnackBar(
-                    content: new Text("Thanks for supporting me! Ads will not show up again."),
-                  ));
+              if (Platform.isIOS) {
+                final Billing billing = new Billing(onError: (e) {
+                  return Scaffold.of(context)
+                    ..showSnackBar(new SnackBar(
+                      content: new Text(e.toString()),
+                    ));
+                });
+                final bool purchased = await billing.isPurchased('no_ads');
+                if (purchased) {
+                  saveData("noads", "true");
+                  return Scaffold.of(context)
+                    ..showSnackBar(new SnackBar(
+                      content: new Text("Thanks for supporting me! Ads will not show up again."),
+                    ));
+                } else {
+                  final bool purchased = await billing.purchase('no_ads');
+                  if (purchased) {
+                    saveData("noads", "true");
+                    return Scaffold.of(context)
+                      ..showSnackBar(new SnackBar(
+                        content: new Text("Thanks for supporting me! Ads will not show up again."),
+                      ));
+                  }
+                }
               } else {
-                final bool purchased = await billing.purchase('no_ads');
+                final Billing billing = new Billing(onError: (e) {
+                  return Scaffold.of(context)
+                    ..showSnackBar(new SnackBar(
+                      content: new Text(e.toString()),
+                    ));
+                });
+                final bool purchased = await billing.isPurchased('no_ads');
                 if (purchased) {
                   saveData("no_ads", "true");
                   return Scaffold.of(context)
                     ..showSnackBar(new SnackBar(
                       content: new Text("Thanks for supporting me! Ads will not show up again."),
                     ));
+                } else {
+                  final bool purchased = await billing.purchase('no_ads');
+                  if (purchased) {
+                    saveData("no_ads", "true");
+                    return Scaffold.of(context)
+                      ..showSnackBar(new SnackBar(
+                        content: new Text("Thanks for supporting me! Ads will not show up again."),
+                      ));
+                  }
                 }
               }
             },
