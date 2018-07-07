@@ -49,17 +49,17 @@ class BuildSettingsState extends State<BuildSettings> {
                       content: new Text(e.toString()),
                     ));
                 });
-                final bool purchased = await billing.isPurchased('no_ads');
+                final bool purchased = await billing.isPurchased('noads');
                 if (purchased) {
-                  saveData("noads", "true");
+                  saveData("no_ads", "true");
                   return Scaffold.of(context)
                     ..showSnackBar(new SnackBar(
                       content: new Text("Thanks for supporting me! Ads will not show up again."),
                     ));
                 } else {
-                  final bool purchased = await billing.purchase('no_ads');
+                  final bool purchased = await billing.purchase('noads');
                   if (purchased) {
-                    saveData("noads", "true");
+                    saveData("no_ads", "true");
                     return Scaffold.of(context)
                       ..showSnackBar(new SnackBar(
                         content: new Text("Thanks for supporting me! Ads will not show up again."),
@@ -94,6 +94,67 @@ class BuildSettingsState extends State<BuildSettings> {
             },
           ),
           new Divider(),
+          Platform.isIOS
+              ? new ListTile(
+                  leading: new Icon(FontAwesomeIcons.shoppingCart, color: theme(selectedTheme)["accent"]),
+                  title: new Text(
+                    "Restore purchase",
+                    style: TextStyle(color: theme(selectedTheme)["text"]),
+                  ),
+                  onTap: () async {
+                    if (Platform.isIOS) {
+                      final Billing billing = new Billing(onError: (e) {
+                        return Scaffold.of(context)
+                          ..showSnackBar(new SnackBar(
+                            content: new Text(e.toString()),
+                          ));
+                      });
+                      final bool purchased = await billing.isPurchased('no_ads');
+                      if (purchased) {
+                        saveData("noads", "true");
+                        return Scaffold.of(context)
+                          ..showSnackBar(new SnackBar(
+                            content: new Text("Thanks for supporting me! Ads will not show up again."),
+                          ));
+                      } else {
+                        final bool purchased = await billing.purchase('no_ads');
+                        if (purchased) {
+                          saveData("noads", "true");
+                          return Scaffold.of(context)
+                            ..showSnackBar(new SnackBar(
+                              content: new Text("Thanks for supporting me! Ads will not show up again."),
+                            ));
+                        }
+                      }
+                    } else {
+                      final Billing billing = new Billing(onError: (e) {
+                        return Scaffold.of(context)
+                          ..showSnackBar(new SnackBar(
+                            content: new Text(e.toString()),
+                          ));
+                      });
+                      final bool purchased = await billing.isPurchased('no_ads');
+                      if (purchased) {
+                        saveData("no_ads", "true");
+                        return Scaffold.of(context)
+                          ..showSnackBar(new SnackBar(
+                            content: new Text("Thanks for supporting me! Ads will not show up again."),
+                          ));
+                      } else {
+                        final bool purchased = await billing.purchase('no_ads');
+                        if (purchased) {
+                          saveData("no_ads", "true");
+                          return Scaffold.of(context)
+                            ..showSnackBar(new SnackBar(
+                              content: new Text("Thanks for supporting me! Ads will not show up again."),
+                            ));
+                        }
+                      }
+                    }
+                  },
+                )
+              : Container(),
+          Platform.isIOS ? new Divider() : Container(),
           new ListTile(
             title: new Text(
               "Options",
