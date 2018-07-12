@@ -49,6 +49,21 @@ class BuildSettingsState extends State<BuildSettings> {
                       content: new Text(e.toString()),
                     ));
                 });
+                final BillingProduct product = await billing.getProduct('noads');
+                if (product != null) {
+                  // success
+
+                  return Scaffold.of(context)
+                    ..showSnackBar(new SnackBar(
+                      content: new Text(product.description.toString()),
+                    ));
+                } else {
+                  // something went wrong
+                  return Scaffold.of(context)
+                    ..showSnackBar(new SnackBar(
+                      content: new Text(product.description.toString()),
+                    ));
+                }/*
                 final bool purchased = await billing.isPurchased('noads');
                 if (purchased) {
                   saveData("no_ads", "true");
@@ -65,7 +80,7 @@ class BuildSettingsState extends State<BuildSettings> {
                         content: new Text("Thanks for supporting me! Ads will not show up again."),
                       ));
                   }
-                }
+                }*/
               } else {
                 final Billing billing = new Billing(onError: (e) {
                   return Scaffold.of(context)
