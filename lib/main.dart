@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'dart:convert';
-import 'package:simple_moment/simple_moment.dart';
 import 'dart:async';
 import 'components/videolist.dart';
 import 'components/api.dart';
@@ -12,9 +10,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:package_info/package_info.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-//import 'dart:io';
 
-var apiData;
 var videoData;
 StreamSubscription _sub;
 
@@ -48,140 +44,39 @@ class TabNavState extends State<TabNav> {
     return new DefaultTabController(
       length: 5,
       child: new Scaffold(
-        // TODO: remove appbar and add tabbar right under statusbar
-        appBar: new AppBar(
-          backgroundColor: theme(selectedTheme)["background"],
-          bottom: new TabBar(
-            isScrollable: false,
-            indicatorColor: theme(selectedTheme)["primary"],
-            labelColor: theme(selectedTheme)["primary"],
-            unselectedLabelColor: theme(selectedTheme)["accent"],
-            indicatorWeight: 0.5,
-            tabs: [
-              new Tab(icon: new Icon(FontAwesomeIcons.fire)),
-              new Tab(icon: new Icon(FontAwesomeIcons.trophy)),
-              new Tab(icon: new Icon(FontAwesomeIcons.hourglass)),
-              new Tab(icon: new Icon(FontAwesomeIcons.th)),
-              new Tab(icon: new Icon(FontAwesomeIcons.cogs)),
-            ],
-          ),
-          title: new TextField(
-            decoration: new InputDecoration(border: InputBorder.none, hintText: 'Search...'),
-            onSubmitted: (search) {
-              Navigator.push(context, new MaterialPageRoute(builder: (context) => new SearchScreen(search: search)));
-            },
-          ),
-        ),
-        body: new TabBarView(
-          children: [
-            _buildSubtitles(0),
-            _buildSubtitles(1),
-            _buildSubtitles(2),
-            BuildFeed(),
-            BuildSettings(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubtitles(int tab) {
-    int jump = 0;
-    final Orientation orientation = MediaQuery.of(context).orientation;
-    final bool isLandscape = orientation == Orientation.landscape;
-    return new RefreshIndicator(
-      child: new Container(
-        color: theme(selectedTheme)["background"],
-        child: new GridView.builder(
-            primary: true,
-            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 2.0,
-              crossAxisCount: isLandscape ? 4 : 2,
-              mainAxisSpacing: 5.0,
+          // TODO: remove appbar and add tabbar right under statusbar
+          appBar: new AppBar(
+            backgroundColor: theme(selectedTheme)["background"],
+            bottom: new TabBar(
+              isScrollable: false,
+              indicatorColor: theme(selectedTheme)["primary"],
+              labelColor: theme(selectedTheme)["primary"],
+              unselectedLabelColor: theme(selectedTheme)["accent"],
+              indicatorWeight: 0.5,
+              tabs: [
+                new Tab(icon: new Icon(FontAwesomeIcons.fire)),
+                new Tab(icon: new Icon(FontAwesomeIcons.trophy)),
+                new Tab(icon: new Icon(FontAwesomeIcons.hourglass)),
+                new Tab(icon: new Icon(FontAwesomeIcons.th)),
+                new Tab(icon: new Icon(FontAwesomeIcons.cogs)),
+              ],
             ),
-            padding: const EdgeInsets.all(4.0),
-            itemBuilder: (context, i) {
-              int index = i + jump;
-              var data = apiData[tab]["result"][index];
-              var permlink = data["permlink"];
-              try {
-                var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                return _buildRow(data, index, title, description, permlink);
-              } catch (e) {
-                try {
-                  index++;
-                  jump++;
-                  data = apiData[tab]["result"][index];
-                  permlink = data["permlink"];
-                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                  return _buildRow(data, index, title, description, permlink);
-                } catch (e) {
-                  try {
-                    index++;
-                    jump++;
-                    data = apiData[tab]["result"][index];
-                    permlink = data["permlink"];
-                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                    return _buildRow(data, index, title, description, permlink);
-                  } catch (e) {}
-                }
-              }
-              return null;
-            }),
-      ),
-      onRefresh: () async {
-        setState(() async {
-          apiData = [await steemit.getDiscussionsByHot(), await steemit.getDiscussionsByTrending(), await steemit.getDiscussionsByCreated()];
-        });
-        return apiData;
-      },
-    );
-  }
-
-  Widget _placeholderImage(var imgURL) {
-    try {
-      return Image.network(
-        "https://snap1.d.tube/ipfs/" + imgURL,
-        fit: BoxFit.fill,
-      );
-    } catch (e) {
-      return Image.network(
-        "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1",
-        fit: BoxFit.scaleDown,
-      );
-    }
-  }
-
-  Widget _buildRow(var data, var index, var title, var description, var permlink) {
-    var moment = new Moment.now();
-    // handle metadata from (string)json_metadata
-    var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
-    return new InkWell(
-      child: new Column(
-        children: <Widget>[
-          _placeholderImage(meta['video']['info']['snaphash']),
-          new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
-          new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
-          new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
-              style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
-        ],
-      ),
-      onTap: () {
-        Navigator.push(
-          context,
-          new MaterialPageRoute(
-              builder: (context) => new VideoScreen(
-                    permlink: permlink,
-                    data: data,
-                    description: description,
-                    meta: meta,
-                    search: false,
-                  )),
-        );
-      },
+            title: new TextField(
+              decoration: new InputDecoration(border: InputBorder.none, hintText: 'Search...'),
+              onSubmitted: (search) {
+                Navigator.push(context, new MaterialPageRoute(builder: (context) => new SearchScreen(search: search)));
+              },
+            ),
+          ),
+          body: new TabBarView(
+            children: [
+              buildSubtitles(steemit.getDiscussionsByHot(), context),
+              buildSubtitles(steemit.getDiscussionsByTrending(), context),
+              buildSubtitles(steemit.getDiscussionsByCreated(), context),
+              BuildFeed(),
+              BuildSettings(),
+            ],
+          )),
     );
   }
 }
@@ -205,7 +100,7 @@ void main() async {
     saveData("buildNumber", buildNumber.toString());
   }
 
-  /* start count
+  // start count
   var _tempStarted = await retrieveData("started");
   var _tempLastStarted = await retrieveData("lastStarted");
 
@@ -215,8 +110,6 @@ void main() async {
   if (date.toString().substring(0, 8) == _tempLastStarted.toString().substring(0, 8) &&
       int.parse(date.toString().substring(8, 10)) == int.parse(_tempLastStarted.substring(8, 10)) + 1)
     saveData("started", ((_tempStarted != null ? int.parse(_tempStarted) : 0) + 1).toString());
-
-  */
 
   // set up linking listener
   initUniLinks();
@@ -229,11 +122,6 @@ void main() async {
   ]);*/
 
   // get api data
-  try {
-    apiData = [await steemit.getDiscussionsByHot(), await steemit.getDiscussionsByTrending(), await steemit.getDiscussionsByCreated()];
-  } catch (e) {
-    internet = false;
-  }
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

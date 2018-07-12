@@ -53,7 +53,7 @@ class SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
-      body: new Center(child: apiData3 != null ? _buildSubtitles() : new CircularProgressIndicator()),
+      body: buildSubtitles(steemit.getDiscussionsBySearch(widget.search), context),
     );
   }
 
@@ -78,30 +78,30 @@ class SearchScreenState extends State<SearchScreen> {
               padding: const EdgeInsets.all(4.0),
               itemBuilder: (context, i) {
                 int index = i + jump;
-                var data = apiData3["result"][index];
+                var data = apiData3["results"][index];
                 var permlink = data["permlink"];
                 print(index);
                 try {
-                  var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                  String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                  String title = data['meta']['video']['info']['title'];
+                  String description = data['meta']['video']['content']['description'];
                   return _buildRow(data, index, title, description, permlink);
                 } catch (e) {
                   try {
                     index++;
                     jump++;
-                    data = apiData3["result"][index];
+                    data = apiData3["results"][index];
                     permlink = data["permlink"];
-                    var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                    String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                    String title = data['meta']['video']['info']['title'];
+                    String description = data['meta']['video']['content']['description'];
                     return _buildRow(data, index, title, description, permlink);
                   } catch (e) {
                     try {
                       index++;
                       jump++;
-                      data = apiData3["result"][index];
+                      data = apiData3["results"][index];
                       permlink = data["permlink"];
-                      var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
-                      String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                      String title = data['meta']['video']['info']['title'];
+                      String description = data['meta']['video']['content']['description'];
                       return _buildRow(data, index, title, description, permlink);
                     } catch (e) {}
                   }

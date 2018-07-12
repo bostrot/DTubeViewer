@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:async';
 
 var selectedTheme = "normal";
 
@@ -21,7 +22,7 @@ theme(String mode) {
 Steemit steemit = new Steemit();
 
 class Steemit {
-  getDiscussionsByHot() async {
+  Future getDiscussionsByHot() async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": "0",
@@ -38,7 +39,7 @@ class Steemit {
     return (response.data);
   }
 
-  getDiscussionsByTrending() async {
+  Future getDiscussionsByTrending() async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": "1",
@@ -55,7 +56,7 @@ class Steemit {
     return (response.data);
   }
 
-  getDiscussionsByCreated() async {
+  Future getDiscussionsByCreated() async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": "2",
@@ -72,7 +73,7 @@ class Steemit {
     return (response.data);
   }
 
-  getDiscussionsByFeed(var user) async {
+  Future getDiscussionsByFeed(var user) async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": "4",
@@ -89,7 +90,7 @@ class Steemit {
     return (response.data);
   }
 
-  getDiscussionsByBlog(var user) async {
+  Future getDiscussionsByBlog(var user) async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": 5,
@@ -106,7 +107,7 @@ class Steemit {
     return (response.data);
   }
 
-  getAccount(var user) async {
+  Future getAccount(var user) async {
     Dio dio = new Dio();
     Response response = await dio.post("https://api.steemit.com", data: {
       "id": 6,
@@ -123,14 +124,17 @@ class Steemit {
     return (response.data);
   }
 
-  getDiscussionsBySearch(var search) async {
+  Future getDiscussionsBySearch(var search) async {
     Dio dio = new Dio();
-    return (dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout"));
+    Response response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
+    print(response.data);
+    return (response.data);
   }
 
-  getSteemPrice() async {
+  Future getSteemPrice() async {
     Dio dio = new Dio();
-    return (dio.get("https://api.coinmarketcap.com/v1/ticker/STEEM/"));
+    Response response = await dio.get("https://api.coinmarketcap.com/v1/ticker/STEEM/");
+    return (response.data);
   }
 }
 

@@ -12,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share/share.dart';
 import 'RateWidget.dart';
 import 'dart:io' show Platform;
+import 'dart:convert';
 
 const String testDevice = 'YOUR_DEVICE_ID';
 
@@ -29,6 +30,168 @@ class VideoListState extends State<VideoList> {
     // TODO: implement build
     return null;
   }
+}
+
+Widget buildSubtitles(Future future, context) {
+  int jump = 0;
+  final Orientation orientation = MediaQuery.of(context).orientation;
+  final bool isLandscape = orientation == Orientation.landscape;
+  return new FutureBuilder(
+    future: future, // a Future<String> or null
+    builder: (BuildContext context, AsyncSnapshot snapshot) {
+      switch (snapshot.connectionState) {
+        case ConnectionState.none:
+          return Center(child: new Text('No connection...'));
+        case ConnectionState.waiting:
+          return Center(child: new CircularProgressIndicator());
+        default:
+          if (snapshot.hasError)
+            return Center(child: new Text('Error: ${snapshot.error}'));
+          else
+            return new Container(
+              color: theme(selectedTheme)["background"],
+              child: new GridView.builder(
+                  primary: true,
+                  gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisSpacing: 2.0,
+                    crossAxisCount: isLandscape ? 4 : 2,
+                    mainAxisSpacing: 5.0,
+                  ),
+                  padding: const EdgeInsets.all(4.0),
+                  itemBuilder: (context, i) {
+                    var apiData = snapshot.data;
+                    int index = i + jump;
+                    if (apiData["result"] != null) {
+                      var data = apiData["result"][index];
+                      var permlink = data["permlink"];
+                      try {
+                        var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                        String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                        return _buildRow(data, index, title, description, permlink, context);
+                      } catch (e) {
+                        try {
+                          index++;
+                          jump++;
+                          data = apiData["result"][index];
+                          permlink = data["permlink"];
+                          var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                          String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                          return _buildRow(data, index, title, description, permlink, context);
+                        } catch (e) {
+                          try {
+                            index++;
+                            jump++;
+                            data = apiData["result"][index];
+                            permlink = data["permlink"];
+                            var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
+                            String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
+                            return _buildRow(data, index, title, description, permlink, context);
+                          } catch (e) {}
+                        }
+                      }
+                    } else {
+                      var data = apiData["results"][index];
+                      var permlink = data["permlink"];
+                      try {
+                        String title = data['meta']['video']['info']['title'];
+                        String description = data['meta']['video']['content']['description'];
+                        return _buildSearchRow(data, index, title, description, permlink, context);
+                      } catch (e) {
+                        try {
+                          index++;
+                          jump++;
+                          data = apiData["results"][index];
+                          permlink = data["permlink"];
+                          String title = data['meta']['video']['info']['title'];
+                          String description = data['meta']['video']['content']['description'];
+                          return _buildSearchRow(data, index, title, description, permlink, context);
+                        } catch (e) {
+                          try {
+                            index++;
+                            jump++;
+                            data = apiData["results"][index];
+                            permlink = data["permlink"];
+                            String title = data['meta']['video']['info']['title'];
+                            String description = data['meta']['video']['content']['description'];
+                            return _buildSearchRow(data, index, title, description, permlink, context);
+                          } catch (e) {}
+                        }
+                      }
+                    }
+                    return null;
+                  }),
+            );
+      }
+    },
+  );
+}
+
+Widget _placeholderImage(var imgURL) {
+  try {
+    return Image.network(
+      "https://snap1.d.tube/ipfs/" + imgURL,
+      fit: BoxFit.fill,
+    );
+  } catch (e) {
+    return Image.network(
+      "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1",
+      fit: BoxFit.scaleDown,
+    );
+  }
+}
+
+Widget _buildRow(var data, var index, var title, var description, var permlink, context) {
+  var moment = new Moment.now();
+  // handle metadata from (string)json_metadata
+  var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
+  return new InkWell(
+    child: new Column(
+      children: <Widget>[
+        _placeholderImage(meta['video']['info']['snaphash']),
+        new Text(title, style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]), maxLines: 2),
+        new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+        new Text("\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " + moment.from(DateTime.parse(data['created'])),
+            style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+      ],
+    ),
+    onTap: () {
+      Navigator.push(
+        context,
+        new MaterialPageRoute(
+            builder: (context) => new VideoScreen(
+                  permlink: permlink,
+                  data: data,
+                  description: description,
+                  meta: meta,
+                  search: false,
+                )),
+      );
+    },
+  );
+}
+
+Widget _buildSearchRow(var data, var index, var title, var description, var permlink, context) {
+  var moment = new Moment.now();
+  // handle metadata from (string)json_metadata
+  var meta = data['meta'];
+  return new InkWell(
+    child: new Column(
+      children: <Widget>[
+        _placeholderImage(meta['video']['info']['snaphash']),
+        new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
+        new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+        new Text("\$" + data['payout'].toString() + " • " + moment.from(DateTime.parse(data['created'])),
+            style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
+      ],
+    ),
+    onTap: () {
+      Navigator.push(
+        context,
+        new MaterialPageRoute(
+            builder: (context) => new VideoScreen(permlink: permlink, data: data, description: description, meta: meta, search: true)),
+      );
+    },
+  );
 }
 
 class VideoScreen extends StatefulWidget {
