@@ -131,7 +131,7 @@ packages:
       name: flutter_android_pip
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   flutter_billing:
     dependency: "direct main"
     description:
@@ -185,7 +185,7 @@ packages:
       name: glob
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.5"
+    version: "1.1.6"
   html:
     dependency: "direct main"
     description:
@@ -283,7 +283,7 @@ packages:
       name: node_preamble
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.2"
+    version: "1.4.3"
   open_iconic_flutter:
     dependency: "direct main"
     description:
@@ -435,7 +435,7 @@ packages:
       name: source_maps
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.5"
+    version: "0.10.6"
   source_span:
     dependency: transitive
     description:
@@ -505,7 +505,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   utf:
     dependency: transitive
     description:
@@ -540,7 +540,7 @@ packages:
       name: video_player
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1"
+    version: "0.6.4"
   vm_service_client:
     dependency: transitive
     description:
@@ -554,7 +554,7 @@ packages:
       name: watcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.7+8"
+    version: "0.9.7+9"
   web_socket_channel:
     dependency: transitive
     description:
