@@ -8,7 +8,7 @@ class BuildSettings extends StatefulWidget {
   @override
   createState() => new BuildSettingsState();
 }
-
+// settings screen
 class BuildSettingsState extends State<BuildSettings> {
   var user;
   var key;
