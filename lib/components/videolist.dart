@@ -19,6 +19,8 @@ const String testDevice = 'YOUR_DEVICE_ID';
 int initialShowAd = 3;
 int tempShowAd = initialShowAd;
 
+var moment = new Moment.now();
+
 class VideoList extends StatefulWidget {
   @override
   VideoListState createState() => new VideoListState();
@@ -386,8 +388,9 @@ class VideoScreenState extends State<VideoScreen> {
                                           new Padding(
                                             padding: const EdgeInsets.all(10.0),
                                             child: new CircleAvatar(
+                                              radius: 35.0,
                                               backgroundImage:
-                                                  new NetworkImage("https://steemitimages.com/u/" + widget.data["author"] + "/avatar/small"),
+                                                  new NetworkImage("https://steemitimages.com/u/" + widget.data["author"] + "/avatar/big"),
                                             ),
                                           ),
                                           new Column(
@@ -405,7 +408,11 @@ class VideoScreenState extends State<VideoScreen> {
                                                     subscribed = "Subscribed";
                                                   });
                                                 },
-                                                child: new Text(subscribed, style: new TextStyle(color: Colors.white)),
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    new Text(subscribed, style: new TextStyle(color: Colors.white)),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -548,7 +555,18 @@ class VideoScreenState extends State<VideoScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: new Column(
                                       children: <Widget>[
-                                        new Text("Added on " + widget.data["created"]),
+                                        Card(
+                                          color: Colors.lightGreen,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: new Text(
+                                              "added " + moment.from(DateTime.parse(widget.data["created"])),
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                         new HtmlText(data: linkify(widget.description)),
                                         new Padding(
                                           padding: const EdgeInsets.all(8.0),
@@ -567,7 +585,6 @@ class VideoScreenState extends State<VideoScreen> {
                             );
                           else if (index > 0) {
                             try {
-                              var moment = new Moment.now();
                               var reply = content[content[widget.data["author"] + "/" + widget.permlink]["replies"][index - 1].toString()];
                               var comment = linkify(reply["body"]);
                               if ((reply["body"].toString()).length > 100) {
@@ -582,7 +599,7 @@ class VideoScreenState extends State<VideoScreen> {
                                       new Row(
                                         children: <Widget>[
                                           new CircleAvatar(
-                                            maxRadius: 13.0,
+                                            radius: 13.0,
                                             backgroundImage: new NetworkImage("https://steemitimages.com/u/" + reply["author"] + "/avatar/small"),
                                           ),
                                           new Padding(
@@ -612,7 +629,10 @@ class VideoScreenState extends State<VideoScreen> {
                                           ),
                                         ],
                                       ),
-                                      new HtmlText(data: comment),
+                                      new Text(
+                                        comment,
+                                        style: TextStyle(fontSize: 14.0),
+                                      ),
                                     ],
                                   ),
                                   children: <Widget>[
