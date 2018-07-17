@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:open_file/open_file.dart';
 
 var selectedTheme = "normal";
 
@@ -126,8 +128,7 @@ class Steemit {
 
   Future getDiscussionsBySearch(var search) async {
     Dio dio = new Dio();
-    Response response = await dio.get("https://api.asksteem.com/search?q=meta.video.info.title%3A*%20AND%20" + search + "&include=meta%2Cpayout");
-    print(response.data);
+    Response response = await dio.get("https://dtubeapp.cf:2053/search?q=$search");
     return (response.data);
   }
 
@@ -143,11 +144,40 @@ int toInt(double doub) {
   return (multiplier * doub).round();
 }
 
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+initializeNotifications() {
+  // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+  var initializationSettingsAndroid = new AndroidInitializationSettings('ic_launcher');
+  var initializationSettingsIOS = new IOSInitializationSettings();
+  var initializationSettings = new InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
+  flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.initialize(initializationSettings, selectNotification: onSelectNotification);
+}
+
+Future onSelectNotification(String payload) async {
+  if (payload != null) {
+    debugPrint('notification payload: ' + payload);
+    OpenFile.open("/storage/emulated/0/Download/" + payload);
+  }
+  /*await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SecondScreen(payload)),
+    )*/
+}
+
+Future showNotification(String title, var body) async {
+  print("showNotification");
+  var androidPlatformChannelSpecifics = new AndroidNotificationDetails('channel', 'Downloads', 'Notifications for finished downloads.',
+      importance: Importance.Max, priority: Priority.High);
+  var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+  var platformChannelSpecifics = new NotificationDetails(androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics, payload: body);
+}
+
 broadcastVote(BuildContext context, String author, String permlink, int weight) async {
   var _tempAuthData = {"user": await retrieveData("user"), "key": await retrieveData("key")};
   Dio dio = new Dio();
   dio.options.headers = {'Content-Type': 'application/json', 'authorization': _tempAuthData["key"]};
-  print(_tempAuthData);
   Response response = await dio.post("https://v2.steemconnect.com/api/broadcast", data: {
     "operations": [
       [
@@ -186,7 +216,7 @@ broadcastComment(BuildContext context, String author, String permlink, String te
   return (response.data);
 }
 
-broadcastSubscribe(context, String author) async {
+broadcastSubscribe(context, String author, bool subscribe) async {
   var _tempAuthData = {"user": await retrieveData("user"), "key": await retrieveData("key")};
   Dio dio = new Dio();
   dio.options.headers = {'Content-Type': 'application/json', 'authorization': await _tempAuthData["key"]};
@@ -198,12 +228,18 @@ broadcastSubscribe(context, String author) async {
           "required_auths": [],
           "required_posting_auths": [_tempAuthData["user"].toString()],
           "id": "follow",
-          "json": "[\"follow\",{\"follower\":\"" + _tempAuthData["user"] + "\",\"following\":\"" + author + "\",\"what\":[\"blog\"]}]"
+          "json": "[\"follow\",{\"follower\":\"" +
+              _tempAuthData["user"] +
+              "\",\"following\":\"" +
+              author +
+              "\",\"what\":[" +
+              (subscribe ? "\"blog\"" : "\"\"") +
+              ")]}]"
         }
       ]
     ]
   });
-  toast(context, "Subscribed");
+  toast(context, subscribe ? "Subscribed" : "Unsubscribed");
   return (response.data);
 }
 
@@ -238,8 +274,10 @@ String linkify(String text) {
 }
 
 toast(context, text) {
+  double _tempSpeed = text.length / 10;
   return Scaffold.of(context)
     ..showSnackBar(new SnackBar(
       content: new Text(text),
+      duration: Duration(seconds: _tempSpeed.round()),
     ));
 }

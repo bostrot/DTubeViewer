@@ -1,32 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:simple_moment/simple_moment.dart';
 import '../components/api.dart';
 import '../components/videolist.dart';
 
-class SearchScreen extends StatefulWidget {
-  final String search;
-  SearchScreen({
-    this.search,
+class ProfileScreen extends StatefulWidget {
+  final String profile;
+  ProfileScreen({
+    this.profile,
   });
   @override
-  SearchScreenState createState() => new SearchScreenState();
+  ProfileScreenState createState() => new ProfileScreenState();
 }
 
-class SearchScreenState extends State<SearchScreen> {
-  var content;
-  var result = "loading";
-  var apiData3;
-
-  _getVideos() async {
-    apiData3 = await steemit.getDiscussionsBySearch(widget.search);
-    setState(() {
-      apiData3 = apiData3;
-    });
-  }
-
+class ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
-    _getVideos();
     super.initState();
   }
 
@@ -35,7 +22,7 @@ class SearchScreenState extends State<SearchScreen> {
     return new Scaffold(
       appBar: new AppBar(
         backgroundColor: theme(selectedTheme)["background"],
-        title: new Text(widget.search),
+        title: new Text(widget.profile),
         automaticallyImplyLeading: false,
         leading: new Row(
           textDirection: TextDirection.ltr,
@@ -53,7 +40,7 @@ class SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
-      body: buildSubtitles(steemit.getDiscussionsBySearch(widget.search), context),
+      body: buildSubtitles(steemit.getDiscussionsByBlog(widget.profile), context),
     );
   }
 }

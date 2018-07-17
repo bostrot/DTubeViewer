@@ -3,11 +3,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../components/api.dart';
 import 'package:flutter_billing/flutter_billing.dart';
 import 'dart:io' show Platform;
+import '../main.dart';
 
 class BuildSettings extends StatefulWidget {
   @override
   createState() => new BuildSettingsState();
 }
+
 // settings screen
 class BuildSettingsState extends State<BuildSettings> {
   var user;
@@ -36,12 +38,32 @@ class BuildSettingsState extends State<BuildSettings> {
       child: ListView(
         children: <Widget>[
           new ListTile(
+            title: Text("Support the dev"),
+          ),
+          new ListTile(
+            title: Text("Join Discord | Features | Bugs | more"),
+            onTap: () {
+              launchURL("https://discord.gg/fZvGq3D");
+            },
+            leading: Icon(FontAwesomeIcons.discord),
+          ),
+          new Divider(),
+          new ListTile(
+            title: Text("Contribute on GitHub"),
+            onTap: () {
+              launchURL("https://github.com/bostrot/DTubeViewer");
+            },
+            leading: Icon(FontAwesomeIcons.github),
+          ),
+          new Divider(),
+          new ListTile(
             leading: new Icon(FontAwesomeIcons.shoppingCart, color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Remove ads",
               style: TextStyle(color: theme(selectedTheme)["text"]),
             ),
             onTap: () async {
+              await analytics.logViewItem(itemId: "noads", itemName: "NoAds", itemCategory: "inapp");
               if (Platform.isIOS) {
                 final Billing billing = new Billing(onError: (e) {
                   return Scaffold.of(context)
@@ -272,6 +294,9 @@ class BuildSettingsState extends State<BuildSettings> {
                         ],
                         onChanged: (String value) async {
                           setState(() => _value = value);
+                          analytics.logEvent(name: "theme", parameters: <String, dynamic>{
+                            "value": value,
+                          });
                           saveData("theme", value);
                         },
                       ),

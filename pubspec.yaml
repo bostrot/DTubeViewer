@@ -8,7 +8,6 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  english_words: ^3.1.0
   font_awesome_flutter: ^6.0.0
   dio: ^0.0.13
   simple_moment: ^0.0.3
@@ -23,13 +22,16 @@ dependencies:
   firebase_admob: ^0.5.5
   firebase_analytics: ^1.0.1
   video_launcher: "^0.3.0"
-  video_player: ^0.6.1
+  video_player: ^0.6.4
   flutter_billing: "^0.2.2"
   chewie: ^0.6.1
   package_info: ^0.3.2
   share: "^0.5.2"
-  flutter_android_pip: ^0.0.1
-  flutter_webview_plugin: "^0.1.6"
+  flutter_android_pip: ^0.0.2
+  carousel_slider: "^0.0.6"
+  flutter_local_notifications: "^0.3.5"
+  permissions: "^0.1.2"
+  open_file: "^1.0.2"
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +52,11 @@ flutter:
   assets:
    - assets/video_placeholder.png
    - assets/web_hi_res_512.png
+   - assets/DTube_Black.png
+   - assets/DTube_White.png
+   - "assets/screenshot (1).jpg"
+   - "assets/screenshot (2).jpg"
+   - "assets/screenshot (3).jpg"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

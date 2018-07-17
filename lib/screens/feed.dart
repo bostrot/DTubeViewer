@@ -3,6 +3,7 @@ import '../components/api.dart';
 import '../components/videolist.dart';
 import 'dart:io' show Platform;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'login.dart';
 
 var apiData4;
 
@@ -62,13 +63,7 @@ class BuildFeedState extends State<BuildFeed> {
                                 children: <Widget>[
                                   new RaisedButton(
                                     onPressed: () {
-                                      if (Platform.isAndroid) {
-                                        launchURL(
-                                            "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=dtubeapp://d.tube&scope=");
-                                      } else {
-                                        launchURL(
-                                            "https://v2.steemconnect.com/oauth2/authorize?client_id=dtubeviewer&redirect_uri=https://dtubeviewer.firebaseapp.com&scope=");
-                                      }
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => new LoginScreen()));
                                     },
                                     child: new Row(
                                       mainAxisSize: MainAxisSize.max,
@@ -85,7 +80,7 @@ class BuildFeedState extends State<BuildFeed> {
                                   ),
                                   new FlatButton(
                                       onPressed: () {
-                                        launchURL("https://signup.steemit.com/");
+                                        launchUrl("https://signup.steemit.com/", context);
                                       },
                                       child: new Text(
                                         "No account? Register now on steemit.com",
@@ -93,7 +88,7 @@ class BuildFeedState extends State<BuildFeed> {
                                       )),
                                   new FlatButton(
                                       onPressed: () {
-                                        launchURL("https://about.d.tube/#faq1");
+                                        launchUrl("https://about.d.tube/#faq1", context);
                                       },
                                       child: new Text(
                                         "Trouble logging in? Visit the FAQ",
