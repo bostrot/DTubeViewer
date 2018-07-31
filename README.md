@@ -1,4 +1,4 @@
-## DTubeViewer Native iOS & Android App
+## [DTubeViewer Native iOS & Android App](https://github.com/bostrot/DTubeViewer)
 
 This is a native Android & iOS app developed for d.tube the ipfs/blockchain video streaming platform/network. It is built with flutter.
 
