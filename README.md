@@ -47,10 +47,12 @@ Get it on the <a target="_blank" href="https://play.google.com/store/apps/detail
 For help getting started with Flutter, view our online
 [documentation](https://flutter.io/).
 
-### Help
+## Help
 
 You are welcome to contribute with pull requests, bug reports, ideas and donations.
 
-Bitcoin: 18MQaV4zHEf1EY3ZmuUjdnXbfZxDNiyMhy
+Bitcoin: [1ECPWeTCq93F68BmgYjUgGSV11XuzSPSeM](https://www.blockchain.com/btc/payment_request?address=1ECPWeTCq93F68BmgYjUgGSV11XuzSPSeM&currency=USD&nosavecurrency=true&message=Bostrot)
 
-PayPal: paypal.me/bostrot
+PayPal: [paypal.me/bostrot](https://paypal.me/bostrot)
+
+Hosting: [2.50$ VPS at VULTR](https://www.vultr.com/?ref=7505919)
