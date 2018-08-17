@@ -15,6 +15,7 @@ import 'dart:convert';
 import 'package:video_launcher/video_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permissions/permissions.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import '../screens/profile.dart';
 
 const String testDevice = '62293BE037B83ADC6D2F4E380A6E9456';
@@ -47,13 +48,13 @@ var videoItemList = <Widget>[];
         try {
           var title = data['json_metadata'].split('"title":"')[1].split('",')[0];
           String description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-          videoItemList.add(_buildRow(data, index, title, description, permlink));
+          videoItemList.add(buildRow(data, index, title, description, permlink));
         } catch (e) {}
       }
     }
 */
 
-Widget buildSubtitles(Future future, context) {
+Widget buildSubtitles(Future future, context, bool heightToParent) {
   int jump = 0;
   final Orientation orientation = MediaQuery.of(context).orientation;
   final bool isLandscape = orientation == Orientation.landscape;
@@ -75,76 +76,118 @@ Widget buildSubtitles(Future future, context) {
                   int index = i + jump;
                   var data = snapshot.data["result"][index];
                   var permlink = data["permlink"];
-                  try {
+                  if (json.decode(data['json_metadata'])["video"] != null) {
                     var title = data['title'];
                     String description;
-                    try {
-                      description = data['json_metadata'].split(',"description":"')[1].split('",')[0];
-                    } catch (e) {
-                      description = data['json_metadata'].split(',"description\\":\\"')[1].split('",')[0];
-                    }
-                    videoItemList.add(_buildRow(data, index, title, description, permlink, context));
-                  } catch (e) {}
+                    description = json.decode(data['json_metadata'])["video"]["content"]["description"];
+                    videoItemList.add(buildRow(data, index, title, description, permlink, context, heightToParent));
+                  }
                 }
               }
-              return videoItemList != <Widget>[]
-                  ? new Container(
-                      color: theme(selectedTheme)["background"],
-                      child: new GridView.builder(
-                          primary: true,
-                          itemCount: videoItemList.length,
-                          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisSpacing: 2.0,
-                            crossAxisCount: isLandscape ? 4 : 2,
-                            mainAxisSpacing: 5.0,
-                          ),
-                          padding: const EdgeInsets.all(4.0),
-                          itemBuilder: (context, i) => videoItemList[i]))
-                  : Container(
-                      child: Center(
-                      child: Text("Experiencing server issues. Check back later..."),
-                    ));
+
+              print(videoItemList.length);
+              if (videoItemList.length > 0) {
+                print("yes");
+                return new Container(
+                    color: theme(selectedTheme)["background"],
+                    child: new ListView.builder(
+                        itemCount: videoItemList.length, scrollDirection: Axis.horizontal, itemBuilder: (context, i) => videoItemList[i]));
+              } else {
+                print("no");
+                return Container(
+                    child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text("Nothing found for your search..."),
+                      HtmlText(
+                        data:
+                            "<a href=\"https://steemit.com/utopian-io/@bostrot/introduction-a-new-steem-dtube-search-platform\">More about this.</a>",
+                      )
+                    ],
+                  ),
+                ));
+              }
             }
         }
       });
 }
 
-Widget _placeholderImage(var imgURL, var meta) {
+Widget _placeholderImage(var imgURL, var meta, context, title, data, heightToParent) {
   try {
     String duration = "00:00:00";
     try {
       double total_seconds = meta['video']['info']['duration'];
       duration = Duration(seconds: total_seconds.round()).toString().split(".")[0];
     } catch (e) {}
-    return Card(
-      elevation: 0.2,
-      child: Stack(
-        children: <Widget>[
-          Container(
-            child: Image.network(
-              "https://snap1.d.tube/ipfs/" + imgURL,
-              fit: BoxFit.scaleDown,
-            ),
-          ),
-          Column(
-            children: <Widget>[
-              Container(
-                color: Colors.black54,
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: new Text(
-                    duration,
-                    style: TextStyle(color: theme(selectedTheme)["background"]),
-                  ),
+    return Stack(
+      children: <Widget>[
+        heightToParent
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                child: Image.network(
+                  "https://snap1.d.tube/ipfs/" + imgURL,
+                  fit: BoxFit.fitHeight,
                 ),
               )
-            ],
-          )
-        ],
-      ),
+            : Container(
+                child: Image.network(
+                  "https://snap1.d.tube/ipfs/" + imgURL,
+                  fit: BoxFit.fitHeight,
+                ),
+              ),
+        Column(
+          children: <Widget>[
+            Container(
+              color: Colors.black54,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: new Text(
+                  duration,
+                  style: TextStyle(color: theme(selectedTheme)["background"]),
+                ),
+              ),
+            )
+          ],
+        ),
+        heightToParent
+            ? new Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Container(
+                      color: Colors.black54,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: <Widget>[
+                            new Text(
+                              title,
+                              style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["background"], fontWeight: FontWeight.bold),
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            new Text(
+                                "by " +
+                                    data['author'] +
+                                    " • " +
+                                    (data['pending_payout_value'] != null ? "\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " : "") +
+                                    moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
+                                style: new TextStyle(fontSize: 12.0, color: Colors.white),
+                                maxLines: 1)
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            : Container(),
+      ],
     );
   } catch (e) {
-    print(e);
+    print("EX" + e);
     return Image.network(
       "https://snap1.d.tube/ipfs/Qma585tFzjmzKemYHmDZoKMZHo8Ar7YMoDAS66LzrM2Lm1",
       fit: BoxFit.scaleDown,
@@ -152,67 +195,171 @@ Widget _placeholderImage(var imgURL, var meta) {
   }
 }
 
-Widget _buildRow(var data, var index, var title, var description, var permlink, context) {
+List sources(meta) {
+  var sourcesInit = [
+    "480",
+    "240",
+    "720",
+    "1080",
+    "",
+  ];
+  List _tempSources = [];
+  int b = 0;
+  String _tempVideo;
+  for (int i = 0; i < 5; i++) {
+    _tempVideo = meta["video"]["content"]["video${sourcesInit[i]}hash"];
+    if (_tempVideo != null) {
+      _tempSources.add(sourcesInit[i]);
+    }
+    if (i == 4) {
+      return _tempSources;
+    }
+  }
+}
+
+Widget buildRow(var data, var index, var title, var description, var permlink, context, heightToParent) {
   var moment = new Moment.now();
   // handle metadata from (string)json_metadata
   var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
-  return new InkWell(
-    child: new Column(
-      children: <Widget>[
-        _placeholderImage(meta['video']['info']['snaphash'], meta),
-        new Text(
-          title,
-          style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["text"]),
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-        ),
-        new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
-        new Text(
-            (data['pending_payout_value'] != null ? "\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " : "") +
-                moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
-            style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]),
-            maxLines: 1),
-      ],
-    ),
-    onTap: () {
-      Navigator.push(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => new VideoScreen(
-                  permlink: permlink,
-                  data: data,
-                  description: description,
-                  meta: meta,
-                  search: false,
-                )),
-      );
-    },
-  );
-}
-
-Widget _buildSearchRow(var data, var index, var title, var description, var permlink, context) {
-  var moment = new Moment.now();
-  // handle metadata from (string)json_metadata
-  var meta = data['meta'];
-  return new InkWell(
-    child: new Column(
-      children: <Widget>[
-        _placeholderImage(meta['video']['info']['snaphash'], meta),
-        new Text(title, style: new TextStyle(fontSize: 14.0), maxLines: 2),
-        new Text("by " + data['author'], style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
-        new Text("\$" + data['payout'].toString() + " • " + moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
-            style: new TextStyle(fontSize: 12.0, color: theme(selectedTheme)["accent"]), maxLines: 1),
-      ],
-    ),
-    onTap: () {
-      Navigator.push(
-        context,
-        new MaterialPageRoute(
-            builder: (context) => new VideoScreen(permlink: permlink, data: data, description: description, meta: meta, search: true)),
-      );
-    },
-  );
+  return heightToParent
+      ? Card(
+          child: new InkWell(
+            child: _placeholderImage(meta['video']['info']['snaphash'], meta, context, title, data, heightToParent),
+            onTap: () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                    builder: (context) => new VideoScreen(
+                          permlink: permlink,
+                          data: data,
+                          description: description,
+                          meta: meta,
+                          search: false,
+                        )),
+              );
+            },
+          ),
+        )
+      : new InkWell(
+          child: Container(
+            width: 210.0,
+            child: new Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: _placeholderImage(meta['video']['info']['snaphash'], meta, context, title, data, heightToParent),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+                      child: new CircleAvatar(
+                        radius: 18.0,
+                        backgroundImage: new NetworkImage("https://steemitimages.com/u/" + data["author"] + "/avatar/big"),
+                      ),
+                    ),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          new Text(
+                            title,
+                            style: new TextStyle(fontSize: 16.0, color: theme(selectedTheme)["text"]),
+                            maxLines: 2,
+                            textAlign: TextAlign.start,
+                            overflow: TextOverflow.clip,
+                          ),
+                          new Text(
+                              data['author'] +
+                                  " • " +
+                                  (data['pending_payout_value'] != null ? "\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " : "") +
+                                  moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.start,
+                              style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["accent"]),
+                              maxLines: 2),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              new MaterialPageRoute(
+                  builder: (context) => new VideoScreen(
+                        permlink: permlink,
+                        data: data,
+                        description: description,
+                        meta: meta,
+                        search: false,
+                      )),
+            );
+          },
+          onLongPress: () async {
+            return showDialog<Null>(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                List<Widget> resolutions = <Widget>[];
+                print(sources(meta));
+                for (int i = 0; i < sources(meta).length; i++) {
+                  String _tempName;
+                  switch (sources(meta)[i]) {
+                    case "240":
+                      _tempName = "SD - 240p";
+                      break;
+                    case "480":
+                      _tempName = "SD - 480p";
+                      break;
+                    case "720":
+                      _tempName = "HD - 720p";
+                      break;
+                    case "1080":
+                      _tempName = "HD - 1080p";
+                      break;
+                    case "":
+                      _tempName = "Source (Highest)";
+                      break;
+                  }
+                  resolutions.add(FlatButton(
+                    onPressed: () {
+                      downloadFile(meta["video"]["content"]["video${sources(meta)[i]}hash"], false, context, title);
+                      Navigator.pop(dialogContext);
+                    },
+                    child: Text(
+                      _tempName,
+                      style: TextStyle(color: theme(selectedTheme)["text"]),
+                    ),
+                  ));
+                  if (i == sources(meta).length - 1) {
+                    resolutions.add(FlatButton(
+                      onPressed: () {
+                        downloadFile(meta["video"]["content"]["video${sources(meta)[i]}hash"], true, context, title);
+                        Navigator.pop(dialogContext);
+                      },
+                      child: Text(
+                        "Audio only",
+                        style: TextStyle(
+                          color: theme(selectedTheme)["text"],
+                        ),
+                      ),
+                    ));
+                  }
+                }
+                return new AlertDialog(
+                    title: Text("Select video quality:"),
+                    content: SingleChildScrollView(
+                      child: Column(children: resolutions),
+                    ));
+              },
+            );
+          },
+        );
 }
 
 class VideoScreen extends StatefulWidget {
@@ -244,8 +391,8 @@ class VideoScreenState extends State<VideoScreen> {
   var subscribeButtonColor = Colors.red;
   var subscribed = "Subscribe";
   var gateway = "https://video.dtube.top/ipfs/";
-  VideoPlayerController videoController;
   Chewie chewiePlayer;
+  VideoPlayerController videoController;
 
   var _ios = Platform.isIOS;
   InterstitialAd myInterstitial;
@@ -324,6 +471,7 @@ class VideoScreenState extends State<VideoScreen> {
           aspectRatio: 16 / 9,
           autoPlay: true,
           looping: false,
+          placeholder: new Container(child: Image.network("https://snap1.d.tube/ipfs/" + widget.meta['video']['info']['snaphash'])),
         );
       });
     }
@@ -364,7 +512,7 @@ class VideoScreenState extends State<VideoScreen> {
     return new WillPopScope(
       onWillPop: _onWillPop,
       child: new Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: theme(selectedTheme)["background"],
         body: result == "loading"
             ? Center(child: new CircularProgressIndicator())
             : Column(
@@ -407,7 +555,7 @@ class VideoScreenState extends State<VideoScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: new Text(
                                       widget.data["title"],
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                                      style: TextStyle(color: theme(selectedTheme)["text"], fontWeight: FontWeight.bold, fontSize: 16.0),
                                     ),
                                   ),
                                   new Text(
@@ -490,33 +638,27 @@ class VideoScreenState extends State<VideoScreen> {
                                               }
                                               resolutions.add(FlatButton(
                                                 onPressed: () {
-                                                  downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], false);
-                                                  toast(
-                                                      contextListViewBuilder,
-                                                      "Downloading " +
-                                                          widget.data["title"].replaceAll(" ", "_") +
-                                                          ".mp4. You will be notified once it's done.");
+                                                  downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], false,
+                                                      contextListViewBuilder, widget.meta["title"]);
                                                   Navigator.pop(dialogContext);
                                                 },
                                                 child: Text(
                                                   _tempName,
-                                                  style: TextStyle(color: Colors.black),
+                                                  style: TextStyle(color: theme(selectedTheme)["text"]),
                                                 ),
                                               ));
                                               if (i == sources().length - 1) {
                                                 resolutions.add(FlatButton(
                                                   onPressed: () {
-                                                    downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], true);
-                                                    toast(
-                                                        contextListViewBuilder,
-                                                        "Downloading " +
-                                                            widget.data["title"].replaceAll(" ", "_") +
-                                                            ".mp3. You will be notified once it's done.");
+                                                    downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], true,
+                                                        contextListViewBuilder, widget.meta["title"]);
                                                     Navigator.pop(dialogContext);
                                                   },
                                                   child: Text(
                                                     "Audio only",
-                                                    style: TextStyle(color: Colors.black),
+                                                    style: TextStyle(
+                                                      color: theme(selectedTheme)["text"],
+                                                    ),
                                                   ),
                                                 ));
                                               }
@@ -542,6 +684,7 @@ class VideoScreenState extends State<VideoScreen> {
                               ),
                               new Divider(
                                 height: 1.0,
+                                color: theme(selectedTheme)["text"],
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 6.0, right: 10.0),
@@ -565,7 +708,12 @@ class VideoScreenState extends State<VideoScreen> {
                                                   new NetworkImage("https://steemitimages.com/u/" + widget.data["author"] + "/avatar/big"),
                                             ),
                                           ),
-                                          new Text(widget.data["author"]),
+                                          new Text(
+                                            widget.data["author"],
+                                            style: TextStyle(
+                                              color: theme(selectedTheme)["text"],
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -587,6 +735,7 @@ class VideoScreenState extends State<VideoScreen> {
                               ),
                               new Divider(
                                 height: 1.0,
+                                color: theme(selectedTheme)["text"],
                               ),
                               new Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -597,15 +746,22 @@ class VideoScreenState extends State<VideoScreen> {
                                         child: new Text(
                                           "added " + moment.from(DateTime.parse(widget.data["created"]).add(Duration(hours: 2))),
                                           style: TextStyle(
-                                            color: Colors.black,
+                                            color: theme(selectedTheme)["text"],
                                           ),
                                         ),
                                       ),
-                                      new HtmlText(data: linkify(widget.description)),
+                                      new HtmlText(
+                                          data: theme(selectedTheme)["text"] == Colors.white
+                                              ? "<p style=\"color: #fff;\">" + linkify((widget.description)) + "</p>"
+                                              : linkify((widget.description))),
                                       new Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: new TextField(
-                                          decoration: new InputDecoration(hintText: 'Comment something...'),
+                                          decoration: new InputDecoration(
+                                              hintText: 'Comment something...',
+                                              hintStyle: TextStyle(
+                                                color: theme(selectedTheme)["text"],
+                                              )),
                                           onSubmitted: (comment) {
                                             broadcastComment(contextListViewBuilder, widget.data["author"], widget.permlink, comment.toString());
                                           },
@@ -665,7 +821,10 @@ class VideoScreenState extends State<VideoScreen> {
                                     ),
                                     new Text(
                                       comment,
-                                      style: TextStyle(fontSize: 14.0),
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: theme(selectedTheme)["text"],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -717,7 +876,11 @@ class VideoScreenState extends State<VideoScreen> {
                                   new Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: new TextField(
-                                      decoration: new InputDecoration(hintText: 'Comment something...'),
+                                      decoration: new InputDecoration(
+                                          hintText: 'Comment something...',
+                                          hintStyle: TextStyle(
+                                            color: theme(selectedTheme)["text"],
+                                          )),
                                       onSubmitted: (comment) {
                                         broadcastComment(contextListViewBuilder, reply["author"], reply["permlink"], comment);
                                       },
@@ -808,25 +971,65 @@ class VideoScreenState extends State<VideoScreen> {
     }
     Navigator.of(context).pop(true);
   }
+}
 
-  downloadFile(var url, bool audio) async {
-    bool res = await Permissions.requestPermission(Permission.WriteExternalStorage);
-    print("permission request result is " + res.toString());
-    if (res) {
-      final directory = await getExternalStorageDirectory();
-      String filename = widget.data["title"].replaceAll(" ", "_").replaceAll(".", "") + (audio ? ".mp3" : ".mp4");
-      print(directory.path);
-      Dio dio = new Dio();
-      Response response =
-          await dio.download(videoController.dataSource, directory.path + "/Download/" + filename, onProgress: (progressedSize, size) {
-        if (progressedSize == size) {
-          // show notification
-          print("finished");
-          showNotification("Download finished", filename);
-        }
-      });
-      print(response);
-    }
-    //launchURL("https://video.dtube.top/ipfs/QmcL62wVn2pHrBrrWXjmtP7TnJtwzXGCY8bYQSEUfjyZpD");
+setDownloadedFile(url, filename, directory, size) async {
+  List<String> _temp = await retrieveDataMap("downloads");
+  if (_temp == null) {
+    _temp = <String>[];
   }
+  _temp.add('{"url": "' +
+      url +
+      '", "name": "' +
+      filename +
+      '", "path": "' +
+      directory.path +
+      '/Download/' +
+      filename +
+      '", "size": "' +
+      size.toString() +
+      '"}');
+  print(_temp);
+  saveDataMap("downloads", _temp);
+}
+
+downloadFile(var url, bool audio, contextListViewBuilder, title) async {
+  bool res = await Permissions.requestPermission(Permission.WriteExternalStorage);
+  print("permission request result is " + res.toString());
+  if (res) {
+    toast(contextListViewBuilder, "Downloading " + title.replaceAll(" ", "_") + ".mp4. You will be notified once it's done.");
+    final directory = await getExternalStorageDirectory();
+    String filename = title.replaceAll(" ", "_").replaceAll(".", "") + (audio ? ".mp3" : ".mp4");
+
+    url = "https://video.dtube.top/ipfs/" + url;
+    print(url);
+    final taskId = await FlutterDownloader.enqueue(
+        url: url,
+        savedDir: directory.path + "/Download/",
+        fileName: filename,
+        showNotification: true // show download progress in status bar (for Android)
+        );
+    var done = false;
+    FlutterDownloader.registerCallback((id, status, progress) {
+      if (progress == 100 && !done) {
+        done = true;
+        // save link to settings
+        setDownloadedFile(url, filename, directory, directory.path + "/Download/");
+      }
+    });
+    /*Dio dio = new Dio();
+    Response response = await dio.download(videoController.dataSource, directory.path + "/Download/" + filename, onProgress: (progressedSize, size) {
+      if (progressedSize == size) {
+        // show notification
+        print("finished");
+        showNotification("Download finished", filename);
+        // save link to settings
+        setDownloadedFile(filename, directory, size);
+      }
+    });
+
+    print(response);
+    */
+  }
+  //launchURL("https://video.dtube.top/ipfs/QmcL62wVn2pHrBrrWXjmtP7TnJtwzXGCY8bYQSEUfjyZpD");
 }

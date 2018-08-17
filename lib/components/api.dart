@@ -24,71 +24,94 @@ theme(String mode) {
 Steemit steemit = new Steemit();
 
 class Steemit {
+  Future getAll(user) async {
+    var _temp0 = await steemit.getDiscussionsByHot();
+    var _temp1 = await steemit.getDiscussionsByTrending();
+    var _temp2 = await steemit.getDiscussionsByCreated();
+    var _temp3 = await steemit.getDiscussionsByFeed(user);
+
+    var _tempArray = [
+      _temp0,
+      _temp1,
+      _temp2,
+      _temp3,
+    ];
+    return _tempArray;
+  }
+
   Future getDiscussionsByHot() async {
     Dio dio = new Dio();
-    Response response = await dio.post("https://api.steemit.com", data: {
-      "id": "0",
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": [
-        "database_api",
-        "get_discussions_by_hot",
-        [
-          {"tag": "dtube", "limit": 100, "truncate_body": 1}
-        ]
-      ]
-    });
+    Response response = await dio.get("https://dtubeapp.cf:2053/getDiscussions?by=hot");
     return (response.data);
+  }
+
+  Future getTrendingTags() async {
+    Dio dio = new Dio();
+    {
+      DateTime now = new DateTime.now();
+
+      Response response = await dio.get("https://api.asksteem.com/trending?q=meta.video.info.title:* AND created:>=" +
+          now.year.toString() +
+          "-" +
+          now.month.toString() +
+          "-" +
+          now.day.toString() +
+          "&types=tags&size=50");
+      return (response.data);
+    }
+  }
+
+  Future getTag(var tag) async {
+    Dio dio = new Dio();
+    {
+      DateTime now = new DateTime.now();
+
+      Response response = await dio.get("https://api.asksteem.com/search?q=created:>=" +
+          now.year.toString() +
+          "-" +
+          now.month.toString() +
+          "-" +
+          now.day.toString() +
+          " AND meta.video.content.tags:dtube&include=meta,payout&sort_by=net_votes&pg=3&order=desc&types=post");
+      print("https://api.asksteem.com/search?q=created:>=" +
+          now.year.toString() +
+          "-" +
+          now.month.toString() +
+          "-" +
+          now.day.toString() +
+          " AND meta.video.content.tags:dtube&include=meta,payout&sort_by=net_votes&pg=3&order=desc&types=post");
+      return (response.data);
+    }
   }
 
   Future getDiscussionsByTrending() async {
     Dio dio = new Dio();
-    Response response = await dio.post("https://api.steemit.com", data: {
-      "id": "1",
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": [
-        "database_api",
-        "get_discussions_by_trending",
-        [
-          {"tag": "dtube", "limit": 100, "truncate_body": 1}
-        ]
-      ]
-    });
+    Response response = await dio.get("https://dtubeapp.cf:2053/getDiscussions?by=trending");
     return (response.data);
   }
 
   Future getDiscussionsByCreated() async {
     Dio dio = new Dio();
-    Response response = await dio.post("https://api.steemit.com", data: {
-      "id": "2",
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": [
-        "database_api",
-        "get_discussions_by_created",
-        [
-          {"tag": "dtube", "limit": 100, "truncate_body": 1}
-        ]
-      ]
-    });
+    Response response = await dio.get("https://dtubeapp.cf:2053/getDiscussions?by=created");
     return (response.data);
   }
 
   Future getDiscussionsByFeed(var user) async {
     Dio dio = new Dio();
-    Response response = await dio.post("https://api.steemit.com", data: {
-      "id": "4",
-      "jsonrpc": "2.0",
-      "method": "call",
-      "params": [
-        "database_api",
-        "get_discussions_by_feed",
-        [
-          {"tag": user, "limit": 100, "truncate_body": 1}
-        ]
-      ]
-    });
+    Response response = user != null
+        ? await dio.post("https://api.steemit.com", data: {
+            "id": "4",
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": [
+              "database_api",
+              "get_discussions_by_feed",
+              [
+                {"tag": user == null ? "bostrot" : user, "limit": 100, "truncate_body": 1}
+              ]
+            ]
+          })
+        : await dio.get("https://dtubeapp.cf:2053/getDiscussions?by=feed");
     return (response.data);
   }
 
@@ -256,9 +279,19 @@ void saveData(var key, var data) async {
   prefs.setString(key, data);
 }
 
+void saveDataMap(var key, List data) async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setStringList(key, data);
+}
+
 retrieveData(var key) async {
   final prefs = await SharedPreferences.getInstance();
   return (prefs.getString(key));
+}
+
+retrieveDataMap(var key) async {
+  final prefs = await SharedPreferences.getInstance();
+  return (prefs.getStringList(key));
 }
 
 String linkify(String text) {

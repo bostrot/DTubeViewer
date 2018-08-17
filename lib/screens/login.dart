@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../main.dart';
 
+var user;
+
 // launch in app browser
 void launchUrl(String url, ctx) async {
   try {
@@ -38,8 +40,12 @@ class LoginScreenState extends State<LoginScreen> {
     _sub = getLinksStream().listen((String link) async {
       saveData("user", link.split("username=")[1]);
       saveData("key", link.split("access_token=")[1].split("&expires")[0]);
+      setState(() {
+        user = link.split("username=")[1];
+      });
+      Navigator.popUntil(context, (_) => !Navigator.canPop(context));
+      Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => new TabNav()));
       _sub.cancel();
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabNav()));
     }, onError: (err) {
       print(err);
       // Handle exception by warning the user their action did not succeed
@@ -143,6 +149,7 @@ class LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.grey),
                       ),
                       onPressed: () {
+                        Navigator.popUntil(context, (_) => !Navigator.canPop(context));
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabNav()));
                       },
                     )

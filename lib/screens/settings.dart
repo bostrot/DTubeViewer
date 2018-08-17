@@ -4,6 +4,7 @@ import '../components/api.dart';
 import 'package:flutter_billing/flutter_billing.dart';
 import 'dart:io' show Platform;
 import '../main.dart';
+import 'login.dart';
 
 class BuildSettings extends StatefulWidget {
   @override
@@ -65,29 +66,19 @@ class BuildSettingsState extends State<BuildSettings> {
             onTap: () async {
               await analytics.logViewItem(itemId: "noads", itemName: "NoAds", itemCategory: "inapp");
               if (Platform.isIOS) {
-                final Billing billing = new Billing(onError: (e) {
-                  return Scaffold.of(context)
-                    ..showSnackBar(new SnackBar(
-                      content: new Text(e.toString()),
-                    ));
-                });
-                final bool purchased = await billing.isPurchased('noads');
-                if (purchased) {
-                  saveData("no_ads", "true");
-                  return Scaffold.of(context)
-                    ..showSnackBar(new SnackBar(
-                      content: new Text("Thanks for supporting me! Ads will not show up again."),
-                    ));
-                } else {
-                  final bool purchased = await billing.purchase('noads');
-                  if (purchased) {
-                    saveData("no_ads", "true");
-                    return Scaffold.of(context)
-                      ..showSnackBar(new SnackBar(
-                        content: new Text("Thanks for supporting me! Ads will not show up again."),
-                      ));
-                  }
-                }
+                final bool billingEnabled = await FlutterPayments.billingEnabled;
+                final List<Product> getProducts = await FlutterPayments.getProducts(
+                  skus: <String>[
+                    'noads',
+                  ],
+                  type: ProductType.InApp,
+                );
+                List<Purchase> purchase = await FlutterPayments.purchase(
+                  sku: 'noads',
+                  type: ProductType.InApp,
+                );
+                final List<Purchase> purchaseHistory = await FlutterPayments.getPurchaseHistory(ProductType.InApp);
+                print('purchaseHistory: $purchaseHistory');
               } else {
                 final Billing billing = new Billing(onError: (e) {
                   return Scaffold.of(context)
@@ -323,6 +314,9 @@ class BuildSettingsState extends State<BuildSettings> {
             onTap: () {
               saveData("user", null);
               saveData("key", null);
+              setState(() {
+                user = null;
+              });
               final snackBar = new SnackBar(
                 content: new Text('All user data has been cleared. You may need to restart the app.'),
               );
