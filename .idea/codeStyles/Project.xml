@@ -25,8 +25,5 @@
         <pair source="c" header="h" fileNamingConvention="NONE" />
       </extensions>
     </Objective-C-extensions>
-    <codeStyleSettings language="Dart">
-      <option name="RIGHT_MARGIN" value="150" />
-    </codeStyleSettings>
   </code_scheme>
 </component>

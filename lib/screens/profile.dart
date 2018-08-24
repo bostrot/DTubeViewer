@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/api.dart';
 import '../components/videolist.dart';
-import '../flutter_html_view/flutter_html_text.dart';
+import 'package:flutter_html_view/flutter_html_text.dart';
 import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
@@ -43,7 +43,8 @@ class ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: new FutureBuilder(
-          future: steemit.getDiscussionsByBlog(widget.profile), // a Future<String> or null
+          future: steemit
+              .getDiscussionsByBlog(widget.profile), // a Future<String> or null
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:
@@ -55,10 +56,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                   child: new CircularProgressIndicator(),
                 ));
               default:
-                if (snapshot.hasError) return Center(child: new Text('Error: ${snapshot.error}'));
+                if (snapshot.hasError)
+                  return Center(child: new Text('Error: ${snapshot.error}'));
 
                 int jump = 0;
-                final Orientation orientation = MediaQuery.of(context).orientation;
+                final Orientation orientation =
+                    MediaQuery.of(context).orientation;
                 final bool isLandscape = orientation == Orientation.landscape;
 
                 var videoItemList = <Widget>[];
@@ -70,8 +73,10 @@ class ProfileScreenState extends State<ProfileScreen> {
                     if (json.decode(data['json_metadata'])["video"] != null) {
                       var title = data['title'];
                       String description;
-                      description = json.decode(data['json_metadata'])["video"]["content"]["description"];
-                      videoItemList.add(buildRow(data, index, title, description, permlink, context, false));
+                      description = json.decode(data['json_metadata'])["video"]
+                          ["content"]["description"];
+                      videoItemList.add(buildRow(data, index, title,
+                          description, permlink, context, false));
                     }
                   }
                 }
@@ -82,7 +87,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                       child: new GridView.builder(
                           primary: true,
                           itemCount: videoItemList.length,
-                          gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              new SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisSpacing: 2.0,
                             crossAxisCount: isLandscape ? 4 : 2,
                             mainAxisSpacing: 5.0,

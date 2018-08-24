@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/OneDrive/Desktop/chewie-master (1)/chewie-master/android.iml" filepath="$USER_HOME$/OneDrive/Desktop/chewie-master (1)/chewie-master/android.iml" />
       <module fileurl="file://$PROJECT_DIR$/dtubeapp.iml" filepath="$PROJECT_DIR$/dtubeapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/dtubeapp_android.iml" filepath="$PROJECT_DIR$/dtubeapp_android.iml" />
     </modules>

@@ -3,7 +3,7 @@ import 'package:simple_moment/simple_moment.dart';
 import '../components/api.dart';
 import '../components/videolist.dart';
 import 'dart:convert';
-import '../flutter_html_view/flutter_html_text.dart';
+import 'package:flutter_html_view/flutter_html_text.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -89,7 +89,9 @@ class SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.only(top: 45.0),
       child: new Column(
         children: <Widget>[
-          Center(child: Container(height: 30.0, child: Image.asset('assets/DTube_Black.png'))),
+          Center(
+              child: Container(
+                  height: 30.0, child: Image.asset('assets/DTube_Black.png'))),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
@@ -117,11 +119,14 @@ class SearchScreenState extends State<SearchScreen> {
                           }),
                       Expanded(
                         child: new FutureBuilder(
-                            future: steemit.getDiscussionsBySearch(search), // a Future<String> or null
-                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                            future: steemit.getDiscussionsBySearch(
+                                search), // a Future<String> or null
+                            builder:
+                                (BuildContext context, AsyncSnapshot snapshot) {
                               switch (snapshot.connectionState) {
                                 case ConnectionState.none:
-                                  return Center(child: new Text('No connection...'));
+                                  return Center(
+                                      child: new Text('No connection...'));
                                 case ConnectionState.waiting:
                                   return Center(
                                       child: Padding(
@@ -129,47 +134,71 @@ class SearchScreenState extends State<SearchScreen> {
                                     child: new CircularProgressIndicator(),
                                   ));
                                 default:
-                                  if (snapshot.hasError) return Center(child: new Text('Error: ${snapshot.error}'));
+                                  if (snapshot.hasError)
+                                    return Center(
+                                        child: new Text(
+                                            'Error: ${snapshot.error}'));
 
                                   int jump = 0;
-                                  final Orientation orientation = MediaQuery.of(context).orientation;
-                                  final bool isLandscape = orientation == Orientation.landscape;
+                                  final Orientation orientation =
+                                      MediaQuery.of(context).orientation;
+                                  final bool isLandscape =
+                                      orientation == Orientation.landscape;
 
                                   var videoItemList = <Widget>[];
-                                  for (var i = 0; i < snapshot.data["result"].length; i++) {
+                                  for (var i = 0;
+                                      i < snapshot.data["result"].length;
+                                      i++) {
                                     {
                                       int index = i + jump;
                                       var data = snapshot.data["result"][index];
                                       var permlink = data["permlink"];
-                                      if (json.decode(data['json_metadata'])["video"] != null) {
+                                      if (json.decode(
+                                              data['json_metadata'])["video"] !=
+                                          null) {
                                         var title = data['title'];
                                         String description;
-                                        description = json.decode(data['json_metadata'])["video"]["content"]["description"];
-                                        videoItemList.add(buildRow(data, index, title, description, permlink, context, false));
+                                        description = json.decode(
+                                                data['json_metadata'])["video"]
+                                            ["content"]["description"];
+                                        videoItemList.add(buildRow(
+                                            data,
+                                            index,
+                                            title,
+                                            description,
+                                            permlink,
+                                            context,
+                                            false));
                                       }
                                     }
                                   }
 
                                   if (videoItemList.length > 0) {
                                     return new Container(
-                                        color: theme(selectedTheme)["background"],
+                                        color:
+                                            theme(selectedTheme)["background"],
                                         child: new GridView.builder(
                                             primary: true,
                                             itemCount: videoItemList.length,
-                                            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                                            gridDelegate:
+                                                new SliverGridDelegateWithFixedCrossAxisCount(
                                               crossAxisSpacing: 2.0,
-                                              crossAxisCount: isLandscape ? 4 : 2,
+                                              crossAxisCount:
+                                                  isLandscape ? 4 : 2,
                                               mainAxisSpacing: 5.0,
                                             ),
                                             padding: const EdgeInsets.all(4.0),
-                                            itemBuilder: (context, i) => videoItemList[i]));
+                                            itemBuilder: (context, i) =>
+                                                videoItemList[i]));
                                   } else {
                                     return Container(
                                         child: Center(
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: <Widget>[
-                                          Text("Nothing found for your search..."),
+                                          Text(
+                                              "Nothing found for your search..."),
                                           HtmlText(
                                             data:
                                                 "<a href=\"https://steemit.com/utopian-io/@bostrot/introduction-a-new-steem-dtube-search-platform\">More about this.</a>",

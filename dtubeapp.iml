@@ -81,6 +81,7 @@
       <excludeFolder url="file://$MODULE_DIR$/lib/chewie/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/lib/chewie/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/lib/chewie/build" />
+      <excludeFolder url="file://$MODULE_DIR$/lib/packages" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

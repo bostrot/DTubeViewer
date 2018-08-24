@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:screen/screen.dart';
-import '../flutter_html_view/flutter_html_text.dart';
+import 'package:flutter_html_view/flutter_html_text.dart';
 import 'api.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,7 +14,7 @@ import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:video_launcher/video_launcher.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permissions/permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import '../screens/profile.dart';
 
@@ -79,8 +79,10 @@ Widget buildSubtitles(Future future, context, bool heightToParent) {
                   if (json.decode(data['json_metadata'])["video"] != null) {
                     var title = data['title'];
                     String description;
-                    description = json.decode(data['json_metadata'])["video"]["content"]["description"];
-                    videoItemList.add(buildRow(data, index, title, description, permlink, context, heightToParent));
+                    description = json.decode(data['json_metadata'])["video"]
+                        ["content"]["description"];
+                    videoItemList.add(buildRow(data, index, title, description,
+                        permlink, context, heightToParent));
                   }
                 }
               }
@@ -91,7 +93,9 @@ Widget buildSubtitles(Future future, context, bool heightToParent) {
                 return new Container(
                     color: theme(selectedTheme)["background"],
                     child: new ListView.builder(
-                        itemCount: videoItemList.length, scrollDirection: Axis.horizontal, itemBuilder: (context, i) => videoItemList[i]));
+                        itemCount: videoItemList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, i) => videoItemList[i]));
               } else {
                 print("no");
                 return Container(
@@ -113,12 +117,14 @@ Widget buildSubtitles(Future future, context, bool heightToParent) {
       });
 }
 
-Widget _placeholderImage(var imgURL, var meta, context, title, data, heightToParent) {
+Widget _placeholderImage(
+    var imgURL, var meta, context, title, data, heightToParent) {
   try {
     String duration = "00:00:00";
     try {
       double total_seconds = meta['video']['info']['duration'];
-      duration = Duration(seconds: total_seconds.round()).toString().split(".")[0];
+      duration =
+          Duration(seconds: total_seconds.round()).toString().split(".")[0];
     } catch (e) {}
     return Stack(
       children: <Widget>[
@@ -163,7 +169,10 @@ Widget _placeholderImage(var imgURL, var meta, context, title, data, heightToPar
                           children: <Widget>[
                             new Text(
                               title,
-                              style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["background"], fontWeight: FontWeight.bold),
+                              style: new TextStyle(
+                                  fontSize: 14.0,
+                                  color: theme(selectedTheme)["background"],
+                                  fontWeight: FontWeight.bold),
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
@@ -172,9 +181,17 @@ Widget _placeholderImage(var imgURL, var meta, context, title, data, heightToPar
                                 "by " +
                                     data['author'] +
                                     " • " +
-                                    (data['pending_payout_value'] != null ? "\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " : "") +
-                                    moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
-                                style: new TextStyle(fontSize: 12.0, color: Colors.white),
+                                    (data['pending_payout_value'] != null
+                                        ? "\$" +
+                                            data['pending_payout_value']
+                                                .replaceAll("SBD", "") +
+                                            " • "
+                                        : "") +
+                                    moment.from(DateTime
+                                        .parse(data['created'])
+                                        .add(Duration(hours: 2))),
+                                style: new TextStyle(
+                                    fontSize: 12.0, color: Colors.white),
                                 maxLines: 1)
                           ],
                         ),
@@ -217,14 +234,17 @@ List sources(meta) {
   }
 }
 
-Widget buildRow(var data, var index, var title, var description, var permlink, context, heightToParent) {
+Widget buildRow(var data, var index, var title, var description, var permlink,
+    context, heightToParent) {
   var moment = new Moment.now();
   // handle metadata from (string)json_metadata
-  var meta = json.decode(data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
+  var meta = json.decode(
+      data['json_metadata'].replaceAll(description, "").replaceAll(title, ""));
   return heightToParent
       ? Card(
           child: new InkWell(
-            child: _placeholderImage(meta['video']['info']['snaphash'], meta, context, title, data, heightToParent),
+            child: _placeholderImage(meta['video']['info']['snaphash'], meta,
+                context, title, data, heightToParent),
             onTap: () {
               Navigator.push(
                 context,
@@ -247,16 +267,21 @@ Widget buildRow(var data, var index, var title, var description, var permlink, c
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
-                  child: _placeholderImage(meta['video']['info']['snaphash'], meta, context, title, data, heightToParent),
+                  child: _placeholderImage(meta['video']['info']['snaphash'],
+                      meta, context, title, data, heightToParent),
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, bottom: 8.0),
                       child: new CircleAvatar(
                         radius: 18.0,
-                        backgroundImage: new NetworkImage("https://steemitimages.com/u/" + data["author"] + "/avatar/big"),
+                        backgroundImage: new NetworkImage(
+                            "https://steemitimages.com/u/" +
+                                data["author"] +
+                                "/avatar/big"),
                       ),
                     ),
                     Flexible(
@@ -266,7 +291,9 @@ Widget buildRow(var data, var index, var title, var description, var permlink, c
                         children: <Widget>[
                           new Text(
                             title,
-                            style: new TextStyle(fontSize: 16.0, color: theme(selectedTheme)["text"]),
+                            style: new TextStyle(
+                                fontSize: 16.0,
+                                color: theme(selectedTheme)["text"]),
                             maxLines: 2,
                             textAlign: TextAlign.start,
                             overflow: TextOverflow.clip,
@@ -274,11 +301,20 @@ Widget buildRow(var data, var index, var title, var description, var permlink, c
                           new Text(
                               data['author'] +
                                   " • " +
-                                  (data['pending_payout_value'] != null ? "\$" + data['pending_payout_value'].replaceAll("SBD", "") + " • " : "") +
-                                  moment.from(DateTime.parse(data['created']).add(Duration(hours: 2))),
+                                  (data['pending_payout_value'] != null
+                                      ? "\$" +
+                                          data['pending_payout_value']
+                                              .replaceAll("SBD", "") +
+                                          " • "
+                                      : "") +
+                                  moment.from(DateTime
+                                      .parse(data['created'])
+                                      .add(Duration(hours: 2))),
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.start,
-                              style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["accent"]),
+                              style: new TextStyle(
+                                  fontSize: 14.0,
+                                  color: theme(selectedTheme)["accent"]),
                               maxLines: 2),
                         ],
                       ),
@@ -328,7 +364,12 @@ Widget buildRow(var data, var index, var title, var description, var permlink, c
                   }
                   resolutions.add(FlatButton(
                     onPressed: () {
-                      downloadFile(meta["video"]["content"]["video${sources(meta)[i]}hash"], false, context, title);
+                      downloadFile(
+                          meta["video"]["content"]
+                              ["video${sources(meta)[i]}hash"],
+                          false,
+                          context,
+                          title);
                       Navigator.pop(dialogContext);
                     },
                     child: Text(
@@ -339,7 +380,12 @@ Widget buildRow(var data, var index, var title, var description, var permlink, c
                   if (i == sources(meta).length - 1) {
                     resolutions.add(FlatButton(
                       onPressed: () {
-                        downloadFile(meta["video"]["content"]["video${sources(meta)[i]}hash"], true, context, title);
+                        downloadFile(
+                            meta["video"]["content"]
+                                ["video${sources(meta)[i]}hash"],
+                            true,
+                            context,
+                            title);
                         Navigator.pop(dialogContext);
                       },
                       child: Text(
@@ -404,11 +450,23 @@ class VideoScreenState extends State<VideoScreen> {
   }
 
   MobileAdTargetingInfo targetingInfo = new MobileAdTargetingInfo(
-    keywords: <String>['crypto', 'dtube', 'business', 'currency', 'blockchain', 'bitcoin', 'steem', 'steemit'],
+    keywords: <String>[
+      'crypto',
+      'dtube',
+      'business',
+      'currency',
+      'blockchain',
+      'bitcoin',
+      'steem',
+      'steemit'
+    ],
     contentUrl: 'https://d.tube',
     childDirected: false,
-    designedForFamilies: false, // or MobileAdGender.female, MobileAdGender.unknown
-    testDevices: <String>[testDevice], // Android emulators are considered test devices
+    designedForFamilies:
+        false, // or MobileAdGender.female, MobileAdGender.unknown
+    testDevices: <String>[
+      testDevice
+    ], // Android emulators are considered test devices
   );
 
   @override
@@ -416,9 +474,11 @@ class VideoScreenState extends State<VideoScreen> {
     super.initState();
     getVideo(widget.permlink, widget.data["author"]);
     if (_ios == true) {
-      FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~9708042281");
+      FirebaseAdMob.instance
+          .initialize(appId: "ca-app-pub-9430927632405311~9708042281");
     } else {
-      FirebaseAdMob.instance.initialize(appId: "ca-app-pub-9430927632405311~3245387668");
+      FirebaseAdMob.instance
+          .initialize(appId: "ca-app-pub-9430927632405311~3245387668");
     }
     if (_ios == true) {
       myInterstitial = new InterstitialAd(
@@ -465,13 +525,16 @@ class VideoScreenState extends State<VideoScreen> {
 
     if (videoController == null) {
       setState(() {
-        videoController = VideoPlayerController.network(gateway + widget.meta["video"]["content"]["video${sources()[0]}hash"]);
+        videoController = VideoPlayerController.network(gateway +
+            widget.meta["video"]["content"]["video${sources()[0]}hash"]);
         chewiePlayer = new Chewie(
           videoController,
           aspectRatio: 16 / 9,
           autoPlay: true,
           looping: false,
-          placeholder: new Container(child: Image.network("https://snap1.d.tube/ipfs/" + widget.meta['video']['info']['snaphash'])),
+          placeholder: new Container(
+              child: Image.network("https://snap1.d.tube/ipfs/" +
+                  widget.meta['video']['info']['snaphash'])),
         );
       });
     }
@@ -489,7 +552,8 @@ class VideoScreenState extends State<VideoScreen> {
     int b = 0;
     String _tempVideo;
     for (int i = 0; i < 5; i++) {
-      _tempVideo = widget.meta["video"]["content"]["video${sourcesInit[i]}hash"];
+      _tempVideo =
+          widget.meta["video"]["content"]["video${sourcesInit[i]}hash"];
       if (_tempVideo != null) {
         _tempSources.add(sourcesInit[i]);
       }
@@ -526,7 +590,9 @@ class VideoScreenState extends State<VideoScreen> {
                             children: <Widget>[
                               Stack(
                                 children: <Widget>[
-                                  videoController != null ? chewiePlayer : new CircularProgressIndicator(),
+                                  videoController != null
+                                      ? chewiePlayer
+                                      : new CircularProgressIndicator(),
                                   new IconButton(
                                     icon: new Icon(
                                       Icons.arrow_back,
@@ -535,7 +601,9 @@ class VideoScreenState extends State<VideoScreen> {
                                     onPressed: () async {
                                       videoController.pause();
                                       tempShowAd--;
-                                      if (tempShowAd == 0 && await retrieveData("no_ads") == null) {
+                                      if (tempShowAd == 0 &&
+                                          await retrieveData("no_ads") ==
+                                              null) {
                                         myInterstitial
                                           ..load()
                                           ..show().then((e) {
@@ -555,57 +623,83 @@ class VideoScreenState extends State<VideoScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: new Text(
                                       widget.data["title"],
-                                      style: TextStyle(color: theme(selectedTheme)["text"], fontWeight: FontWeight.bold, fontSize: 16.0),
+                                      style: TextStyle(
+                                          color: theme(selectedTheme)["text"],
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0),
                                     ),
                                   ),
                                   new Text(
                                     "\$" +
-                                        (widget.search ? widget.data["payout"] : widget.data["pending_payout_value"])
+                                        (widget.search
+                                                ? widget.data["payout"]
+                                                : widget.data[
+                                                    "pending_payout_value"])
                                             .toString()
                                             .replaceFirst(" SBD", ""),
-                                    style: new TextStyle(fontSize: 14.0, color: theme(selectedTheme)["accent"]),
+                                    style: new TextStyle(
+                                        fontSize: 14.0,
+                                        color: theme(selectedTheme)["accent"]),
                                   ),
                                 ],
                               ),
                               new Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: new Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     // interaction row
                                     new IconButton(
                                         icon: const Icon(Icons.thumb_up),
                                         color: upvoteColor,
                                         onPressed: () {
-                                          if (downvoteColor != theme(selectedTheme)["accent"]) {
+                                          if (downvoteColor !=
+                                              theme(selectedTheme)["accent"]) {
                                             setState(() {
-                                              downvoteColor = theme(selectedTheme)["accent"];
+                                              downvoteColor = theme(
+                                                  selectedTheme)["accent"];
                                             });
                                           }
                                           setState(() {
-                                            upvoteColor = theme(selectedTheme)["primary"];
+                                            upvoteColor =
+                                                theme(selectedTheme)["primary"];
                                           });
-                                          return voteDialog(true, widget.data["author"], widget.permlink, contextListViewBuilder);
+                                          return voteDialog(
+                                              true,
+                                              widget.data["author"],
+                                              widget.permlink,
+                                              contextListViewBuilder);
                                         }),
                                     new IconButton(
                                         icon: const Icon(Icons.thumb_down),
                                         color: downvoteColor,
                                         onPressed: () {
-                                          if (upvoteColor != theme(selectedTheme)["accent"]) {
+                                          if (upvoteColor !=
+                                              theme(selectedTheme)["accent"]) {
                                             setState(() {
-                                              upvoteColor = theme(selectedTheme)["accent"];
+                                              upvoteColor = theme(
+                                                  selectedTheme)["accent"];
                                             });
                                           }
                                           setState(() {
-                                            downvoteColor = theme(selectedTheme)["primary"];
+                                            downvoteColor =
+                                                theme(selectedTheme)["primary"];
                                           });
-                                          return voteDialog(false, widget.data["author"], widget.permlink, contextListViewBuilder);
+                                          return voteDialog(
+                                              false,
+                                              widget.data["author"],
+                                              widget.permlink,
+                                              contextListViewBuilder);
                                         }),
                                     new IconButton(
                                       icon: const Icon(Icons.share),
                                       color: theme(selectedTheme)["accent"],
                                       onPressed: () {
-                                        Share.share("https://d.tube/v/" + widget.data["author"] + "/" + widget.data["permlink"]);
+                                        Share.share("https://d.tube/v/" +
+                                            widget.data["author"] +
+                                            "/" +
+                                            widget.data["permlink"]);
                                       },
                                     ),
                                     new IconButton(
@@ -614,10 +708,14 @@ class VideoScreenState extends State<VideoScreen> {
                                       onPressed: () async {
                                         return showDialog<Null>(
                                           context: context,
-                                          builder: (BuildContext dialogContext) {
-                                            List<Widget> resolutions = <Widget>[];
+                                          builder:
+                                              (BuildContext dialogContext) {
+                                            List<Widget> resolutions =
+                                                <Widget>[];
                                             print(sources());
-                                            for (int i = 0; i < sources().length; i++) {
+                                            for (int i = 0;
+                                                i < sources().length;
+                                                i++) {
                                               String _tempName;
                                               switch (sources()[i]) {
                                                 case "240":
@@ -633,40 +731,59 @@ class VideoScreenState extends State<VideoScreen> {
                                                   _tempName = "HD - 1080p";
                                                   break;
                                                 case "":
-                                                  _tempName = "Source (Highest)";
+                                                  _tempName =
+                                                      "Source (Highest)";
                                                   break;
                                               }
                                               resolutions.add(FlatButton(
                                                 onPressed: () {
-                                                  downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], false,
-                                                      contextListViewBuilder, widget.meta["title"]);
+                                                  downloadFile(
+                                                      widget.meta["video"]
+                                                              ["content"][
+                                                          "video${sources()[i]}hash"],
+                                                      false,
+                                                      contextListViewBuilder,
+                                                      widget.meta["title"]);
                                                   Navigator.pop(dialogContext);
                                                 },
                                                 child: Text(
                                                   _tempName,
-                                                  style: TextStyle(color: theme(selectedTheme)["text"]),
+                                                  style: TextStyle(
+                                                      color:
+                                                          theme(selectedTheme)[
+                                                              "text"]),
                                                 ),
                                               ));
                                               if (i == sources().length - 1) {
                                                 resolutions.add(FlatButton(
                                                   onPressed: () {
-                                                    downloadFile(widget.meta["video"]["content"]["video${sources()[i]}hash"], true,
-                                                        contextListViewBuilder, widget.meta["title"]);
-                                                    Navigator.pop(dialogContext);
+                                                    downloadFile(
+                                                        widget.meta["video"]
+                                                                ["content"][
+                                                            "video${sources()[i]}hash"],
+                                                        true,
+                                                        contextListViewBuilder,
+                                                        widget.meta["title"]);
+                                                    Navigator
+                                                        .pop(dialogContext);
                                                   },
                                                   child: Text(
                                                     "Audio only",
                                                     style: TextStyle(
-                                                      color: theme(selectedTheme)["text"],
+                                                      color:
+                                                          theme(selectedTheme)[
+                                                              "text"],
                                                     ),
                                                   ),
                                                 ));
                                               }
                                             }
                                             return new AlertDialog(
-                                                title: Text("Select video quality:"),
+                                                title: Text(
+                                                    "Select video quality:"),
                                                 content: SingleChildScrollView(
-                                                  child: Column(children: resolutions),
+                                                  child: Column(
+                                                      children: resolutions),
                                                 ));
                                           },
                                         );
@@ -687,16 +804,23 @@ class VideoScreenState extends State<VideoScreen> {
                                 color: theme(selectedTheme)["text"],
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 6.0, right: 10.0),
+                                padding: const EdgeInsets.only(
+                                    left: 6.0, right: 10.0),
                                 child: new Row(
                                   // avatar, name, subscribe row
                                   mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: <Widget>[
                                     FlatButton(
                                       onPressed: () {
                                         Navigator.push(
-                                            context, new MaterialPageRoute(builder: (context) => new ProfileScreen(profile: widget.data["author"])));
+                                            context,
+                                            new MaterialPageRoute(
+                                                builder: (context) =>
+                                                    new ProfileScreen(
+                                                        profile: widget
+                                                            .data["author"])));
                                       },
                                       child: Row(
                                         children: <Widget>[
@@ -704,14 +828,17 @@ class VideoScreenState extends State<VideoScreen> {
                                             padding: const EdgeInsets.all(10.0),
                                             child: new CircleAvatar(
                                               radius: 18.0,
-                                              backgroundImage:
-                                                  new NetworkImage("https://steemitimages.com/u/" + widget.data["author"] + "/avatar/big"),
+                                              backgroundImage: new NetworkImage(
+                                                  "https://steemitimages.com/u/" +
+                                                      widget.data["author"] +
+                                                      "/avatar/big"),
                                             ),
                                           ),
                                           new Text(
                                             widget.data["author"],
                                             style: TextStyle(
-                                              color: theme(selectedTheme)["text"],
+                                              color:
+                                                  theme(selectedTheme)["text"],
                                             ),
                                           ),
                                         ],
@@ -721,14 +848,28 @@ class VideoScreenState extends State<VideoScreen> {
                                       color: subscribeButtonColor,
                                       onPressed: () async {
                                         setState(() {
-                                          subscribed = subscribed == "Subscribe" ? "Unsubscribe" : "Subscribe";
-                                          subscribeColor = subscribed == "Subscribe" ? Colors.white : Colors.white;
-                                          subscribeButtonColor = subscribed == "Subscribe" ? Colors.red : Colors.grey;
+                                          subscribed = subscribed == "Subscribe"
+                                              ? "Unsubscribe"
+                                              : "Subscribe";
+                                          subscribeColor =
+                                              subscribed == "Subscribe"
+                                                  ? Colors.white
+                                                  : Colors.white;
+                                          subscribeButtonColor =
+                                              subscribed == "Subscribe"
+                                                  ? Colors.red
+                                                  : Colors.grey;
                                         });
                                         await broadcastSubscribe(
-                                            contextListViewBuilder, widget.data["author"], subscribed == "Subscribe" ? true : false);
+                                            contextListViewBuilder,
+                                            widget.data["author"],
+                                            subscribed == "Subscribe"
+                                                ? true
+                                                : false);
                                       },
-                                      child: new Text(subscribed, style: new TextStyle(color: subscribeColor)),
+                                      child: new Text(subscribed,
+                                          style: new TextStyle(
+                                              color: subscribeColor)),
                                     ),
                                   ],
                                 ),
@@ -744,15 +885,22 @@ class VideoScreenState extends State<VideoScreen> {
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: new Text(
-                                          "added " + moment.from(DateTime.parse(widget.data["created"]).add(Duration(hours: 2))),
+                                          "added " +
+                                              moment.from(DateTime
+                                                  .parse(widget.data["created"])
+                                                  .add(Duration(hours: 2))),
                                           style: TextStyle(
                                             color: theme(selectedTheme)["text"],
                                           ),
                                         ),
                                       ),
                                       new HtmlText(
-                                          data: theme(selectedTheme)["text"] == Colors.white
-                                              ? "<p style=\"color: #fff;\">" + linkify((widget.description)) + "</p>"
+                                          data: theme(selectedTheme)["text"] ==
+                                                  Colors.white
+                                              ? "<p style=\"color: #fff;\">" +
+                                                  linkify(
+                                                      (widget.description)) +
+                                                  "</p>"
                                               : linkify((widget.description))),
                                       new Padding(
                                         padding: const EdgeInsets.all(8.0),
@@ -760,10 +908,15 @@ class VideoScreenState extends State<VideoScreen> {
                                           decoration: new InputDecoration(
                                               hintText: 'Comment something...',
                                               hintStyle: TextStyle(
-                                                color: theme(selectedTheme)["text"],
+                                                color: theme(selectedTheme)[
+                                                    "text"],
                                               )),
                                           onSubmitted: (comment) {
-                                            broadcastComment(contextListViewBuilder, widget.data["author"], widget.permlink, comment.toString());
+                                            broadcastComment(
+                                                contextListViewBuilder,
+                                                widget.data["author"],
+                                                widget.permlink,
+                                                comment.toString());
                                           },
                                         ),
                                       ),
@@ -775,10 +928,15 @@ class VideoScreenState extends State<VideoScreen> {
                           );
                         else if (index > 0) {
                           try {
-                            var reply = content[content[widget.data["author"] + "/" + widget.permlink]["replies"][index - 1].toString()];
+                            var reply = content[content[widget.data["author"] +
+                                    "/" +
+                                    widget.permlink]["replies"][index - 1]
+                                .toString()];
                             var comment = linkify(reply["body"]);
                             if ((reply["body"].toString()).length > 100) {
-                              comment = linkify(reply["body"].substring(0, 100)).toString() + "...";
+                              comment = linkify(reply["body"].substring(0, 100))
+                                      .toString() +
+                                  "...";
                             }
                             return new Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -790,27 +948,50 @@ class VideoScreenState extends State<VideoScreen> {
                                       children: <Widget>[
                                         new CircleAvatar(
                                           radius: 13.0,
-                                          backgroundImage: new NetworkImage("https://steemitimages.com/u/" + reply["author"] + "/avatar/small"),
+                                          backgroundImage: new NetworkImage(
+                                              "https://steemitimages.com/u/" +
+                                                  reply["author"] +
+                                                  "/avatar/small"),
                                         ),
                                         new Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: new Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: <Widget>[
                                               new Text(
                                                 reply["author"],
-                                                style: TextStyle(fontSize: 14.0),
+                                                style:
+                                                    TextStyle(fontSize: 14.0),
                                               ),
                                               new Row(
                                                 children: <Widget>[
                                                   new Text(
-                                                    moment.from(DateTime.parse(reply["created"]).add(Duration(hours: 2))),
-                                                    style: TextStyle(color: theme(selectedTheme)["accent"], fontSize: 12.0),
+                                                    moment.from(DateTime
+                                                        .parse(reply["created"])
+                                                        .add(Duration(
+                                                            hours: 2))),
+                                                    style: TextStyle(
+                                                        color: theme(
+                                                                selectedTheme)[
+                                                            "accent"],
+                                                        fontSize: 12.0),
                                                   ),
                                                   new Padding(
-                                                    padding: const EdgeInsets.only(left: 4.0),
-                                                    child: new Text("\$" + reply["pending_payout_value"].toString().replaceFirst("SBD", ""),
-                                                        style: TextStyle(color: theme(selectedTheme)["accent"], fontSize: 12.0)),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 4.0),
+                                                    child: new Text(
+                                                        "\$" +
+                                                            reply["pending_payout_value"]
+                                                                .toString()
+                                                                .replaceFirst(
+                                                                    "SBD", ""),
+                                                        style: TextStyle(
+                                                            color: theme(
+                                                                    selectedTheme)[
+                                                                "accent"],
+                                                            fontSize: 12.0)),
                                                   ),
                                                 ],
                                               ),
@@ -831,7 +1012,11 @@ class VideoScreenState extends State<VideoScreen> {
                                 children: <Widget>[
                                   new Padding(
                                     padding: const EdgeInsets.all(16.0),
-                                    child: (reply["body"].toString()).length > 100 ? new HtmlText(data: linkify(reply["body"])) : new Container(),
+                                    child:
+                                        (reply["body"].toString()).length > 100
+                                            ? new HtmlText(
+                                                data: linkify(reply["body"]))
+                                            : new Container(),
                                   ),
                                   new Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
@@ -840,35 +1025,59 @@ class VideoScreenState extends State<VideoScreen> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: new IconButton(
                                             icon: const Icon(Icons.thumb_up),
-                                            color: upvoteColors[reply["permlink"]] ?? theme(selectedTheme)["accent"],
+                                            color: upvoteColors[
+                                                    reply["permlink"]] ??
+                                                theme(selectedTheme)["accent"],
                                             onPressed: () {
                                               print(reply["permlink"]);
-                                              if (downvoteColors[reply["permlink"]] != null) {
+                                              if (downvoteColors[
+                                                      reply["permlink"]] !=
+                                                  null) {
                                                 setState(() {
-                                                  downvoteColors.remove(reply["permlink"]);
+                                                  downvoteColors.remove(
+                                                      reply["permlink"]);
                                                 });
                                               }
                                               setState(() {
-                                                upvoteColors[reply["permlink"]] = theme(selectedTheme)["primary"];
+                                                upvoteColors[
+                                                        reply["permlink"]] =
+                                                    theme(selectedTheme)[
+                                                        "primary"];
                                               });
-                                              return voteDialog(true, reply["author"], reply["permlink"], contextListViewBuilder);
+                                              return voteDialog(
+                                                  true,
+                                                  reply["author"],
+                                                  reply["permlink"],
+                                                  contextListViewBuilder);
                                             }),
                                       ),
                                       new Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: new IconButton(
                                             icon: const Icon(Icons.thumb_down),
-                                            color: downvoteColors[reply["permlink"]] ?? theme(selectedTheme)["accent"],
+                                            color: downvoteColors[
+                                                    reply["permlink"]] ??
+                                                theme(selectedTheme)["accent"],
                                             onPressed: () {
-                                              if (upvoteColors[reply["permlink"]] != null) {
+                                              if (upvoteColors[
+                                                      reply["permlink"]] !=
+                                                  null) {
                                                 setState(() {
-                                                  upvoteColors.remove(reply["permlink"]);
+                                                  upvoteColors.remove(
+                                                      reply["permlink"]);
                                                 });
                                               }
                                               setState(() {
-                                                downvoteColors[reply["permlink"]] = theme(selectedTheme)["primary"];
+                                                downvoteColors[
+                                                        reply["permlink"]] =
+                                                    theme(selectedTheme)[
+                                                        "primary"];
                                               });
-                                              return voteDialog(false, reply["author"], reply["permlink"], contextListViewBuilder);
+                                              return voteDialog(
+                                                  false,
+                                                  reply["author"],
+                                                  reply["permlink"],
+                                                  contextListViewBuilder);
                                             }),
                                       ),
                                     ],
@@ -882,7 +1091,11 @@ class VideoScreenState extends State<VideoScreen> {
                                             color: theme(selectedTheme)["text"],
                                           )),
                                       onSubmitted: (comment) {
-                                        broadcastComment(contextListViewBuilder, reply["author"], reply["permlink"], comment);
+                                        broadcastComment(
+                                            contextListViewBuilder,
+                                            reply["author"],
+                                            reply["permlink"],
+                                            comment);
                                       },
                                     ),
                                   )
@@ -912,14 +1125,16 @@ class VideoScreenState extends State<VideoScreen> {
       context: contextListViewBuilder,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext contextDialog) {
-        return new StatefulBuilder(builder: (BuildContext contextStatefulBuilder, setState) {
+        return new StatefulBuilder(
+            builder: (BuildContext contextStatefulBuilder, setState) {
           return new AlertDialog(
             title: new Text('Select Upvoting power'),
             content: new SingleChildScrollView(
               child: new ListBody(
                 children: <Widget>[
                   new Padding(
-                    padding: const EdgeInsets.only(top: 50.0, left: 10.0, right: 10.0),
+                    padding: const EdgeInsets.only(
+                        top: 50.0, left: 10.0, right: 10.0),
                     child: new Slider(
                       activeColor: Colors.red,
                       onChanged: (e) {
@@ -941,14 +1156,19 @@ class VideoScreenState extends State<VideoScreen> {
               new FlatButton(
                 child: new Text('CLOSE'),
                 onPressed: () {
-                  Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
+                  Navigator
+                      .of(contextStatefulBuilder, rootNavigator: true)
+                      .pop(result);
                 },
               ),
               new FlatButton(
                 child: new Text(vote ? 'UPVOTE' : 'DOWNVOTE'),
                 onPressed: () {
-                  Navigator.of(contextStatefulBuilder, rootNavigator: true).pop(result);
-                  broadcastVote(contextStatefulBuilder, author, permlink, vote ? toInt(sliderValue) : toInt(sliderValue) * -1);
+                  Navigator
+                      .of(contextStatefulBuilder, rootNavigator: true)
+                      .pop(result);
+                  broadcastVote(contextStatefulBuilder, author, permlink,
+                      vote ? toInt(sliderValue) : toInt(sliderValue) * -1);
                 },
               ),
             ],
@@ -994,12 +1214,20 @@ setDownloadedFile(url, filename, directory, size) async {
 }
 
 downloadFile(var url, bool audio, contextListViewBuilder, title) async {
-  bool res = await Permissions.requestPermission(Permission.WriteExternalStorage);
-  print("permission request result is " + res.toString());
-  if (res) {
-    toast(contextListViewBuilder, "Downloading " + title.replaceAll(" ", "_") + ".mp4. You will be notified once it's done.");
+  PermissionStatus permission =
+      await PermissionHandler.checkPermissionStatus(PermissionGroup.storage);
+  //Map<PermissionGroup, PermissionStatus> permissions =
+  //    await PermissionHandler.requestPermissions([PermissionGroup.storage]);
+  print("permission request result is " + permission.toString());
+  if (true) {
+    toast(
+        contextListViewBuilder,
+        "Downloading " +
+            title.replaceAll(" ", "_") +
+            ".mp4. You will be notified once it's done.");
     final directory = await getExternalStorageDirectory();
-    String filename = title.replaceAll(" ", "_").replaceAll(".", "") + (audio ? ".mp3" : ".mp4");
+    String filename = title.replaceAll(" ", "_").replaceAll(".", "") +
+        (audio ? ".mp3" : ".mp4");
 
     url = "https://video.dtube.top/ipfs/" + url;
     print(url);
@@ -1007,14 +1235,16 @@ downloadFile(var url, bool audio, contextListViewBuilder, title) async {
         url: url,
         savedDir: directory.path + "/Download/",
         fileName: filename,
-        showNotification: true // show download progress in status bar (for Android)
+        showNotification:
+            true // show download progress in status bar (for Android)
         );
     var done = false;
     FlutterDownloader.registerCallback((id, status, progress) {
       if (progress == 100 && !done) {
         done = true;
         // save link to settings
-        setDownloadedFile(url, filename, directory, directory.path + "/Download/");
+        setDownloadedFile(
+            url, filename, directory, directory.path + "/Download/");
       }
     });
     /*Dio dio = new Dio();

@@ -58,27 +58,16 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.shoppingCart, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.shoppingCart,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Remove ads",
               style: TextStyle(color: theme(selectedTheme)["text"]),
             ),
             onTap: () async {
-              await analytics.logViewItem(itemId: "noads", itemName: "NoAds", itemCategory: "inapp");
+              await analytics.logViewItem(
+                  itemId: "noads", itemName: "NoAds", itemCategory: "inapp");
               if (Platform.isIOS) {
-                final bool billingEnabled = await FlutterPayments.billingEnabled;
-                final List<Product> getProducts = await FlutterPayments.getProducts(
-                  skus: <String>[
-                    'noads',
-                  ],
-                  type: ProductType.InApp,
-                );
-                List<Purchase> purchase = await FlutterPayments.purchase(
-                  sku: 'noads',
-                  type: ProductType.InApp,
-                );
-                final List<Purchase> purchaseHistory = await FlutterPayments.getPurchaseHistory(ProductType.InApp);
-                print('purchaseHistory: $purchaseHistory');
               } else {
                 final Billing billing = new Billing(onError: (e) {
                   return Scaffold.of(context)
@@ -91,7 +80,8 @@ class BuildSettingsState extends State<BuildSettings> {
                   saveData("no_ads", "true");
                   return Scaffold.of(context)
                     ..showSnackBar(new SnackBar(
-                      content: new Text("Thanks for supporting me! Ads will not show up again."),
+                      content: new Text(
+                          "Thanks for supporting me! Ads will not show up again."),
                     ));
                 } else {
                   final bool purchased = await billing.purchase('no_ads');
@@ -99,7 +89,8 @@ class BuildSettingsState extends State<BuildSettings> {
                     saveData("no_ads", "true");
                     return Scaffold.of(context)
                       ..showSnackBar(new SnackBar(
-                        content: new Text("Thanks for supporting me! Ads will not show up again."),
+                        content: new Text(
+                            "Thanks for supporting me! Ads will not show up again."),
                       ));
                   }
                 }
@@ -109,7 +100,8 @@ class BuildSettingsState extends State<BuildSettings> {
           new Divider(),
           Platform.isIOS
               ? new ListTile(
-                  leading: new Icon(FontAwesomeIcons.shoppingCart, color: theme(selectedTheme)["accent"]),
+                  leading: new Icon(FontAwesomeIcons.shoppingCart,
+                      color: theme(selectedTheme)["accent"]),
                   title: new Text(
                     "Restore purchase",
                     style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -122,12 +114,14 @@ class BuildSettingsState extends State<BuildSettings> {
                             content: new Text(e.toString()),
                           ));
                       });
-                      final bool purchased = await billing.isPurchased('no_ads');
+                      final bool purchased =
+                          await billing.isPurchased('no_ads');
                       if (purchased) {
                         saveData("noads", "true");
                         return Scaffold.of(context)
                           ..showSnackBar(new SnackBar(
-                            content: new Text("Thanks for supporting me! Ads will not show up again."),
+                            content: new Text(
+                                "Thanks for supporting me! Ads will not show up again."),
                           ));
                       } else {
                         final bool purchased = await billing.purchase('no_ads');
@@ -135,7 +129,8 @@ class BuildSettingsState extends State<BuildSettings> {
                           saveData("noads", "true");
                           return Scaffold.of(context)
                             ..showSnackBar(new SnackBar(
-                              content: new Text("Thanks for supporting me! Ads will not show up again."),
+                              content: new Text(
+                                  "Thanks for supporting me! Ads will not show up again."),
                             ));
                         }
                       }
@@ -146,12 +141,14 @@ class BuildSettingsState extends State<BuildSettings> {
                             content: new Text(e.toString()),
                           ));
                       });
-                      final bool purchased = await billing.isPurchased('no_ads');
+                      final bool purchased =
+                          await billing.isPurchased('no_ads');
                       if (purchased) {
                         saveData("no_ads", "true");
                         return Scaffold.of(context)
                           ..showSnackBar(new SnackBar(
-                            content: new Text("Thanks for supporting me! Ads will not show up again."),
+                            content: new Text(
+                                "Thanks for supporting me! Ads will not show up again."),
                           ));
                       } else {
                         final bool purchased = await billing.purchase('no_ads');
@@ -159,7 +156,8 @@ class BuildSettingsState extends State<BuildSettings> {
                           saveData("no_ads", "true");
                           return Scaffold.of(context)
                             ..showSnackBar(new SnackBar(
-                              content: new Text("Thanks for supporting me! Ads will not show up again."),
+                              content: new Text(
+                                  "Thanks for supporting me! Ads will not show up again."),
                             ));
                         }
                       }
@@ -175,7 +173,8 @@ class BuildSettingsState extends State<BuildSettings> {
             ),
           ),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.server, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.server,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Gateway",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -191,7 +190,8 @@ class BuildSettingsState extends State<BuildSettings> {
                       child: new ListBody(
                         children: <Widget>[
                           TextField(
-                            decoration: new InputDecoration(hintText: currentGateway),
+                            decoration:
+                                new InputDecoration(hintText: currentGateway),
                             onChanged: (e) {
                               _gateway = e;
                             },
@@ -221,7 +221,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.paintBrush, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.paintBrush,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Theme",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -231,7 +232,8 @@ class BuildSettingsState extends State<BuildSettings> {
                 context: context,
                 barrierDismissible: true, // user must tap button!
                 builder: (BuildContext context) {
-                  return new StatefulBuilder(builder: (BuildContext contextStatefulBuilder, setState) {
+                  return new StatefulBuilder(
+                      builder: (BuildContext contextStatefulBuilder, setState) {
                     return new AlertDialog(
                       title: new Text('Theme (Restart APP)'),
                       content: new DropdownButton<String>(
@@ -285,9 +287,11 @@ class BuildSettingsState extends State<BuildSettings> {
                         ],
                         onChanged: (String value) async {
                           setState(() => _value = value);
-                          analytics.logEvent(name: "theme", parameters: <String, dynamic>{
-                            "value": value,
-                          });
+                          analytics.logEvent(
+                              name: "theme",
+                              parameters: <String, dynamic>{
+                                "value": value,
+                              });
                           saveData("theme", value);
                         },
                       ),
@@ -306,7 +310,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.signOutAlt, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.signOutAlt,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Logout",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -318,7 +323,8 @@ class BuildSettingsState extends State<BuildSettings> {
                 user = null;
               });
               final snackBar = new SnackBar(
-                content: new Text('All user data has been cleared. You may need to restart the app.'),
+                content: new Text(
+                    'All user data has been cleared. You may need to restart the app.'),
               );
               Scaffold.of(context).showSnackBar(snackBar);
             },
@@ -332,7 +338,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.upload, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.upload,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Upload",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -343,7 +350,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.infoCircle, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.infoCircle,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "About",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -362,8 +370,9 @@ class BuildSettingsState extends State<BuildSettings> {
                               'can be connected and used with various open source video ' +
                               'projects. It is open source and available on. Feel free to ' +
                               'contribute.'),
-                          new Text('The distributor and developer of this app are in no way affiliated ' +
-                              'with the video project\'s company or developer.'),
+                          new Text(
+                              'The distributor and developer of this app are in no way affiliated ' +
+                                  'with the video project\'s company or developer.'),
                           new FlatButton(
                             onPressed: () {
                               launchURL("https://bostrot.pro/");
@@ -395,13 +404,15 @@ class BuildSettingsState extends State<BuildSettings> {
                           ),
                           new FlatButton(
                             onPressed: () {
-                              launchURL("https://github.com/rinukkusu/simple_moment");
+                              launchURL(
+                                  "https://github.com/rinukkusu/simple_moment");
                             },
                             child: new Text('\nsimple_moment'),
                           ),
                           new FlatButton(
                             onPressed: () {
-                              launchURL("https://github.com/flutter/plugins/tree/master/packages/video_player");
+                              launchURL(
+                                  "https://github.com/flutter/plugins/tree/master/packages/video_player");
                             },
                             child: new Text('\nvideo_player'),
                           ),
@@ -413,19 +424,22 @@ class BuildSettingsState extends State<BuildSettings> {
                           ),
                           new FlatButton(
                             onPressed: () {
-                              launchURL("https://github.com/flutter/plugins/tree/master/packages/url_launcher");
+                              launchURL(
+                                  "https://github.com/flutter/plugins/tree/master/packages/url_launcher");
                             },
                             child: new Text('\nurl_launcher'),
                           ),
                           new FlatButton(
                             onPressed: () {
-                              launchURL("https://github.com/flutter/plugins/tree/master/packages/shared_preferences");
+                              launchURL(
+                                  "https://github.com/flutter/plugins/tree/master/packages/shared_preferences");
                             },
                             child: new Text('\nshared_preferences'),
                           ),
                           new FlatButton(
                             onPressed: () {
-                              launchURL("https://pub.dartlang.org/packages/screen");
+                              launchURL(
+                                  "https://pub.dartlang.org/packages/screen");
                             },
                             child: new Text('\nscreen'),
                           ),
@@ -447,7 +461,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.userSecret, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.userSecret,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "Privacy Policy",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -465,7 +480,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.rss, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.rss,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "My Blog",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -476,7 +492,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.twitter, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.twitter,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "My Twitter",
               style: TextStyle(color: theme(selectedTheme)["text"]),
@@ -487,7 +504,8 @@ class BuildSettingsState extends State<BuildSettings> {
           ),
           new Divider(),
           new ListTile(
-            leading: new Icon(FontAwesomeIcons.newspaper, color: theme(selectedTheme)["accent"]),
+            leading: new Icon(FontAwesomeIcons.newspaper,
+                color: theme(selectedTheme)["accent"]),
             title: new Text(
               "My Newsletter",
               style: TextStyle(color: theme(selectedTheme)["text"]),

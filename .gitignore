@@ -10,6 +10,7 @@ google-services.json
 # Built application files
 *.apk
 *.ap_
+*.jks
 
 # Files for the ART/Dalvik VM
 *.dex
